@@ -13,9 +13,10 @@ import type { ReactNode } from 'react'
 import { Icon, Korean } from './shared'
 
 const sections = [
-  ['writing-system', 'Hangul and sound'], ['sentence', 'Sentence structure'],
+  ['writing-system', 'Hangul and sound'],
   ['nominals', 'Nominals and particles'], ['predicates', 'Predicates and endings'],
   ['modifiers', 'Modifiers and clauses'], ['conversation', 'Everyday usage'],
+  ['sentence', 'Sentence structure'],
 ]
 
 /** The letters occupying the initial, vowel, and optional final slots of a block. */
@@ -97,8 +98,6 @@ export function Intro() {
           <a className="text-button" href="#pronunciation">Practice Hangul and batchim <Icon name="arrow" size={15} /></a>
         </article>
 
-        <SentenceStructure />
-
         <article className="panel intro-panel">
           <h2 id="nominals" tabIndex={-1}>Nominals and particles</h2>
           <ExampleParts parts={[['Noun', '책'], ['Object particle', '을'], ['Result', '책을']]} meaning={<><Korean>책</Korean> means “book.” <Korean>을</Korean> marks it as the object.</>} />
@@ -167,6 +166,8 @@ export function Intro() {
           <ExampleParts parts={[['Statement', '학교에 가요.'], ['Question', '학교에 가요?']]} meaning="“I’m going to school.” / “Are you going to school?” Rising intonation can signal the question." />
           <a className="text-button" href="#listening">Practice listening and conversation <Icon name="arrow" size={15} /></a>
         </article>
+
+        <SentenceStructure />
       </div>
     </div>
   </div>

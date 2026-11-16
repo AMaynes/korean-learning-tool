@@ -29,9 +29,14 @@ function split(word: string) {
   return { head: word.slice(0, -1), initial: Math.floor(offset / (lastJa * vowelCount)), vowel: Math.floor(offset / lastJa) % vowelCount, final: offset % lastJa }
 }
 
+/** Compose a modern Hangul block from Unicode leading, vowel, and trailing indices. */
+export function composeHangul(initial: number, vowel: number, ending: number) {
+  return String.fromCharCode(HANGUL + (initial * vowelCount + vowel) * lastJa + ending)
+}
+
 /** Recompose a Hangul block without changing earlier syllables. */
 function block(parts: NonNullable<ReturnType<typeof split>>, vowel = parts.vowel, batchim = parts.final) {
-  return parts.head + String.fromCharCode(HANGUL + (parts.initial * vowelCount + vowel) * lastJa + batchim)
+  return parts.head + composeHangul(parts.initial, vowel, batchim)
 }
 
 /** Return the Unicode jongseong index, or null for a non-Hangul ending. */

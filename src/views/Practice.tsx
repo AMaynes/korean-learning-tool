@@ -15,7 +15,7 @@ import { generate, matchesAnswer, shuffle } from '../engine/exercises'
 import type { Exercise } from '../engine/exercises'
 import { addScore } from '../engine/storage'
 import type { PracticeMode, StudyState } from '../engine/storage'
-import { ActiveConfig, Empty, Icon, Korean, KoreanForm, Transform } from './shared'
+import { ActiveConfig, Empty, Icon, Korean, KoreanForm, koreanVoice, speakKorean, Transform } from './shared'
 import type { Save, SelectList } from './shared'
 
 const grammarModes = ['particles', 'conjugations', 'assembly', 'writing'] as const
@@ -243,7 +243,7 @@ function AudioControls({ phrase }: { phrase: string }) {
   const [audioError, setAudioError] = useState('')
   useEffect(() => {
     if (!('speechSynthesis' in window)) return
-    function refresh() { setHasKorean(speechSynthesis.getVoices().some(voice => /^ko(?:[-_]|$)/i.test(voice.lang))) }
+    function refresh() { setHasKorean(Boolean(koreanVoice())) }
     refresh()
     speechSynthesis.addEventListener('voiceschanged', refresh)
     return () => { speechSynthesis.removeEventListener('voiceschanged', refresh); speechSynthesis.cancel() }
@@ -251,22 +251,13 @@ function AudioControls({ phrase }: { phrase: string }) {
 
   /** Choose a Korean voice at playback time because devices can load voices asynchronously. */
   function speak() {
-    const voice = window.speechSynthesis?.getVoices().find(item => /^ko(?:[-_]|$)/i.test(item.lang))
-    if (!voice) { setAudioError('Install a Korean system voice or reveal the transcript to continue.'); return }
-    window.speechSynthesis.cancel()
-    const utterance = new SpeechSynthesisUtterance(phrase)
-    utterance.lang = 'ko-KR'
-    utterance.voice = voice
-    utterance.rate = rate
-    utterance.onend = () => setPlaying(false)
-    utterance.onerror = event => {
-      if (event.error !== 'interrupted' && event.error !== 'canceled') {
-        setPlaying(false); setAudioError('Playback failed. Try again or use the transcript.')
-      }
-    }
     setAudioError('')
-    setPlaying(true)
-    window.speechSynthesis.speak(utterance)
+    const started = speakKorean(phrase, rate, () => setPlaying(false), () => {
+      setPlaying(false)
+      setAudioError('Playback failed. Try again or use the transcript.')
+    })
+    setPlaying(started)
+    if (!started) setAudioError('Install a Korean system voice or reveal the transcript to continue.')
   }
 
   return <div className="audio-controls">

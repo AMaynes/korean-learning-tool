@@ -18,6 +18,7 @@ import type { StudyState } from '../engine/storage'
 import { Intro } from './Intro'
 import { Library } from './Library'
 import { Practice } from './Practice'
+import { Pronunciation } from './Pronunciation'
 import { Recall } from './Recall'
 import { Settings } from './Settings'
 import { Icon, Korean } from './shared'
@@ -28,6 +29,7 @@ const studyNav = [
   ['recall', 'Vocabulary Recall', 'cards'],
   ['grammar', 'Grammar Trainer', 'grammar'],
   ['listening', 'Listening & Conversation', 'sound'],
+  ['pronunciation', 'Pronunciation', 'letters'],
 ] as const
 
 /** Keep static hosting compatible with direct links and default to the recall tool. */
@@ -124,8 +126,9 @@ export function App() {
       </aside>}
       <main id="main" ref={heading} tabIndex={-1} className="main">
         {notice && <p className="status-message" role="status">{notice}</p>}
-        {!state && view !== 'intro' && <p role="status">Loading your study workspace…</p>}
+        {!state && view !== 'intro' && view !== 'pronunciation' && <p role="status">Loading your study workspace…</p>}
         {view === 'intro' && <Intro />}
+        {view === 'pronunciation' && <Pronunciation />}
         {state && view === 'settings' && <Settings state={state} lists={lists} active={active}
           onSelect={onSelect} save={save} invalidate={() => setRevision(value => value + 1)} />}
         {state && view === 'recall' && <Recall key={revision} category={category} setCategory={setCategory} deck={active[category]}
@@ -134,7 +137,7 @@ export function App() {
           lists={lists} onSelect={onSelect} />}
         {state && (view === 'grammar' || view === 'listening') && <Practice key={view + revision}
           module={view} active={active} lists={lists} state={state} onSelect={onSelect} save={save} />}
-        <footer className="footer"><span><Korean>한국어 연습</Korean></span><span>{toolActive ? `Active ${categories[category].toLowerCase()} · ${active[category].name}` : 'Korean Learning Tool'}</span></footer>
+        <footer className="footer"><span><Korean>한국어 연습</Korean></span><span>{toolActive && view !== 'pronunciation' ? `Active ${categories[category].toLowerCase()} · ${active[category].name}` : 'Korean Learning Tool'}</span></footer>
       </main>
     </div>
   </>

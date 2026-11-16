@@ -84,6 +84,18 @@ describe('deployed study workflow', { concurrency: false }, () => {
     await page.getByRole('link', { name: 'Intro', exact: true }).click()
     await heading(page, 'How Korean works')
     await heading(page, 'Nominals and particles')
+    assert.equal(await page.getByRole('figure', { name: /^Syllable / }).count(), 6)
+    const stacked = page.getByRole('figure', { name: 'Syllable 몫, vowel below' })
+    const positions = await stacked.evaluate(card => [...card.querySelector('.syllable-block').children].map(slot => {
+      const box = slot.getBoundingClientRect()
+      return { x: box.x, y: box.y }
+    }))
+    assert.ok(positions[0].y < positions[1].y && positions[1].y < positions[2].y)
+    assert.ok(positions[2].x < positions[3].x && positions[2].y === positions[3].y)
+    await page.getByRole('button', { name: 'Nominals and particles', exact: true }).click()
+    assert.equal(await page.evaluate(() => document.activeElement?.id), 'nominals')
+    await page.getByText('커피 + 를 → 커피를', { exact: true }).waitFor()
+    await page.setViewportSize({ width: 320, height: 760 })
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true)
     await page.reload()
     await heading(page, 'How Korean works')
@@ -201,6 +213,52 @@ describe('deployed study workflow', { concurrency: false }, () => {
     await reopened.getByText('In practice', { exact: true }).waitFor()
     assert.match(await reopened.locator('.stats').innerText(), /In practice\s+1/)
     await reopened.close()
+  })
+
+  it('plays a pronunciation card before offering Y or N and advances after rating', async () => {
+    const page = await browser.newPage()
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.addInitScript(() => {
+      Object.defineProperty(window, 'SpeechSynthesisUtterance', {
+        value: class { constructor(text) { this.text = text } },
+      })
+      Object.defineProperties(window.speechSynthesis, {
+        getVoices: { value: () => [{ lang: 'ko-KR' }] },
+        speak: { value: utterance => {
+          window.lastPronunciation = utterance.text
+          queueMicrotask(() => utterance.onend())
+        } },
+        cancel: { value: () => {} },
+      })
+    })
+    await page.goto(projectPage)
+    await page.getByRole('link', { name: 'Pronunciation', exact: true }).click()
+    await heading(page, 'Pronunciation')
+    const letter = page.getByRole('region', { name: 'Hangul practice' }).getByRole('heading')
+    const letterPrompt = await letter.textContent()
+    assert.match(letterPrompt, /^[ㄱ-ㅣ]$/u)
+    assert.equal(await page.getByText('Did you get it correct?').count(), 0)
+    await page.getByRole('button', { name: 'Play sound' }).click()
+    await page.getByText('Did you get it correct?').waitFor()
+    assert.match(await page.evaluate(() => window.lastPronunciation), /^[가-힣]$/u)
+    await page.getByRole('button', { name: 'Y', exact: true }).click()
+    await page.getByText('1 / 1 correct', { exact: true }).waitFor()
+    assert.notEqual(await letter.textContent(), letterPrompt)
+
+    await page.getByRole('button', { name: 'Batchim', exact: true }).click()
+    await page.getByText('10,773 syllables.', { exact: false }).waitFor()
+    const block = page.getByRole('region', { name: 'Batchim practice' }).getByRole('heading')
+    const written = await block.textContent()
+    assert.ok((written.charCodeAt(0) - 0xac00) % 28 > 0)
+    await page.getByRole('button', { name: 'Play sound' }).click()
+    await page.getByText('Did you get it correct?').waitFor()
+    const spoken = await page.evaluate(() => window.lastPronunciation)
+    assert.ok([1, 4, 7, 8, 16, 17, 21].includes((spoken.charCodeAt(0) - 0xac00) % 28))
+    await page.getByRole('button', { name: 'N', exact: true }).click()
+    await page.getByText('0 / 1 correct', { exact: true }).waitFor()
+    assert.notEqual(await block.textContent(), written)
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true)
+    await page.close()
   })
 
   it('keeps dictation hidden, handles unavailable audio, and offers guided answers', async () => {

@@ -1,14 +1,15 @@
 /**
- * Overview & Purpose: Explain the Korean language system with worked examples.
+ * Overview & Purpose: Teach the Korean language system through diagrams and worked examples.
  *
  * Architectural Relationships: Linked from the tool shell and back to practice modules.
  *
- * External Resources: Konkuk University beginner grammar and the Sejong teaching guide.
+ * External Resources: HRD Korea Hangeul textbook and National Institute of Korean Language.
  *
- * Notes: Examples use Hangul and English explanations.
+ * Notes: Hangul diagrams distinguish written letters from speech sounds.
  */
 
 
+import type { ReactNode } from 'react'
 import { Icon, Korean } from './shared'
 
 const sections = [
@@ -17,12 +18,27 @@ const sections = [
   ['modifiers', 'Modifiers and clauses'], ['conversation', 'Everyday usage'],
 ]
 
+/** The letters occupying the initial, vowel, and optional final slots of a block. */
+type Syllable = readonly [initial: string, vowel: string, result: string, endings?: readonly string[]]
+
+const syllablePatterns = [
+  { pattern: 'CV', ending: 'No final consonant', right: ['ㄱ', 'ㅏ', '가'], below: ['ㄱ', 'ㅗ', '고'] },
+  { pattern: 'CVC', ending: 'One final consonant', right: ['ㄱ', 'ㅏ', '감', ['ㅁ']], below: ['ㄱ', 'ㅗ', '곰', ['ㅁ']] },
+  { pattern: 'CVCC', ending: 'Two final consonant letters', right: ['ㄱ', 'ㅏ', '값', ['ㅂ', 'ㅅ']], below: ['ㅁ', 'ㅗ', '몫', ['ㄱ', 'ㅅ']] },
+] as const satisfies readonly { pattern: string; ending: string; right: Syllable; below: Syllable }[]
+
+const coreParticles = [
+  { role: 'Topic', pattern: '은 / 는', meaning: 'What you’re talking about', consonant: '밥 + 은 → 밥은', vowel: '저 + 는 → 저는' },
+  { role: 'Subject', pattern: '이 / 가', meaning: 'Who or what does or is something', consonant: '집 + 이 → 집이', vowel: '친구 + 가 → 친구가' },
+  { role: 'Object', pattern: '을 / 를', meaning: 'What the action affects', consonant: '책 + 을 → 책을', vowel: '커피 + 를 → 커피를' },
+] as const
+
 /** Teach the system from syllable construction through conversational usage. */
 export function Intro() {
   return <div className="intro">
     <div className="section-heading"><div>
       <h1>How Korean works</h1>
-      <p>Start with the building blocks, then follow a sentence from the first word to the final ending.</p>
+      <p>Build a syllable, then see how words fit together in a sentence.</p>
     </div><a className="button primary" href="#recall">Go to practice <Icon name="arrow" /></a></div>
 
     <div className="intro-layout">
@@ -38,81 +54,150 @@ export function Intro() {
       <div className="intro-content">
         <article className="panel intro-panel">
           <h2 id="writing-system" tabIndex={-1}>Hangul and sound</h2>
-          <p>A written syllable block combines an initial consonant, a vowel, and sometimes a final consonant called <Korean>받침</Korean> (batchim). A vowel-starting syllable uses silent <Korean>ㅇ</Korean> as its initial placeholder. Final <Korean>ㅇ</Korean> has a nasal sound.</p>
-          <div className="system-example"><Korean>ㄱ + ㅏ → 가</Korean><Korean>ㅁ + ㅜ + ㄹ → 물</Korean><Korean>ㅇ + ㅏ → 아</Korean></div>
-          <p>Read the blocks in order, then learn how neighboring sounds interact. In <Korean>밥을</Korean>, the final <Korean>ㅂ</Korean> carries into the vowel-starting particle, so the phrase sounds like <Korean>바블</Korean>. The spelling keeps the original noun and particle visible.</p>
-          <p><Korean>ㄹ</Korean> is usually a quick tongue tap between vowels, as in <Korean>사람</Korean>. It sounds closer to English “l” at the end of a syllable or in a double <Korean>ㄹ</Korean>, as in <Korean>물</Korean> and <Korean>빨리</Korean>.</p>
+          <div className="syllable-legend">
+            <span><strong>C</strong> Consonant letter</span>
+            <span><strong>V</strong> Vowel letter</span>
+          </div>
+          <p>Each Hangul block is one syllable. The starting consonant comes first. Any final consonants (<Korean>받침</Korean>) go at the bottom.</p>
+
+          <div className="syllable-matrix">
+            <div className="syllable-pair syllable-columns">
+              <div>Vertical vowel <Korean>ㅏ</Korean><small>Goes on the right</small></div>
+              <div>Horizontal vowel <Korean>ㅗ</Korean><small>Goes below</small></div>
+            </div>
+            {syllablePatterns.map(({ pattern, ending, right, below }) => <section key={pattern} className="syllable-pattern">
+              <h3><strong>{pattern}</strong> <span>{ending}</span></h3>
+              <div className="syllable-pair">
+                <SyllableBlock letters={right} position="right" />
+                <SyllableBlock letters={below} position="below" />
+              </div>
+            </section>)}
+          </div>
+
+          <h3>How the spelling sounds</h3>
+          <div className="table-wrap intro-table"><table aria-label="Hangul spelling and sound examples">
+            <thead><tr><th scope="col">Example</th><th scope="col">What to notice</th></tr></thead>
+            <tbody>
+              <tr><th scope="row"><Korean>ㅇ + ㅏ → 아</Korean></th><td>Initial <Korean>ㅇ</Korean> is silent. Final <Korean>ㅇ</Korean> sounds like “ng,” as in <Korean>공</Korean>.</td></tr>
+              <tr><th scope="row"><Korean>ㄱ + ㅘ → 과</Korean></th><td><Korean>ㅘ</Korean> is one vowel that extends below and to the right.</td></tr>
+              <tr><th scope="row"><Korean>값 → [갑]</Korean></th><td>Two final letters can be pronounced as one consonant. Said on its own, <Korean>값</Korean> ends in the <Korean>ㅂ</Korean> sound.</td></tr>
+              <tr><th scope="row"><Korean>밥을 → [바블]</Korean></th><td>The final <Korean>ㅂ</Korean> carries into the vowel that follows it.</td></tr>
+              <tr><th scope="row"><Korean>사람 / 물</Korean></th><td><Korean>ㄹ</Korean> taps between vowels in <Korean>사람</Korean> and sounds closer to “l” at the end of <Korean>물</Korean>.</td></tr>
+            </tbody>
+          </table></div>
+          <a className="text-button" href="#pronunciation">Practice Hangul and batchim <Icon name="arrow" size={15} /></a>
         </article>
 
         <article className="panel intro-panel">
           <h2 id="sentence" tabIndex={-1}>Sentence structure</h2>
-          <p>Start with the predicate you need. Add the people, things, time, and place that the listener needs to understand it. In a simple statement the predicate comes last.</p>
-          <div className="sentence-diagram" aria-label="I eat food, broken into grammatical parts">
-            <div><small>Topic</small><strong><Korean>저는</Korean></strong><span>I / as for me</span></div>
-            <div><small>Object</small><strong><Korean>음식을</Korean></strong><span>food</span></div>
-            <div><small>Predicate</small><strong><Korean>먹어요</Korean></strong><span>eat (polite)</span></div>
+          <ExampleParts parts={[['Topic', '저는'], ['Object', '음식을'], ['Predicate', '먹어요.']]} meaning="I eat food." />
+          <ExampleParts parts={[['Time', '오늘'], ['Topic', '저는'], ['Place', '집에서'], ['Object', '밥을'], ['Predicate', '먹어요.']]} meaning="Today I’m eating at home." />
+          <p>The predicate usually comes last. The earlier parts can move or be left out when context supplies them.</p>
+          <div className="intro-pairs">
+            <ExampleParts parts={[['Object', '음식을'], ['Predicate', '먹어요.']]} meaning="I eat food. The speaker is understood." />
+            <ExampleParts parts={[['Subject', '음식이'], ['Description', '맛있어요.']]} meaning="The food is delicious." />
           </div>
-          <p><Korean>저는 음식을 먹어요.</Korean> means “I eat food.” A fuller practical frame is <strong>[time] + [topic or subject] + [place] + [object] + [predicate]</strong>. Particles and context allow some reordering. <Korean>음식을 먹어요.</Korean> works when the speaker is already understood.</p>
-          <p>With an adjective predicate, the description can end the sentence by itself. <Korean>음식이 맛있어요.</Korean> means “The food is delicious.”</p>
           <a className="text-button" href="#grammar">Practice sentence structure <Icon name="arrow" size={15} /></a>
         </article>
 
         <article className="panel intro-panel">
           <h2 id="nominals" tabIndex={-1}>Nominals and particles</h2>
-          <p>A nominal can be a noun, a pronoun, or a whole phrase acting like a noun. Particles attach directly to that phrase and show its role. Many particle pairs use one form after a consonant and another after a vowel.</p>
-          <div className="table-wrap"><table>
-            <thead><tr><th scope="col">Role</th><th scope="col">Original + particle</th><th scope="col">Use</th></tr></thead>
+          <ExampleParts parts={[['Noun', '책'], ['Object particle', '을'], ['Result', '책을']]} meaning={<><Korean>책</Korean> means “book.” <Korean>을</Korean> marks it as the object.</>} />
+          <p>Particles attach to nouns or pronouns. Check the last block for a final consonant before choosing the particle form.</p>
+          <div className="table-wrap intro-table"><table aria-label="Particle forms after consonants and vowels">
+            <thead><tr><th scope="col">Role</th><th scope="col">After consonant</th><th scope="col">After vowel</th></tr></thead>
+            <tbody>{coreParticles.map(({ role, pattern, meaning, consonant, vowel }) => <tr key={role}>
+              <th scope="row">{role} <Korean>{pattern}</Korean><small>{meaning}</small></th>
+              <td><Korean>{consonant}</Korean></td>
+              <td><Korean>{vowel}</Korean></td>
+            </tr>)}</tbody>
+          </table></div>
+          <div className="table-wrap intro-table"><table aria-label="Particles for place, time, and possession">
+            <thead><tr><th scope="col">Use</th><th scope="col">Example</th><th scope="col">Meaning</th></tr></thead>
             <tbody>
-              <tr><th scope="row">Topic</th><td><Korean>저 + 는 → 저는</Korean></td><td>Sets the topic or highlights a contrast.</td></tr>
-              <tr><th scope="row">Subject</th><td><Korean>집 + 이 → 집이</Korean><br/><Korean>친구 + 가 → 친구가</Korean></td><td>Identifies who acts or what has a quality.</td></tr>
-              <tr><th scope="row">Object</th><td><Korean>음식 + 을 → 음식을</Korean><br/><Korean>친구 + 를 → 친구를</Korean></td><td>Marks what the action directly affects.</td></tr>
-              <tr><th scope="row">Relation</th><td><Korean>친구 + 의 → 친구의</Korean></td><td>Marks possession or another relation, as in <Korean>친구의 집</Korean>.</td></tr>
-              <tr><th scope="row">Place or time</th><td><Korean>학교 + 에 → 학교에</Korean><br/><Korean>학교 + 에서 → 학교에서</Korean></td><td><Korean>에</Korean> can mark a destination or time. <Korean>에서</Korean> can mark where an action happens.</td></tr>
+              <tr><th scope="row">Destination <Korean>에</Korean></th><td><Korean>학교에 가요.</Korean></td><td>I’m going to school.</td></tr>
+              <tr><th scope="row">Action location <Korean>에서</Korean></th><td><Korean>학교에서 공부해요.</Korean></td><td>I study at school.</td></tr>
+              <tr><th scope="row">Time <Korean>에</Korean></th><td><Korean>세 시에 만나요.</Korean></td><td>Let’s meet at three.</td></tr>
+              <tr><th scope="row">Possession <Korean>의</Korean></th><td><Korean>친구의 집</Korean></td><td>A friend’s house.</td></tr>
             </tbody>
           </table></div>
-          <p>Try <Korean>누가 와요?</Korean> (“Who’s coming?”) and <Korean>친구가 와요.</Korean> (“My friend is coming.”). In <Korean>친구는 와요.</Korean>, the friend is the topic. Depending on context, it can imply the friend is coming and someone else may be staying home.</p>
-          <p>Some pronouns change shape with <Korean>가</Korean>. <Korean>저 + 가 → 제가</Korean> and <Korean>너 + 가 → 네가</Korean> are common examples.</p>
+          <p>Some pronouns change with <Korean>가</Korean>. <Korean>저 + 가 → 제가</Korean> and <Korean>누구 + 가 → 누가</Korean>.</p>
           <a className="text-button" href="#grammar">Practice particles <Icon name="arrow" size={15} /></a>
         </article>
 
         <article className="panel intro-panel">
           <h2 id="predicates" tabIndex={-1}>Predicates and endings</h2>
-          <p>Action verbs and descriptive predicates both have dictionary forms ending in <Korean>다</Korean>. Remove that <Korean>다</Korean> to find the stem. The ending expresses tense, politeness, a relationship to the next clause, or the predicate’s role.</p>
-          <div className="table-wrap"><table>
-            <thead><tr><th scope="col">Dictionary form</th><th scope="col">Transformation</th><th scope="col">Use</th></tr></thead>
+          <ExampleParts parts={[['Dictionary form', '먹다'], ['Stem', '먹'], ['Stem + ending', '먹어요']]} meaning={<>Remove <Korean>다</Korean> to find the stem. <Korean>먹 + 어요</Korean> makes the polite present.</>} />
+          <div className="table-wrap intro-table"><table aria-label="Predicate ending examples">
+            <thead><tr><th scope="col">Change</th><th scope="col">Example</th><th scope="col">Meaning</th></tr></thead>
             <tbody>
-              <tr><td><Korean>먹다</Korean> · eat</td><td><Korean>먹 + 어요 → 먹어요</Korean></td><td>Present polite.</td></tr>
-              <tr><td><Korean>먹다</Korean> · eat</td><td><Korean>먹 + 었어요 → 먹었어요</Korean></td><td>Past polite.</td></tr>
-              <tr><td><Korean>가다</Korean> · go</td><td><Korean>가 + 아요 → 가요</Korean></td><td>The vowels contract.</td></tr>
-              <tr><td><Korean>어렵다</Korean> · difficult</td><td><Korean>어렵다 → 어려워요</Korean></td><td>The <Korean>ㅂ</Korean> in this stem changes before a vowel ending.</td></tr>
-              <tr><td><Korean>먹다</Korean> · eat</td><td><Korean>먹 + 고 + 싶어요 → 먹고 싶어요</Korean></td><td>The auxiliary expresses desire and carries the polite ending.</td></tr>
+              <tr><th scope="row">Past ending</th><td><Korean>먹 + 었어요 → 먹었어요</Korean></td><td>Ate.</td></tr>
+              <tr><th scope="row">Vowel contraction</th><td><Korean>가 + 아요 → 가요</Korean></td><td>Go.</td></tr>
+              <tr><th scope="row">Irregular stem</th><td><Korean>어렵다 → 어려워요</Korean></td><td>It’s difficult.</td></tr>
+              <tr><th scope="row">Auxiliary</th><td><Korean>먹 + 고 싶어요 → 먹고 싶어요</Korean></td><td>I want to eat.</td></tr>
             </tbody>
           </table></div>
-          <p>Some endings attach directly, while others use a vowel or batchim rule, and some trigger a stem change. Compare <Korean>걷다 → 걸어요</Korean> with <Korean>받다 → 받아요</Korean>. Memorize each irregular as part of that verb’s entry.</p>
-          <p>For “is a noun,” use the copula <Korean>이다</Korean>. In polite speech, use <Korean>이에요</Korean> after a consonant (<Korean>학생이에요</Korean>) and <Korean>예요</Korean> after a vowel (<Korean>친구예요</Korean>). <Korean>있어요</Korean> and <Korean>없어요</Korean> express existence or possession.</p>
+          <div className="intro-pairs">
+            <ExampleParts parts={[['Consonant ending', '학생이에요.'], ['Vowel ending', '친구예요.']]} meaning="“Is a student” and “is a friend.”" />
+            <ExampleParts parts={[['Exists / have', '물이 있어요.'], ['Missing / don’t have', '물이 없어요.']]} meaning="“There’s water” and “there’s no water.”" />
+          </div>
         </article>
 
         <article className="panel intro-panel">
           <h2 id="modifiers" tabIndex={-1}>Modifiers and clauses</h2>
-          <p>Put a describing word or clause before the noun it modifies. Put a time, frequency, or manner word before the action it describes.</p>
-          <ul className="examples-list">
-            <li><Korean>예쁘다 → 예쁜 집</Korean><span>A pretty house. The descriptive predicate takes a noun modifier ending.</span></li>
-            <li><Korean>먹다 → 먹는 사람</Korean><span>A person who is eating. The action clause sits before the noun.</span></li>
-            <li><Korean>빨리 먹어요.</Korean><span>Eat quickly. The adverb tells you how the action happens.</span></li>
-            <li><Korean>먹고 가요.</Korean><span>Eat and then go. <Korean>-고</Korean> links the first action to the final predicate.</span></li>
-            <li><Korean>먹기 전에</Korean><span>Before eating. <Korean>-기</Korean> lets the action function like a noun.</span></li>
-          </ul>
+          <div className="intro-pairs">
+            <ExampleParts parts={[['Description', '예쁜'], ['Noun', '집']]} meaning={<>A pretty house. <Korean>예쁘다 → 예쁜</Korean> before a noun.</>} />
+            <ExampleParts parts={[['Action clause', '먹는'], ['Noun', '사람']]} meaning={<>A person eating. <Korean>먹다 → 먹는</Korean> before a noun.</>} />
+            <ExampleParts parts={[['Manner', '빨리'], ['Action', '먹어요.']]} meaning="Eat quickly. The adverb comes before the action." />
+            <ExampleParts parts={[['Linked action', '먹고'], ['Final action', '가요.']]} meaning={<>Eat and then go. <Korean>-고</Korean> links the two actions.</>} />
+          </div>
+          <p><Korean>먹다 → 먹기 → 먹기 전에</Korean> means “eat → eating → before eating.” <Korean>-기</Korean> lets an action work like a noun.</p>
         </article>
 
         <article className="panel intro-panel">
           <h2 id="conversation" tabIndex={-1}>Everyday usage</h2>
-          <p>Use the polite <Korean>요</Korean> style as a starting point with strangers and in routine situations. Formal <Korean>습니다/ㅂ니다</Korean> suits introductions, public settings, and some workplaces. Casual speech fits relationships where it is established.</p>
-          <p>Honorifics show respect to the person being discussed. Speech style shows how you address the listener. In <Korean>선생님께서 오세요.</Korean>, <Korean>께서</Korean> and <Korean>-시-</Korean> honor the teacher, and <Korean>요</Korean> marks polite speech toward the listener.</p>
-          <p>Names and titles often stand in for “you.” <Korean>너</Korean> is informal. A question can use the same polite form as a statement with context and rising intonation. <Korean>학교에 가요?</Korean> can mean “Are you going to school?”</p>
-          <p>For a useful practice sequence, build one sentence in Hangul, explain each particle and ending, then listen to it and say it aloud.</p>
+          <div className="table-wrap intro-table"><table aria-label="Speech style examples">
+            <thead><tr><th scope="col">Style</th><th scope="col">“I’m going”</th><th scope="col">When to use it</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Polite</th><td><Korean>가요.</Korean></td><td>Everyday default with strangers.</td></tr>
+              <tr><th scope="row">Formal</th><td><Korean>갑니다.</Korean></td><td>Formal introductions and public settings.</td></tr>
+              <tr><th scope="row">Casual</th><td><Korean>가.</Korean></td><td>Close relationships where casual speech is established.</td></tr>
+            </tbody>
+          </table></div>
+          <ExampleParts parts={[['Honored subject', '선생님께서'], ['Honorific verb + polite ending', '오세요.']]} meaning={<>“The teacher is coming.” <Korean>께서</Korean> and <Korean>-시-</Korean> honor the teacher. <Korean>요</Korean> shows politeness toward the listener.</>} />
+          <ExampleParts parts={[['Statement', '학교에 가요.'], ['Question', '학교에 가요?']]} meaning="“I’m going to school.” / “Are you going to school?” Rising intonation can signal the question." />
           <a className="text-button" href="#listening">Practice listening and conversation <Icon name="arrow" size={15} /></a>
         </article>
       </div>
     </div>
   </div>
+}
+
+/** Match the shape of the written slots and show their assembled Hangul block. */
+function SyllableBlock({ letters: [initial, vowel, result, endings = []], position }: {
+  letters: Syllable; position: 'right' | 'below'
+}) {
+  return <figure className="syllable-card" aria-label={`Syllable ${result}, vowel ${position === 'right' ? 'on the right' : 'below'}`}>
+    <div className={`syllable-block syllable-vowel-${position}`}>
+      <span className="syllable-initial"><small>C</small><Korean>{initial}</Korean></span>
+      <span className="syllable-vowel"><small>V</small><Korean>{vowel}</Korean></span>
+      {endings.map(letter => <span key={letter} className={endings.length === 1 ? 'syllable-final-wide' : undefined}>
+        <small>C</small><Korean>{letter}</Korean>
+      </span>)}
+    </div>
+    <span aria-hidden="true" className="syllable-arrow">→</span>
+    <strong className="syllable-result"><Korean>{result}</Korean></strong>
+  </figure>
+}
+
+/** Keep labeled Korean chunks in reading order and pair them with a full gloss. */
+function ExampleParts({ parts, meaning }: {
+  parts: readonly (readonly [label: string, korean: string])[]; meaning: ReactNode
+}) {
+  return <figure className="intro-example">
+    <dl className="intro-parts">
+      {parts.map(([label, korean]) => <div key={label}><dt>{label}</dt><dd><Korean>{korean}</Korean></dd></div>)}
+    </dl>
+    <figcaption>{meaning}</figcaption>
+  </figure>
 }

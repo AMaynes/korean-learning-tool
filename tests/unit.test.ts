@@ -13,8 +13,9 @@ import { describe, expect, it } from 'vitest'
 import { conjugationRules, particleRules } from '../src/data/grammar'
 import type { WordClass } from '../src/data/model'
 import { generate, matchesAnswer } from '../src/engine/exercises'
-import { attach, conjugate } from '../src/engine/korean'
+import { attach, batchim, conjugate } from '../src/engine/korean'
 import { emptyDeck, finishRecall, markRecallFailure, nextRecall } from '../src/engine/mastery'
+import { batchimCard, batchimCardCount, letterCards } from '../src/engine/pronunciation'
 import { activeLists, builtInLists, defaultSelection, entryRule } from '../src/engine/registry'
 import { addScore, defaults, importBackup } from '../src/engine/storage'
 
@@ -45,6 +46,26 @@ describe('vocabulary registry', () => {
         }))
       }
     }
+  })
+})
+
+describe('pronunciation decks', () => {
+  it('covers every modern consonant and vowel and uses a carrier for initials', () => {
+    expect(new Set(letterCards.map(card => card.prompt)).size).toBe(40)
+    expect(letterCards).toContainEqual({ prompt: 'ㄱ', sound: '그', silent: false })
+    expect(letterCards).toContainEqual({ prompt: 'ㅇ', sound: '으', silent: true })
+    expect(letterCards).toContainEqual({ prompt: 'ㅘ', sound: '와' })
+  })
+
+  it('includes every modern written batchim syllable exactly once', () => {
+    const cards = Array.from({ length: batchimCardCount }, (_, index) => batchimCard(index))
+    expect(new Set(cards.map(card => card.prompt)).size).toBe(10_773)
+    expect(new Set(cards.map(card => batchim(card.prompt))).size).toBe(27)
+    expect(new Set(cards.map(card => batchim(card.sound)))).toEqual(new Set([1, 4, 7, 8, 16, 17, 21]))
+    const sounds = Object.fromEntries(cards.map(card => [card.prompt, card.sound]))
+    expect(sounds).toMatchObject({
+      값: '갑', 몫: '목', 닭: '닥', 삶: '삼', 넓: '널', 싫: '실', 갔: '갇', 흰: '힌',
+    })
   })
 })
 

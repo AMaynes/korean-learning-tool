@@ -1,9 +1,9 @@
 /**
- * Overview & Purpose: Share vocabulary selectors, accessible study controls, and file actions.
+ * Overview & Purpose: Share vocabulary selectors, accessible study controls, speech, and file actions.
  *
  * Architectural Relationships: Used by the tool shell and practice views.
  *
- * External Resources: Browser file input and download APIs.
+ * External Resources: Browser speech synthesis, file input, and download APIs.
  *
  * Notes: User-supplied strings render as React text.
  */
@@ -17,13 +17,14 @@ import type { StudyState } from '../engine/storage'
 
 export type Save = (change: (state: StudyState) => StudyState) => Promise<boolean>
 export type SelectList = (category: Category, id: string) => void
-export type View = 'recall' | 'library' | 'grammar' | 'listening' | 'intro' | 'settings'
+export type View = 'recall' | 'library' | 'grammar' | 'listening' | 'pronunciation' | 'intro' | 'settings'
 
 const iconPaths = {
   grid: 'M3 3h7v7H3zm11 0h7v7h-7zM3 14h7v7H3zm11 0h7v7h-7z',
   book: 'M4 5a2 2 0 0 1 2-2h14v17H6a2 2 0 0 1 0-4h14M4 5v13m4-11h8m-8 4h5',
   cards: 'M6 7h13a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Zm2-4h10M8 12h9m-9 4h5',
   grammar: 'M5 6h14M12 6v5m-6 7H4v-5h5v5H6Zm12 0h-2v-5h5v5h-3Zm-12-5v-2h12v2',
+  letters: 'M4 8h12M10 4v4m4 6a4 4 0 1 1-8 0 4 4 0 0 1 8 0Zm5-10v16',
   sound: 'M3 9h4l5-4v14l-5-4H3zM16 9a4 4 0 0 1 0 6m3-9a8 8 0 0 1 0 12',
   settings: 'M4 7h16M4 17h16M9 4v6m6 4v6',
   arrow: 'M4 12h15m-6-6 6 6-6 6',
@@ -43,6 +44,28 @@ export function Icon({ name, size = 18 }: { name: keyof typeof iconPaths; size?:
 /** Render genuine language tags for pronunciation and screen readers. */
 export function Korean({ children, className }: { children: ReactNode; className?: string }) {
   return <span lang="ko" className={className}>{children}</span>
+}
+
+/** Resolve a voice at playback time because browsers may load voices asynchronously. */
+export function koreanVoice() {
+  return window.speechSynthesis?.getVoices().find(voice => /^ko(?:[-_]|$)/i.test(voice.lang))
+}
+
+/** Speak with a Korean voice and report whether playback could start. */
+export function speakKorean(text: string, rate: number, onEnd: () => void, onError: () => void) {
+  const voice = koreanVoice()
+  if (!voice || !('SpeechSynthesisUtterance' in window)) return false
+  window.speechSynthesis.cancel()
+  const utterance = new SpeechSynthesisUtterance(text)
+  utterance.lang = 'ko-KR'
+  utterance.voice = voice
+  utterance.rate = rate
+  utterance.onend = onEnd
+  utterance.onerror = event => {
+    if (event.error !== 'interrupted' && event.error !== 'canceled') onError()
+  }
+  window.speechSynthesis.speak(utterance)
+  return true
 }
 
 /** Select an active deck within one category. */

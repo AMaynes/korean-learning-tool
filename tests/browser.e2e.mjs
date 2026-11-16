@@ -97,12 +97,12 @@ describe('deployed study workflow', { concurrency: false }, () => {
     await page.getByText('겹받침', { exact: true }).waitFor()
     await page.getByText('ㅂ + ㅅ → ㅂ', { exact: true }).waitFor()
     const sentenceExamples = page.locator('article').filter({ has: page.getByRole('heading', { name: 'Sentence structure', exact: true }) })
-    assert.deepEqual(await sentenceExamples.locator('dd small').allTextContents(), [
-      'I', 'food', 'eat',
-      'today', 'I', 'at home', 'rice / a meal', 'eat',
-      'food', 'eat', 'food', 'is delicious',
-    ])
-    await sentenceExamples.getByText('Today I’m eating at home.', { exact: true }).waitFor()
+    const fullSentence = sentenceExamples.locator('figure').filter({ has: page.getByText('Today I’m eating at home.', { exact: true }) })
+    assert.deepEqual(await fullSentence.locator('dd small').allTextContents(), ['today', 'I', 'at home', 'rice / a meal', 'eat'])
+    assert.equal(await sentenceExamples.locator('dd').count(), await sentenceExamples.locator('dd small').count())
+    await sentenceExamples.getByRole('table', { name: 'What Korean particles can attach to' }).getByText('먹지 + 는 → 먹지는').waitFor()
+    await sentenceExamples.getByRole('table', { name: 'Ways to end a Korean sentence' }).getByText('뭘 읽어요?').waitFor()
+    await sentenceExamples.getByText('If it rains, I’ll stay home.', { exact: true }).waitFor()
     await page.getByRole('button', { name: 'Nominals and particles', exact: true }).click()
     assert.equal(await page.evaluate(() => document.activeElement?.id), 'nominals')
     await page.getByText('커피 + 를 → 커피를', { exact: true }).waitFor()

@@ -87,16 +87,16 @@ export function Practice({ module, active, lists, state, onSelect, save }: {
       <aside className="study-aside">
         <div className="panel aside-panel practice-options">
           <div className="aside-title"><Icon name="settings" /><h2>Practice options</h2></div>
-          <label className="field">Difficulty<select value={difficulty} onChange={event => {
+          <label className="field">Difficulty<select aria-label="Difficulty" value={difficulty} onChange={event => {
             const level = event.target.value as Difficulty
             void save(previous => ({ ...previous, difficulty: { ...previous.difficulty, [mode]: level } }))
           }}><option value="guided">Guided</option><option value="challenge">Challenge</option></select></label>
           {ruleList && <>
-            <label className="field">Word category<select value={scope} onChange={event => setScope(event.target.value as Scope)}>
+            <label className="field">Word category<select aria-label="Word category" value={scope} onChange={event => setScope(event.target.value as Scope)}>
               <option value="both">Both active categories</option>
               {filters.map(filter => <option value={filter} key={filter}>{filter[0].toUpperCase() + filter.slice(1)}</option>)}
             </select></label>
-            <label className="field">Grammar rule<select value={validFilter} onChange={event => setRuleFilter(event.target.value)}>
+            <label className="field">Grammar rule<select aria-label="Grammar rule" value={validFilter} onChange={event => setRuleFilter(event.target.value)}>
               <option value="">All active rules</option>
               {ruleList.entries.map(rule => <option value={rule.id} key={rule.id}>{rule.english}</option>)}
             </select></label>

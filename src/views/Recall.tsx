@@ -44,7 +44,7 @@ export function Recall({ category, setCategory, deck, lists, onSelect, save, pro
     <div className="study-layout">
       <section className="study-main" aria-label="Flashcard practice">
         <div className="panel deck-controls">
-          <label className="field">Category<select value={category} onChange={event => setCategory(event.target.value as Category)}>
+          <label className="field">Category<select aria-label="Category" value={category} onChange={event => setCategory(event.target.value as Category)}>
             {categoryIds.map(id => <option key={id} value={id}>{categories[id]}</option>)}
           </select></label>
           <ListSelect category={category} lists={lists} selected={deck.id} onSelect={onSelect} />

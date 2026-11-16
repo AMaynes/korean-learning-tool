@@ -51,7 +51,7 @@ export function ListSelect({ category, lists, selected, onSelect, label = 'Vocab
   category: Category; lists: WordList[]; selected: string; onSelect: SelectList; label?: string
 }) {
   return <label className="field">{label}
-    <select value={selected} onChange={event => onSelect(category, event.target.value)}>
+    <select aria-label={label} value={selected} onChange={event => onSelect(category, event.target.value)}>
       {lists.filter(list => list.category === category).map(list => <option value={list.id} key={list.id}>{list.name}</option>)}
     </select>
   </label>

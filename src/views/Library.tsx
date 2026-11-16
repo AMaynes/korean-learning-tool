@@ -72,14 +72,14 @@ export function Library({ category, setCategory, lists, active, onSelect, save, 
     </div>
     <div className="panel library-tools">
       <div className="config-grid">
-        <label className="field">Category<select value={category} onChange={event => {
+        <label className="field">Category<select aria-label="Category" value={category} onChange={event => {
           setCategory(event.target.value as Category); setBrowseId(''); setQuery(''); setEditor(undefined); setNotice('')
         }}>{categoryIds.map(id => <option key={id} value={id}>{categories[id]}</option>)}</select></label>
-        <label className="field">Browse list<select value={deck.id} onChange={event => {
+        <label className="field">Browse list<select aria-label="Browse list" value={deck.id} onChange={event => {
           setBrowseId(event.target.value); setEditor(undefined); setNotice('')
         }}>{options.map(list => <option key={list.id} value={list.id}>{list.name}{list.id === active.id ? ' (active)' : ''}</option>)}</select></label>
         <label className="field">Search entries<div className="search-field"><Icon name="search" /><input value={query} onChange={event => setQuery(event.target.value)} placeholder="English or Korean" /></div></label>
-        <label className="field">Mastery filter<select value={masteryFilter} onChange={event => setMasteryFilter(event.target.value)}>
+        <label className="field">Mastery filter<select aria-label="Mastery filter" value={masteryFilter} onChange={event => setMasteryFilter(event.target.value)}>
           <option value="all">All entries</option><option value="mastered">Mastered</option><option value="pending">Learning / new</option>
         </select></label>
       </div>
@@ -163,7 +163,7 @@ function ListEditor({ editor, deck, nextNumber, onSave, onCancel }: {
   }}>
     <h2>{isEntry ? entry ? 'Edit entry' : 'Add an entry' : editor.kind === 'new' ? 'Create a list' : 'Rename list'}</h2>
     {!isEntry ? <label className="field">List name<input required autoFocus value={name} onChange={event => setName(event.target.value)} maxLength={100} /></label> :
-      rules ? <label className="field">Grammar rule<select required value={ruleId} onChange={event => setRuleId(event.target.value)}>
+      rules ? <label className="field">Grammar rule<select aria-label="Grammar rule" required value={ruleId} onChange={event => setRuleId(event.target.value)}>
         <option value="">Choose a rule</option>{Object.values(rules).filter(rule =>
           rule.id === entry?.rule || !deck.entries.some(word => word.rule === rule.id)
         ).map(rule => <option key={rule.id} value={rule.id}>{rule.korean} · {rule.english}</option>)}
@@ -174,7 +174,7 @@ function ListEditor({ editor, deck, nextNumber, onSave, onCancel }: {
         <label className="field">Example <small>Optional</small><input lang="ko" value={example} maxLength={2000} onChange={event => setExample(event.target.value)} /></label>
         <label className="field">Tags <small>Comma-separated</small><input value={tags} onChange={event => setTags(event.target.value)} /></label>
         <label className="field">Accepted Hangul alternatives <small>Comma-separated</small><input lang="ko" value={alternatives} onChange={event => setAlternatives(event.target.value)} /></label>
-        {(deck.category === 'verbs' || deck.category === 'adjectives') && <label className="field">Irregular class<select value={irregular} onChange={event => setIrregular(event.target.value as Irregular | '')}>
+        {(deck.category === 'verbs' || deck.category === 'adjectives') && <label className="field">Irregular class<select aria-label="Irregular class" value={irregular} onChange={event => setIrregular(event.target.value as Irregular | '')}>
           <option value="">Regular / unmarked</option>{([['b', 'ㅂ'], ['d', 'ㄷ'], ['reu', '르'], ['s', 'ㅅ'], ['h', 'ㅎ']] as const).map(([id, label]) =>
             <option key={id} value={id}>{label} irregular</option>)}
         </select></label>}

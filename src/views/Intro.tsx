@@ -58,7 +58,7 @@ export function Intro() {
             <span><strong>C</strong> Consonant letter</span>
             <span><strong>V</strong> Vowel letter</span>
           </div>
-          <p>Each Hangul block is one syllable. The starting consonant comes first. Any final consonants (<Korean>받침</Korean>) go at the bottom.</p>
+          <p>Each Hangul block is one syllable. The starting consonant comes first. Any final consonants, called batchim (<Korean>받침</Korean>), go at the bottom.</p>
 
           <div className="syllable-matrix">
             <div className="syllable-pair syllable-columns">

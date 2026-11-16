@@ -18,15 +18,27 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: '22'
           cache: npm
-      - run: npm ci
+      - name: Install locked dependencies
+        run: |
+          set -o pipefail
+          npm ci 2>&1 | tee install.log || {
+            echo "::error::npm ci failed. See the dependency error below."
+            grep '^npm error' install.log | head -8 | sed 's/^/::error::/' || true
+            exit 1
+          }
       - run: npm run test
-      - run: npm run build
-      - run: npm run test:e2e
+      - name: Build and test in Chrome
+        run: |
+          set -o pipefail
+          npm run test:e2e 2>&1 | tee browser-test.log || {
+            grep -E 'Error|expected|actual|waiting for|✖' browser-test.log | head -12 | sed 's/^/::error::/' || true
+            exit 1
+          }
         env:
           PLAYWRIGHT_CHROMIUM_CHANNEL: chrome
       - uses: actions/upload-pages-artifact@v3

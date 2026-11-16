@@ -55,6 +55,17 @@ async function select(page, label, value) {
     [...document.querySelectorAll('label')].some(item => item.firstChild?.textContent === label && item.querySelector('select')?.value === value),
   { label, value })
   assert.equal(await control.inputValue(), value)
+  const category = { Nouns: 'nouns', Verbs: 'verbs', Adjectives: 'adjectives' }[label]
+  if (category) await page.waitForFunction(({ category, value }) => new Promise(resolve => {
+    const connection = indexedDB.open('korean-learning-tool', 1)
+    connection.onerror = () => resolve(false)
+    connection.onsuccess = () => {
+      const db = connection.result
+      const request = db.transaction('study', 'readonly').objectStore('study').get('state')
+      request.onsuccess = () => { db.close(); resolve(request.result?.selected[category] === value) }
+      request.onerror = () => { db.close(); resolve(false) }
+    }
+  }), { category, value })
 }
 
 describe('deployed study workflow', { concurrency: false }, () => {
@@ -76,7 +87,7 @@ describe('deployed study workflow', { concurrency: false }, () => {
     await page.close()
   })
 
-  it('keeps deck choices independent across active generation and browser restart', async () => {
+  it('keeps deck choices independent across active generation and tab reload', async () => {
     const page = await browser.newPage()
     await page.goto(projectPage)
     await heading(page, 'Vocabulary Recall')

@@ -197,6 +197,8 @@ function ExerciseCard({ mode, exercise, difficulty, number, total, save, advance
       <span className="eyebrow">{exercise.cue}</span>
       <h2>{dictation ? 'Listen and type what you hear' : (conversation || exercise.transformation) ? <Korean>{exercise.prompt}</Korean> : exercise.prompt}</h2>
       {difficulty === 'guided' && exercise.transformation && <p>{exercise.transformation.originalMeaning}</p>}
+      {difficulty === 'guided' && assembly && <p>Find the polite predicate first. It usually goes at the end.</p>}
+      {difficulty === 'guided' && dictation && <p>Use Slow to hear each part, then replay at normal speed.</p>}
       {difficulty === 'guided' && mode === 'writing' && <p>Use a polite ending. You can leave out an obvious subject.</p>}
       {audio && exercise.audio && <AudioControls phrase={exercise.audio} />}
       {conversation && <button className="text-button" onClick={() => setShowTranslation(value => !value)}>{showTranslation ? 'Hide English' : 'Show English'}</button>}

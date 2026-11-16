@@ -99,8 +99,8 @@ export function Intro() {
 
         <article className="panel intro-panel">
           <h2 id="sentence" tabIndex={-1}>Sentence structure</h2>
-          <ExampleParts parts={[['Topic', '저는', 'I'], ['Object', '음식을', 'food'], ['Predicate', '먹어요.', 'eat']]} meaning="I eat food." />
-          <ExampleParts parts={[['Time', '오늘', 'today'], ['Topic', '저는', 'I'], ['Place', '집에서', 'at home'], ['Object', '밥을', 'rice / a meal'], ['Predicate', '먹어요.', 'eat']]} meaning="Today I’m eating at home." />
+          <ExampleParts parts={[['Subject + topic particle', '저는', 'I'], ['Object', '음식을', 'food'], ['Predicate', '먹어요.', 'eat']]} meaning="I eat food." />
+          <ExampleParts parts={[['Time', '오늘', 'today'], ['Subject + topic particle', '저는', 'I'], ['Place', '집에서', 'at home'], ['Object', '밥을', 'rice / a meal'], ['Predicate', '먹어요.', 'eat']]} meaning="Today I’m eating at home." />
           <p>The predicate usually comes last. The earlier parts can move or be left out when context supplies them.</p>
           <div className="intro-pairs">
             <ExampleParts parts={[['Object', '음식을', 'food'], ['Predicate', '먹어요.', 'eat']]} meaning="I eat food. The speaker is understood." />

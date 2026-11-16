@@ -1,0 +1,28 @@
+{
+  "name": "korean-learning-tool",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:e2e": "npm run build && node --test tests/browser.e2e.mjs"
+  },
+  "dependencies": {
+    "react": "19.2.6",
+    "react-dom": "19.2.6"
+  },
+  "devDependencies": {
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "typescript": "5.9.3",
+    "vite": "8.0.13",
+    "vitest": "4.1.0",
+    "playwright": "1.64.0-alpha-1790635538000"
+  },
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  }
+}

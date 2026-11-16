@@ -250,7 +250,7 @@ td [lang="ko"], .examples-list [lang="ko"] { color: var(--accent); font-weight: 
   .deck-controls, .recall-panel, .exercise-panel { padding: 12px; }
   .mode-tabs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .mode-tabs button { padding: 6px; }
-  .button, .segmented button, .token { min-height: 44px; }
+  .button, .answer-form .button, .segmented button, .token { min-height: 44px; }
   .field select, .field input, .field textarea { min-height: 44px; font-size: 16px; }
   .answer-form { display: grid; align-items: stretch; }
   .practice-selectors .config-grid, .settings-panel .config-grid { grid-template-columns: minmax(0, 1fr); }

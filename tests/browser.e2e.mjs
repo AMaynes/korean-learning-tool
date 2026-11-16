@@ -100,15 +100,16 @@ describe('deployed study workflow', { concurrency: false }, () => {
     assert.equal(await nouns.getByRole('row').count(), 2)
     await select(page, 'Category', 'conjugations')
     await page.getByRole('table', { name: 'Conjugations vocabulary' }).getByText('먹다 → 먹어요').waitFor()
-    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true)
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, "Vocabulary must fit the phone viewport")
 
     await page.getByRole('link', { name: 'Grammar Trainer', exact: true }).click()
     await page.getByRole('button', { name: 'Sentence Writing' }).click()
     const input = page.getByRole('textbox', { name: 'Your answer' })
     await input.waitFor()
     assert.equal(await input.evaluate(element => getComputedStyle(element).fontSize), '16px')
-    assert.ok((await page.getByRole('button', { name: 'Check answer' }).boundingBox()).height >= 44)
-    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true)
+    const submitHeight = (await page.getByRole('button', { name: 'Check answer' }).boundingBox()).height
+    assert.ok(submitHeight >= 44, `Expected a 44 px submit target, got ${submitHeight} px`)
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, "Writing practice must fit the phone viewport")
     await page.close()
   })
 

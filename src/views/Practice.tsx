@@ -14,7 +14,7 @@ import type { Category, WordList } from '../data/model'
 import { generate, matchesAnswer, shuffle } from '../engine/exercises'
 import type { Exercise } from '../engine/exercises'
 import { addScore } from '../engine/storage'
-import type { Difficulty, PracticeMode, StudyState } from '../engine/storage'
+import type { PracticeMode, StudyState } from '../engine/storage'
 import { ActiveConfig, Empty, Icon, Korean, KoreanForm, Transform } from './shared'
 import type { Save, SelectList } from './shared'
 
@@ -36,7 +36,7 @@ const modeCategories: Record<PracticeMode, Category[]> = {
 
 type Scope = 'both' | 'nouns' | 'pronouns' | 'verbs' | 'adjectives'
 
-/** Provide separate modes and mode-specific vocabulary and difficulty configuration. */
+/** Provide exercise modes and their vocabulary and rule filters. */
 export function Practice({ module, active, lists, state, onSelect, save }: {
   module: 'grammar' | 'listening'; active: Record<Category, WordList>; lists: WordList[];
   state: StudyState; onSelect: SelectList; save: Save
@@ -46,7 +46,6 @@ export function Practice({ module, active, lists, state, onSelect, save }: {
   const [scope, setScope] = useState<Scope>('both')
   const [ruleFilter, setRuleFilter] = useState('')
   const [revision, setRevision] = useState(0)
-  const difficulty = state.difficulty[mode] ?? 'guided'
   const ruleList = mode === 'particles' || mode === 'conjugations' ? active[mode] : undefined
   const validFilter = ruleList?.entries.some(entry => entry.id === ruleFilter) ? ruleFilter : ''
   const exercises = useMemo(() => {
@@ -78,30 +77,24 @@ export function Practice({ module, active, lists, state, onSelect, save }: {
         </details>
         {exercises.length ? <PracticeSession
           key={`${mode}:${scopeKey}:${scope}:${validFilter}:${revision}:${exerciseKey}`}
-          mode={mode} exercises={exercises} difficulty={difficulty} save={save}
+          mode={mode} exercises={exercises} save={save}
         /> : <Empty title="No compatible exercises">
           <p>{ruleList ? 'Choose another vocabulary list, rule, or word category.' :
             'Choose compatible active lists. Generated sentences use the Present Polite ending and words that fit a sentence frame.'}</p>
         </Empty>}
       </section>
       <aside className="study-aside">
-        <div className="panel aside-panel practice-options">
+        {ruleList && <div className="panel aside-panel practice-options">
           <div className="aside-title"><Icon name="settings" /><h2>Practice options</h2></div>
-          <label className="field">Difficulty<select aria-label="Difficulty" value={difficulty} onChange={event => {
-            const level = event.target.value as Difficulty
-            void save(previous => ({ ...previous, difficulty: { ...previous.difficulty, [mode]: level } }))
-          }}><option value="guided">Guided</option><option value="challenge">Challenge</option></select></label>
-          {ruleList && <>
-            <label className="field">Word category<select aria-label="Word category" value={scope} onChange={event => setScope(event.target.value as Scope)}>
-              <option value="both">Both active categories</option>
-              {filters.map(filter => <option value={filter} key={filter}>{filter[0].toUpperCase() + filter.slice(1)}</option>)}
-            </select></label>
-            <label className="field">Grammar rule<select aria-label="Grammar rule" value={validFilter} onChange={event => setRuleFilter(event.target.value)}>
-              <option value="">All active rules</option>
-              {ruleList.entries.map(rule => <option value={rule.id} key={rule.id}>{rule.english}</option>)}
-            </select></label>
-          </>}
-        </div>
+          <label className="field">Word category<select aria-label="Word category" value={scope} onChange={event => setScope(event.target.value as Scope)}>
+            <option value="both">Both active categories</option>
+            {filters.map(filter => <option value={filter} key={filter}>{filter[0].toUpperCase() + filter.slice(1)}</option>)}
+          </select></label>
+          <label className="field">Grammar rule<select aria-label="Grammar rule" value={validFilter} onChange={event => setRuleFilter(event.target.value)}>
+            <option value="">All active rules</option>
+            {ruleList.entries.map(rule => <option value={rule.id} key={rule.id}>{rule.english}</option>)}
+          </select></label>
+        </div>}
         <div className="panel aside-panel">
           <div className="aside-title"><Icon name="grid" /><h2>Practice progress</h2></div>
           <dl className="stats">
@@ -125,7 +118,7 @@ export function Practice({ module, active, lists, state, onSelect, save }: {
 }
 
 /** Freeze one shuffled exercise queue until the learning scope changes. */
-function PracticeSession({ mode, exercises, difficulty, save }: { mode: PracticeMode; exercises: Exercise[]; difficulty: Difficulty; save: Save }) {
+function PracticeSession({ mode, exercises, save }: { mode: PracticeMode; exercises: Exercise[]; save: Save }) {
   const [order, setOrder] = useState(() => shuffle(exercises.map(exercise => exercise.id)))
   const [position, setPosition] = useState(0)
   const exercise = exercises.find(item => item.id === order[position]) ?? exercises[0]
@@ -139,15 +132,15 @@ function PracticeSession({ mode, exercises, difficulty, save }: { mode: Practice
     setPosition(0)
   }
 
-  return <ExerciseCard key={exercise.id + ':' + position} mode={mode} exercise={exercise} difficulty={difficulty}
+  return <ExerciseCard key={exercise.id + ':' + position} mode={mode} exercise={exercise}
     number={position + 1} total={order.length} save={save} advance={advance} />
 }
 
 type Result = 'correct' | 'different' | 'incorrect' | 'revealed'
 
 /** Display a single attempt, with exact grading for constrained prompts and review for open writing. */
-function ExerciseCard({ mode, exercise, difficulty, number, total, save, advance }: {
-  mode: PracticeMode; exercise: Exercise; difficulty: Difficulty; number: number; total: number;
+function ExerciseCard({ mode, exercise, number, total, save, advance }: {
+  mode: PracticeMode; exercise: Exercise; number: number; total: number;
   save: Save; advance: () => void
 }) {
   const [input, setInput] = useState('')
@@ -196,14 +189,14 @@ function ExerciseCard({ mode, exercise, difficulty, number, total, save, advance
     <div className="exercise-prompt">
       <span className="eyebrow">{exercise.cue}</span>
       <h2>{dictation ? 'Listen and type what you hear' : (conversation || exercise.transformation) ? <Korean>{exercise.prompt}</Korean> : exercise.prompt}</h2>
-      {difficulty === 'guided' && exercise.transformation && <p>{exercise.transformation.originalMeaning}</p>}
-      {difficulty === 'guided' && assembly && <p>Find the polite predicate first. It usually goes at the end.</p>}
-      {difficulty === 'guided' && dictation && <p>Use Slow to hear each part, then replay at normal speed.</p>}
-      {difficulty === 'guided' && mode === 'writing' && <p>Use a polite ending. You can leave out an obvious subject.</p>}
+      {exercise.transformation && <p>{exercise.transformation.originalMeaning}</p>}
+      {assembly && <p>Find the polite predicate first. It usually goes at the end.</p>}
+      {dictation && <p>Use Slow to hear each part, then replay at normal speed.</p>}
+      {mode === 'writing' && <p>Use a polite ending. You can leave out an obvious subject.</p>}
       {audio && exercise.audio && <AudioControls phrase={exercise.audio} />}
       {conversation && <button className="text-button" onClick={() => setShowTranslation(value => !value)}>{showTranslation ? 'Hide English' : 'Show English'}</button>}
       {conversation && showTranslation && <p>{exercise.translation}</p>}
-      {conversation && difficulty === 'guided' && <p>Reply with a short polite sentence. You can say your answer aloud before comparing it.</p>}
+      {conversation && <p>Reply with a short polite sentence. You can say your answer aloud before comparing it.</p>}
     </div>
     {assembly ? <>
       <div className="token-answer" aria-label="Your sentence">

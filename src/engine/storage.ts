@@ -16,9 +16,8 @@ import { activeLists, defaultSelection } from './registry'
 
 export const practiceModes = ['particles', 'conjugations', 'assembly', 'writing', 'dictation', 'conversation'] as const
 export type PracticeMode = typeof practiceModes[number]
-export type Difficulty = 'guided' | 'challenge'
 
-/** Independent performance and difficulty for each exercise mode. */
+/** Independent performance for each exercise mode. */
 export interface Score {
   attempts: number
   correct: number
@@ -31,13 +30,12 @@ export interface StudyState {
   selected: Selection
   recall: Record<string, DeckProgress>
   scores: Partial<Record<PracticeMode, Record<string, Score>>>
-  difficulty: Partial<Record<PracticeMode, Difficulty>>
   theme: 'light' | 'dark' | 'system'
 }
 
 /** Create fresh state without sharing mutable records across consumers. */
 export function defaults(): StudyState {
-  return { version: 1, selected: { ...defaultSelection }, recall: {}, scores: {}, difficulty: {}, theme: 'system' }
+  return { version: 1, selected: { ...defaultSelection }, recall: {}, scores: {}, theme: 'system' }
 }
 
 const storeName = 'study'
@@ -108,24 +106,22 @@ export function importBackup(value: unknown): StudyState {
   if (!record(value) || value.kind !== 'korean-study-backup' || !record(value.state)) throw new Error('Choose a full study backup exported by this tool.')
   const state = value.state
   if (state.version !== 1 || !record(state.selected) || !record(state.recall) || !record(state.scores) ||
-    !record(state.difficulty) || !['light', 'dark', 'system'].includes(state.theme as string)) {
+    !['light', 'dark', 'system'].includes(state.theme as string)) {
     throw new Error('The backup is damaged or uses an unsupported version.')
   }
 
   const invalidRecall = Object.entries(state.recall).some(([id, deck]) => !validId(id) || !validDeck(deck))
   const invalidScores = Object.entries(state.scores).some(([mode, scores]) =>
     !practiceModes.includes(mode as PracticeMode) || !record(scores) || Object.values(scores).some(score => !validScore(score)))
-  const invalidDifficulty = Object.entries(state.difficulty).some(([mode, level]) =>
-    !practiceModes.includes(mode as PracticeMode) || (level !== 'guided' && level !== 'challenge'))
-  if (invalidRecall || invalidScores || invalidDifficulty) throw new Error('The backup contains invalid study records.')
+  if (invalidRecall || invalidScores) throw new Error('The backup contains invalid study records.')
   return restoreStudyData(state as unknown as StudyState)
 }
 
-/** Keep existing study data while dropping old list definitions and resolving obsolete selections. */
-function restoreStudyData({ selected, recall, scores, difficulty, theme }: StudyState): StudyState {
+/** Keep study progress and resolve selections against the bundled catalog. */
+function restoreStudyData({ selected, recall, scores, theme }: StudyState): StudyState {
   const active = activeLists(selected)
   const resolved = Object.fromEntries(categoryIds.map(category => [category, active[category].id])) as Selection
-  return { version: 1, selected: resolved, recall, scores, difficulty, theme }
+  return { version: 1, selected: resolved, recall, scores, theme }
 }
 
 /** Recognize a plain JSON record before reading its fields. */

@@ -104,6 +104,8 @@ describe('deployed study workflow', { concurrency: false }, () => {
 
     await page.getByRole('link', { name: 'Grammar Trainer', exact: true }).click()
     await page.getByRole('button', { name: 'Sentence Writing' }).click()
+    await page.getByText('Use a polite ending. You can leave out an obvious subject.').waitFor()
+    assert.equal(await page.getByLabel('Difficulty', { exact: true }).count(), 0)
     const input = page.getByRole('textbox', { name: 'Your answer' })
     await input.waitFor()
     assert.equal(await input.evaluate(element => getComputedStyle(element).fontSize), '16px')

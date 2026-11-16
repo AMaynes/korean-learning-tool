@@ -161,10 +161,11 @@ describe('mastery and persistence', () => {
     expect(nextRecall([], first)).toBeNull()
   })
 
-  it('restores legacy progress without restoring any custom definitions', () => {
+  it('restores legacy progress while discarding custom lists and difficulty settings', () => {
     const state = {
       ...defaults(),
       theme: 'dark',
+      difficulty: { writing: 'challenge' },
       customLists: [
         { id: 'nouns-1', category: 'nouns', name: 'Edited nouns', entries: [] },
         { id: 'custom-verbs', category: 'verbs', name: 'Custom verbs', entries: [] },
@@ -174,6 +175,7 @@ describe('mastery and persistence', () => {
     }
     const restored = importBackup({ kind: 'korean-study-backup', state })
     expect(restored).not.toHaveProperty('customLists')
+    expect(restored).not.toHaveProperty('difficulty')
     expect(restored.selected).toMatchObject({ nouns: 'nouns-3', verbs: 'verbs-1' })
     expect(restored.recall['nouns-1'].entries.person.streak).toBe(1)
     expect(restored.theme).toBe('dark')

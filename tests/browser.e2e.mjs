@@ -72,8 +72,14 @@ describe('deployed study workflow', { concurrency: false }, () => {
   it('opens the tool by default and navigates to the separate intro on a narrow screen', async () => {
     const page = await browser.newPage()
     await page.setViewportSize({ width: 390, height: 844 })
+    await page.emulateMedia({ colorScheme: 'light' })
     await page.goto(projectPage)
     await heading(page, 'Vocabulary Recall')
+    const palette = await page.evaluate(() => {
+      const style = getComputedStyle(document.documentElement)
+      return { background: style.backgroundColor, text: style.color, scheme: style.colorScheme }
+    })
+    assert.deepEqual(palette, { background: 'rgb(23, 23, 23)', text: 'rgb(255, 255, 255)', scheme: 'dark' })
     assert.equal(await page.getByRole('heading', { name: 'How Korean works' }).count(), 0)
     await page.getByRole('link', { name: 'Intro', exact: true }).click()
     await heading(page, 'How Korean works')

@@ -54,7 +54,7 @@ korean-learning-tool/
 | `index.html` | Provides the mount point and static page metadata. |
 | `package.json` / `package-lock.json` | Define and lock tooling and runtime dependencies. |
 | `tsconfig.json` / `vite.config.ts` | Set strict checking and repository-relative build assets. |
-| `src/main.tsx` / `src/style.css` | Mount the app and define themes and responsive layout. |
+| `src/main.tsx` / `src/style.css` | Mount the app and define the grayscale palette and responsive layout. |
 | `src/data/grammar.ts` | Owns the catalog of particle and conjugation rules, explanations, and examples. |
 | `src/data/model.ts` | Defines shared data contracts. |
 | `src/data/words.ts` | Owns starter lexical vocabulary and semantic tags. |

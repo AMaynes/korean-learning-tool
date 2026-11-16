@@ -82,10 +82,6 @@ export function App() {
     }
   }, [])
 
-  useEffect(() => {
-    document.documentElement.dataset.theme = state?.theme ?? 'system'
-  }, [state?.theme])
-
   /** Save the transaction outcome before presenting committed progress. */
   const save: Save = async change => {
     try {

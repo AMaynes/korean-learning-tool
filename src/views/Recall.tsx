@@ -60,9 +60,9 @@ export function Recall({ category, setCategory, deck, lists, onSelect, save, pro
           <div className="mastery-value"><strong>{mastered}<span> / {deck.entries.length}</span></strong><small>mastered</small></div>
           <progress aria-label="Mastery progress" max={100} value={pct} />
           <dl className="stats">
-            <div><dt><i className="dot teal" />Mastered</dt><dd>{mastered}</dd></div>
-            <div><dt><i className="dot gold" />In practice</dt><dd>{activeCount}</dd></div>
-            <div><dt><i className="dot gray" />New</dt><dd>{deck.entries.length - mastered - activeCount}</dd></div>
+            <div><dt><i className="dot mastered" />Mastered</dt><dd>{mastered}</dd></div>
+            <div><dt><i className="dot learning" />In practice</dt><dd>{activeCount}</dd></div>
+            <div><dt><i className="dot" />New</dt><dd>{deck.entries.length - mastered - activeCount}</dd></div>
           </dl>
         </div>
         <div className="panel aside-panel note-panel">

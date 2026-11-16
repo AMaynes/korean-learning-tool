@@ -30,12 +30,11 @@ export interface StudyState {
   selected: Selection
   recall: Record<string, DeckProgress>
   scores: Partial<Record<PracticeMode, Record<string, Score>>>
-  theme: 'light' | 'dark' | 'system'
 }
 
 /** Create fresh state without sharing mutable records across consumers. */
 export function defaults(): StudyState {
-  return { version: 1, selected: { ...defaultSelection }, recall: {}, scores: {}, theme: 'system' }
+  return { version: 1, selected: { ...defaultSelection }, recall: {}, scores: {} }
 }
 
 const storeName = 'study'
@@ -105,8 +104,7 @@ export function addScore(state: StudyState, mode: PracticeMode, id: string, corr
 export function importBackup(value: unknown): StudyState {
   if (!record(value) || value.kind !== 'korean-study-backup' || !record(value.state)) throw new Error('Choose a full study backup exported by this tool.')
   const state = value.state
-  if (state.version !== 1 || !record(state.selected) || !record(state.recall) || !record(state.scores) ||
-    !['light', 'dark', 'system'].includes(state.theme as string)) {
+  if (state.version !== 1 || !record(state.selected) || !record(state.recall) || !record(state.scores)) {
     throw new Error('The backup is damaged or uses an unsupported version.')
   }
 
@@ -118,10 +116,10 @@ export function importBackup(value: unknown): StudyState {
 }
 
 /** Keep study progress and resolve selections against the bundled catalog. */
-function restoreStudyData({ selected, recall, scores, theme }: StudyState): StudyState {
+function restoreStudyData({ selected, recall, scores }: StudyState): StudyState {
   const active = activeLists(selected)
   const resolved = Object.fromEntries(categoryIds.map(category => [category, active[category].id])) as Selection
-  return { version: 1, selected: resolved, recall, scores, theme }
+  return { version: 1, selected: resolved, recall, scores }
 }
 
 /** Recognize a plain JSON record before reading its fields. */

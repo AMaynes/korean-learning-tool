@@ -1,5 +1,5 @@
 /**
- * Overview & Purpose: Configure all decks, themes, backup operations, and scoped resets.
+ * Overview & Purpose: Configure all decks, backup operations, and scoped resets.
  *
  * Architectural Relationships: Uses shared selectors and the storage backup parser.
  *
@@ -29,14 +29,10 @@ export function Settings({ state, lists, active, onSelect, save, invalidate }: {
   }
 
   return <>
-    <div className="section-heading"><div><h1>Study settings</h1><p>Manage your active lists, appearance, and study data.</p></div></div>
+    <div className="section-heading"><div><h1>Study settings</h1><p>Manage your active lists and study data.</p></div></div>
     <section className="panel settings-panel"><h2>Active vocabulary</h2>
       <p>Every category has its own list. Practice uses the selections shown here.</p>
       <ActiveConfig lists={lists} active={active} onSelect={onSelect} />
-    </section>
-    <section className="panel settings-panel"><h2>Appearance</h2>
-      <div className="segmented" aria-label="Appearance">{(['system', 'light', 'dark'] as const).map(theme =>
-        <button key={theme} aria-pressed={state.theme === theme} onClick={() => void save(previous => ({ ...previous, theme }))}>{theme[0].toUpperCase() + theme.slice(1)}</button>)}</div>
     </section>
     <section className="panel settings-panel"><h2>Study data</h2><p>Progress is saved in this browser. Export a backup to move it to another device.</p>
       <div className="button-row">

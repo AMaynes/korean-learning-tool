@@ -161,10 +161,10 @@ describe('mastery and persistence', () => {
     expect(nextRecall([], first)).toBeNull()
   })
 
-  it('restores legacy progress while discarding custom lists and difficulty settings', () => {
+  it('restores legacy progress while discarding retired settings and custom lists', () => {
     const state = {
       ...defaults(),
-      theme: 'dark',
+      theme: 'light',
       difficulty: { writing: 'challenge' },
       customLists: [
         { id: 'nouns-1', category: 'nouns', name: 'Edited nouns', entries: [] },
@@ -178,7 +178,7 @@ describe('mastery and persistence', () => {
     expect(restored).not.toHaveProperty('difficulty')
     expect(restored.selected).toMatchObject({ nouns: 'nouns-3', verbs: 'verbs-1' })
     expect(restored.recall['nouns-1'].entries.person.streak).toBe(1)
-    expect(restored.theme).toBe('dark')
+    expect(restored).not.toHaveProperty('theme')
     expect(activeLists({ nouns: 'nouns-1' }).nouns.entries[0].korean).toBe('사람')
   })
 
@@ -187,6 +187,6 @@ describe('mastery and persistence', () => {
     for (let i = 0; i < 3; i++) state = addScore(state, 'assembly', 'frame-1', true)
     expect(state.scores.assembly?.['frame-1']).toMatchObject({ mastered: true, attempts: 3 })
     expect(state.scores.writing).toBeUndefined()
-    expect(() => importBackup({ kind: 'korean-study-backup', state: { ...state, theme: 'bright' } })).toThrow()
+    expect(() => importBackup({ kind: 'korean-study-backup', state: { ...state, version: 2 } })).toThrow()
   })
 })

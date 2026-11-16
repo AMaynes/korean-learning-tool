@@ -11,8 +11,7 @@
 
 import { useState } from 'react'
 import type { Category, WordList } from '../data/model'
-import { builtInLists, defaultSelection } from '../engine/registry'
-import { defaults, importBackup } from '../engine/storage'
+import { importBackup } from '../engine/storage'
 import type { StudyState } from '../engine/storage'
 import { ActiveConfig, downloadJson, ImportButton } from './shared'
 import type { Save, SelectList } from './shared'
@@ -44,14 +43,11 @@ export function Settings({ state, lists, active, onSelect, save, invalidate }: {
         <button className="button" onClick={() => downloadJson('korean-study-backup.json', { kind: 'korean-study-backup', state })}>Export backup</button>
         <ImportButton onError={setNotice} onImport={async value => {
           const imported = importBackup(value)
-          await commit('Replace your current lists, settings, and study progress with this backup?', () => imported)
+          await commit('Replace your settings and study progress with this backup?', () => imported)
         }}>Import backup</ImportButton>
-        <button className="button danger" onClick={() => void commit('Reset all practice progress? Your lists and settings will stay.', previous =>
+        <button className="button danger" onClick={() => void commit('Reset all practice progress?', previous =>
           ({ ...previous, recall: {}, scores: {} }))}>Reset all progress</button>
-        <button className="button danger" onClick={() => void commit('Restore the default lists? This removes custom lists and edits.', previous => ({
-          ...previous, customLists: defaults().customLists, selected: { ...defaultSelection },
-          recall: Object.fromEntries(Object.entries(previous.recall).filter(([id]) => builtInLists.some(list => list.id === id))),
-        }))}>Restore default vocabulary</button>
+
       </div>
       {notice && <p role="status">{notice}</p>}
     </section>

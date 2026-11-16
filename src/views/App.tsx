@@ -12,7 +12,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { categories } from '../data/model'
 import type { Category } from '../data/model'
-import { activeLists, allLists } from '../engine/registry'
+import { activeLists, builtInLists as lists } from '../engine/registry'
 import { defaults, loadState, updateState } from '../engine/storage'
 import type { StudyState } from '../engine/storage'
 import { Intro } from './Intro'
@@ -100,8 +100,7 @@ export function App() {
     }
   }
 
-  const lists = useMemo(() => allLists(state?.customLists ?? []), [state?.customLists])
-  const active = useMemo(() => activeLists(lists, state?.selected ?? stateRef.current.selected), [lists, state?.selected])
+  const active = useMemo(() => activeLists(state?.selected ?? stateRef.current.selected), [state?.selected])
   const onSelect: SelectList = (category, id) => {
     if (!lists.some(list => list.category === category && list.id === id)) return
     void save(previous => ({ ...previous, selected: { ...previous.selected, [category]: id } }))
@@ -136,7 +135,7 @@ export function App() {
         {state && view === 'recall' && <Recall key={revision} category={category} setCategory={setCategory} deck={active[category]}
           lists={lists} onSelect={onSelect} save={save} progress={state.recall[active[category].id]} />}
         {state && view === 'library' && <Library category={category} setCategory={setCategory} active={active[category]}
-          state={state} lists={lists} save={save} onSelect={onSelect} openRecall={() => { window.location.hash = 'recall' }} />}
+          lists={lists} onSelect={onSelect} />}
         {state && (view === 'grammar' || view === 'listening') && <Practice key={view + revision}
           module={view} active={active} lists={lists} state={state} onSelect={onSelect} save={save} />}
         <footer className="footer"><span><Korean>한국어 연습</Korean></span><span>{toolActive ? `Active ${categories[category].toLowerCase()} · ${active[category].name}` : 'Korean Learning Tool'}</span></footer>

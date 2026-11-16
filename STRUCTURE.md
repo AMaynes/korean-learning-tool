@@ -61,11 +61,11 @@ korean-learning-tool/
 | `src/engine/exercises.ts` | Generates study exercises from active decks and evaluates known alternatives. |
 | `src/engine/korean.ts` | Applies phonological variants and stems/endings to known word classes. |
 | `src/engine/mastery.ts` | Schedules recall with per-deck clocks and entry mastery states. |
-| `src/engine/registry.ts` | Resolves active decks, applies local overrides, and validates list imports. |
+| `src/engine/registry.ts` | Resolves active decks from the bundled catalog and looks up grammar rules. |
 | `src/engine/storage.ts` | Saves browser study data atomically and validates full backups. |
 | `src/views/App.tsx` | Owns navigation, active selections, and study-state lifecycle. |
 | `src/views/Intro.tsx` | Explains the language system through worked examples. |
-| `src/views/Library.tsx` | Browses, edits, imports, and exports vocabulary decks. |
+| `src/views/Library.tsx` | Displays bundled vocabulary decks in a compact searchable table. |
 | `src/views/Practice.tsx` | Houses grammar, sentence, dictation, and conversation interactions. |
 | `src/views/Recall.tsx` | Houses flashcard review, typing, and spaced mastery. |
 | `src/views/Settings.tsx` | Houses list configuration, preferences, resets, and backups. |

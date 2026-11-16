@@ -45,7 +45,7 @@
   }
 }
 * { box-sizing: border-box; }
-body { margin: 0; min-width: 320px; }
+body { margin: 0; }
 button, input, select, textarea { font: inherit; }
 button, a, summary { -webkit-tap-highlight-color: transparent; }
 button:enabled, summary { cursor: pointer; }
@@ -152,25 +152,24 @@ progress::-moz-progress-bar { background: var(--accent); }
 .footer { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 9px; margin-top: 42px; padding: 12px 0; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; }
 
 .config-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 13px; }
-.library-tools, .editor, .settings-panel { padding: 19px; margin-bottom: 15px; }
-.library-actions, .editor .button-row { margin-top: 14px; }
-.search-field { display: flex; align-items: center; position: relative; }
-.search-field svg { pointer-events: none; position: absolute; left: 9px; color: var(--muted); }
-.search-field input { padding-left: 34px; }
+.settings-panel { padding: 19px; margin-bottom: 15px; }
 .status-message { padding: 11px 13px; background: var(--warm); border: 1px solid var(--line); border-radius: 8px; margin-bottom: 13px; font-size: 14px; }
-.settings-panel h2, .editor h2 { margin-bottom: 9px; font-size: 20px; }
+.settings-panel h2 { margin-bottom: 9px; font-size: 20px; }
 .settings-panel p { margin: 0 0 14px; font-size: 14px; }
 .settings-panel .button-row + p { margin: 12px 0 0; }
-.list-heading { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 5px 15px; margin: 23px 0 11px; }
-.list-heading h2 { font-size: 20px; }
-.list-heading span { color: var(--muted); font-size: 13px; }
-.library-entries { display: grid; gap: 11px; }
-.entry-panel { padding: 15px 18px; }
-.entry-heading { display: flex; justify-content: space-between; align-items: start; gap: 8px; }
-.entry-heading > div { flex: 1; }
-.entry-heading h3 { font-size: 22px; }
-.entry-heading p { font-size: 14px; margin: 3px 0 6px; }
-.status-pill { display: inline-flex; gap: 4px; align-items: center; padding: 5px 7px; border-radius: 6px; color: var(--accent); background: var(--accent-bg); font-size: 11px; font-weight: 700; }
+.library-heading { margin-bottom: 18px; }
+.library-tools { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) minmax(0, 1.4fr); gap: 12px; margin-bottom: 12px; }
+.vocabulary-table { border-radius: 10px; overflow: hidden; }
+.vocabulary-table table { table-layout: fixed; }
+.vocabulary-table th, .vocabulary-table td { padding: 7px 12px; line-height: 1.4; vertical-align: middle; overflow-wrap: anywhere; }
+.vocabulary-table thead th { font-size: 12px; color: var(--muted); }
+.vocabulary-table tbody th { color: var(--accent); font-size: 15px; }
+.vocabulary-table tbody td { color: var(--ink); }
+.vocabulary-table tbody [lang="ko"] { font-weight: inherit; }
+.vocabulary-table th:first-child { width: 42%; }
+.vocabulary-table thead th:first-child:nth-last-child(3) { width: 24%; }
+.vocabulary-table th:nth-child(3) { width: 38%; }
+.vocabulary-table tbody tr:last-child > * { border-bottom: 0; }
 details summary { color: var(--accent); font-weight: 650; font-size: 13px; padding: 10px 0; }
 details p { font-size: 13px; margin-bottom: 7px; }
 .transform, .sentence-diagram { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; padding: 4px; border: 1px solid var(--line); border-radius: 10px; background: var(--subtle); }
@@ -179,7 +178,6 @@ details p { font-size: 13px; margin-bottom: 7px; }
 .transform small, .sentence-diagram small, .model-answer small { color: var(--muted); font-size: 11px; font-weight: 750; }
 .transform strong, .sentence-diagram strong { color: var(--accent); font-size: clamp(17px, 2.3vw, 24px); }
 .transform span:not([lang]), .sentence-diagram span:not([lang]) { color: var(--muted); font-size: 12px; }
-details .transform { margin-top: 7px; }
 .mode-tabs { margin-bottom: 16px; }
 .practice-selectors { padding: 4px 16px; }
 .practice-selectors[open] { padding-bottom: 15px; }
@@ -234,23 +232,30 @@ td [lang="ko"], .examples-list [lang="ko"] { color: var(--accent); font-weight: 
   .brand strong { font-size: 12px; }
   .brand small { font-size: 10px; }
   .top-nav { gap: 7px; }
-  .top-nav a { min-width: 33px; font-size: 12px; }
-  .top-settings { padding: 6px; min-height: 36px; }
+  .top-nav a { min-width: 44px; font-size: 13px; }
+  .top-settings { width: 44px; min-height: 44px; padding: 0; }
   .top-settings span { position: absolute; clip-path: inset(50%); }
   .sidebar { padding: 6px 9px; }
   .sidebar nav { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .sidebar a { gap: 6px; padding: 5px 6px; min-height: 37px; white-space: normal; }
+  .sidebar a { gap: 6px; padding: 5px 6px; min-height: 44px; white-space: normal; }
   .sidebar a svg { flex: none; }
   .main, .full-frame .main { padding: 20px 12px 10px; }
   .section-heading { align-items: start; flex-direction: column; gap: 10px; margin-bottom: 14px; }
-  .section-heading .segmented { align-self: start; }
+  .section-heading .segmented { align-self: stretch; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .study-layout, .intro-layout { grid-template-columns: minmax(0, 1fr); }
   .intro-index { position: static; display: flex; flex-wrap: wrap; gap: 0 13px; }
   .intro-index h2 { width: 100%; }
   .recall-face { min-height: 190px; }
   .typing-face { min-height: 155px; }
   .deck-controls, .recall-panel, .exercise-panel { padding: 12px; }
+  .mode-tabs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .mode-tabs button { padding: 6px; }
-  .answer-form { flex-wrap: wrap; }
-  .answer-form .field { flex-basis: 170px; }
+  .button, .segmented button, .token { min-height: 44px; }
+  .field select, .field input, .field textarea { min-height: 44px; font-size: 16px; }
+  .answer-form { display: grid; align-items: stretch; }
+  .practice-selectors .config-grid, .settings-panel .config-grid { grid-template-columns: minmax(0, 1fr); }
+  .library-tools { grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: 8px; }
+  .library-tools .field:last-child { grid-column: 1 / -1; }
+  .vocabulary-table th, .vocabulary-table td { padding: 7px 8px; }
+  .vocabulary-table tbody th { font-size: 14px; }
 }

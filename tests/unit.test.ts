@@ -15,12 +15,12 @@ import type { WordClass } from '../src/data/model'
 import { generate, matchesAnswer } from '../src/engine/exercises'
 import { attach, conjugate } from '../src/engine/korean'
 import { emptyDeck, finishRecall, markRecallFailure, nextRecall } from '../src/engine/mastery'
-import { activeLists, allLists, builtInLists, defaultSelection, exportList, importList, isList } from '../src/engine/registry'
+import { activeLists, builtInLists, defaultSelection, entryRule } from '../src/engine/registry'
 import { addScore, defaults, importBackup } from '../src/engine/storage'
 
 describe('vocabulary registry', () => {
   it('loads distinct numbered lists and preserves explicit independent selections', () => {
-    const active = activeLists(allLists([]), { ...defaultSelection, nouns: 'nouns-3', verbs: 'verbs-2', adjectives: 'adjectives-3' })
+    const active = activeLists({ ...defaultSelection, nouns: 'nouns-3', verbs: 'verbs-2', adjectives: 'adjectives-3' })
     expect(active.nouns.entries[0].korean).toBe('가족')
     expect(active.verbs.entries[0].korean).toBe('마시다')
     expect(active.adjectives.entries[0].korean).toBe('비싸다')
@@ -29,20 +29,22 @@ describe('vocabulary registry', () => {
     expect(active.conjugations.entries).toHaveLength(20)
   })
 
-  it('round-trips a deck without copying another deck’s progress identity', () => {
-    const original = allLists([])[0]
-    const imported = importList(JSON.parse(JSON.stringify(exportList(original))), 'custom-test')
-    expect(imported.entries[0].id).toBe(original.entries[0].id)
-    expect(imported.id).not.toBe(original.id)
-    const edited = { ...original, entries: original.entries.map((entry, index) => index === 0 ? { ...entry, english: 'Human' } : entry) }
-    expect(allLists([edited])[0].entries[0]).toMatchObject({ id: original.entries[0].id, english: 'Human' })
+  it('resolves invalid or cross-category selections to the bundled defaults', () => {
+    const active = activeLists({ ...defaultSelection, nouns: 'custom-nouns', verbs: 'nouns-2', adjectives: 'adjectives-3' })
+    expect(active.nouns.id).toBe('nouns-1')
+    expect(active.verbs.id).toBe('verbs-1')
+    expect(active.adjectives.id).toBe('adjectives-3')
   })
 
-  it('rejects invalid entries, unsupported versions, and injected rule IDs', () => {
-    expect(builtInLists.every(isList)).toBe(true)
-    expect(() => importList({ kind: 'korean-study-list', version: 2 }, 'custom-test')).toThrow()
-    expect(isList({ ...builtInLists[0], entries: [{ id: '__proto__', korean: '사람', english: 'person' }] })).toBe(false)
-    expect(isList({ id: 'custom-test', name: 'Invalid', category: 'particles', entries: [{ id: 'test', korean: '이', english: 'magic', rule: 'constructor' }] })).toBe(false)
+  it('provides a worked grammar example for every bundled pattern', () => {
+    const grammarLists = builtInLists.filter(list => list.category === 'particles' || list.category === 'conjugations')
+    for (const list of grammarLists) {
+      for (const entry of list.entries) {
+        expect(entryRule(list.category, entry)?.examples[0]).toEqual(expect.objectContaining({
+          original: expect.any(String), result: expect.any(String),
+        }))
+      }
+    }
   })
 })
 
@@ -99,7 +101,7 @@ describe('conjugation', () => {
 })
 
 describe('dynamic exercises', () => {
-  const active = activeLists(allLists([]), { ...defaultSelection, nouns: 'nouns-2', verbs: 'verbs-2' })
+  const active = activeLists({ ...defaultSelection, nouns: 'nouns-2', verbs: 'verbs-2' })
   it('fills sentence slots from actual active decks', () => {
     const writing = generate('writing', active)
     expect(writing.some(item => item.answer === '저는 커피를 마셔요')).toBe(true)
@@ -157,6 +159,25 @@ describe('mastery and persistence', () => {
     expect(nextRecall(['a'], first, 'a')).toEqual({ id: 'a', review: true })
     expect(finishRecall(first, 'a', false, true, 1).clock).toBe(first.clock)
     expect(nextRecall([], first)).toBeNull()
+  })
+
+  it('restores legacy progress without restoring any custom definitions', () => {
+    const state = {
+      ...defaults(),
+      theme: 'dark',
+      customLists: [
+        { id: 'nouns-1', category: 'nouns', name: 'Edited nouns', entries: [] },
+        { id: 'custom-verbs', category: 'verbs', name: 'Custom verbs', entries: [] },
+      ],
+      selected: { ...defaultSelection, nouns: 'nouns-3', verbs: 'custom-verbs' },
+      recall: { 'nouns-1': finishRecall(emptyDeck, 'person', false, false, 10) },
+    }
+    const restored = importBackup({ kind: 'korean-study-backup', state })
+    expect(restored).not.toHaveProperty('customLists')
+    expect(restored.selected).toMatchObject({ nouns: 'nouns-3', verbs: 'verbs-1' })
+    expect(restored.recall['nouns-1'].entries.person.streak).toBe(1)
+    expect(restored.theme).toBe('dark')
+    expect(activeLists({ nouns: 'nouns-1' }).nouns.entries[0].korean).toBe('사람')
   })
 
   it('tracks mode scores and rejects invalid backups', () => {

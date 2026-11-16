@@ -17,20 +17,20 @@ Open the URL printed by Vite.
 
 ## System overview
 
-The vocabulary registry resolves eight independent categories. Exercise engines use those selections for grammar and listening, and the recall scheduler uses stable list and entry IDs. IndexedDB stores list edits, active decks, settings, and progress. The static app requires no account or backend.
+The vocabulary registry resolves eight independent categories. Exercise engines use those selections for grammar and listening, and the recall scheduler uses stable list and entry IDs. IndexedDB stores active deck selections, settings, and progress. The static app requires no account or backend.
 
 ## Study modules
 
-- **Vocabulary Library** browses and searches decks, displays applied particles and endings, and supports list and entry editing.
+- **Vocabulary Library** shows fixed lists in a compact searchable table, with examples for particles and endings.
 - **Vocabulary Recall** offers ungraded flashcards and spaced typing. Three clean recalls and a delayed fourth earn mastery. A single-card deck can practice and needs additional cards to meet the spacing rule.
 - **Grammar Trainer** covers particle practice, conjugation, sentence assembly, and sentence writing. Open-ended alternatives can be compared against sample answers and self-reviewed.
 - **Listening & Conversation** uses the device’s Korean synthesis voice for dictation and conversation prompts. Listening can reveal a transcript when a voice is unavailable. Conversation is guided by study frames and example replies.
 
 ## Adding vocabulary
 
-Open **Vocabulary Library**, select a category, and choose **New list**. Add Korean and English entries, then make the list active in **Settings** or **Vocabulary Library**. Use **Export list** to get the JSON format or to share an independent copy with another learner. A full backup from **Settings** includes progress and preferences.
+Vocabulary lists ship with the website. To add a list, update the catalog in [src/data/words.ts](src/data/words.ts) or [src/data/grammar.ts](src/data/grammar.ts) and publish the change. Keep existing IDs stable so selections and progress carry forward. Use semantic tags when words should fill compatible sentence slots. New grammar rules need worked examples, engine support, and tests.
 
-For bundled vocabulary, add a deck in [src/data/words.ts](src/data/words.ts). Use stable IDs, and use semantic tags when words should fill compatible sentence slots. Grammar lists select named rules. To add a rule, define its explanation and examples in [src/data/grammar.ts](src/data/grammar.ts), implement the behavior in [src/engine/korean.ts](src/engine/korean.ts), and add representative tests. Tag custom irregular stems with their correct class. The morphological engine covers the included patterns and documented irregulars. Use custom entries for lexical recall when their predicate forms fall outside that coverage.
+Backups from **Settings** include progress and preferences. An older backup restores study data for the published catalog, with default selections used where necessary.
 
 ## Testing and deployment
 

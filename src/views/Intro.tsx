@@ -22,9 +22,9 @@ const sections = [
 type Syllable = readonly [initial: string, vowel: string, result: string, endings?: readonly string[]]
 
 const syllablePatterns = [
-  { pattern: 'CV', ending: 'No final consonant', right: ['ㄱ', 'ㅏ', '가'], below: ['ㄱ', 'ㅗ', '고'] },
-  { pattern: 'CVC', ending: 'One final consonant', right: ['ㄱ', 'ㅏ', '감', ['ㅁ']], below: ['ㄱ', 'ㅗ', '곰', ['ㅁ']] },
-  { pattern: 'CVCC', ending: 'Two final consonant letters', right: ['ㄱ', 'ㅏ', '값', ['ㅂ', 'ㅅ']], below: ['ㅁ', 'ㅗ', '몫', ['ㄱ', 'ㅅ']] },
+  { pattern: 'CV', ending: 'No coda', right: ['ㄱ', 'ㅏ', '가'], below: ['ㄱ', 'ㅗ', '고'] },
+  { pattern: 'CVC', ending: 'Coda with one consonant', right: ['ㄱ', 'ㅏ', '감', ['ㅁ']], below: ['ㄱ', 'ㅗ', '곰', ['ㅁ']] },
+  { pattern: 'CVCC', ending: 'Coda with two consonants', right: ['ㄱ', 'ㅏ', '값', ['ㅂ', 'ㅅ']], below: ['ㅁ', 'ㅗ', '몫', ['ㄱ', 'ㅅ']] },
 ] as const satisfies readonly { pattern: string; ending: string; right: Syllable; below: Syllable }[]
 
 const coreParticles = [
@@ -58,7 +58,7 @@ export function Intro() {
             <span><strong>C</strong> Consonant letter</span>
             <span><strong>V</strong> Vowel letter</span>
           </div>
-          <p>Each Hangul block is one syllable. The starting consonant comes first. Any final consonants, called batchim (<Korean>받침</Korean>), go at the bottom.</p>
+          <p>Each Hangul block is one syllable. Any final consonant letters, called batchim (<Korean>받침</Korean>), go in the coda at the bottom.</p>
 
           <div className="syllable-matrix">
             <div className="syllable-pair syllable-columns">
@@ -66,7 +66,7 @@ export function Intro() {
               <div>Horizontal vowel <Korean>ㅗ</Korean><small>Goes below</small></div>
             </div>
             {syllablePatterns.map(({ pattern, ending, right, below }) => <section key={pattern} className="syllable-pattern">
-              <h3><strong>{pattern}</strong> <span>{ending}</span></h3>
+              <h3><strong>{pattern}</strong> <span>{ending}{pattern === 'CVCC' && <> · Double batchim (<Korean>겹받침</Korean>)</>}</span></h3>
               <div className="syllable-pair">
                 <SyllableBlock letters={right} position="right" />
                 <SyllableBlock letters={below} position="below" />
@@ -75,14 +75,23 @@ export function Intro() {
           </div>
 
           <h3>How the spelling sounds</h3>
-          <div className="table-wrap intro-table"><table aria-label="Hangul spelling and sound examples">
+          <div className="table-wrap intro-table hangul-sounds"><table aria-label="Hangul spelling and sound examples">
             <thead><tr><th scope="col">Example</th><th scope="col">What to notice</th></tr></thead>
             <tbody>
               <tr><th scope="row"><Korean>ㅇ + ㅏ → 아</Korean></th><td>Initial <Korean>ㅇ</Korean> is silent. Final <Korean>ㅇ</Korean> sounds like “ng,” as in <Korean>공</Korean>.</td></tr>
               <tr><th scope="row"><Korean>ㄱ + ㅘ → 과</Korean></th><td><Korean>ㅘ</Korean> is one vowel that extends below and to the right.</td></tr>
-              <tr><th scope="row"><Korean>값 → [갑]</Korean></th><td>Two final letters can be pronounced as one consonant. Said on its own, <Korean>값</Korean> ends in the <Korean>ㅂ</Korean> sound.</td></tr>
-              <tr><th scope="row"><Korean>밥을 → [바블]</Korean></th><td>The final <Korean>ㅂ</Korean> carries into the vowel that follows it.</td></tr>
-              <tr><th scope="row"><Korean>사람 / 물</Korean></th><td><Korean>ㄹ</Korean> taps between vowels in <Korean>사람</Korean> and sounds closer to “l” at the end of <Korean>물</Korean>.</td></tr>
+              <tr>
+                <th scope="row"><Korean>값 → [갑]</Korean><small>Coda <Korean>ㅂ + ㅅ → ㅂ</Korean></small></th>
+                <td>Both letters share one coda. Said on its own, <Korean>값</Korean> has only the <Korean>ㅂ</Korean> sound at the end.</td>
+              </tr>
+              <tr>
+                <th scope="row"><Korean>밥을 → [바블]</Korean><small>Coda <Korean>ㅂ</Korean> in <Korean>밥</Korean></small></th>
+                <td>The <Korean>ㅂ</Korean> sound moves to the start of the next syllable.</td>
+              </tr>
+              <tr>
+                <th scope="row"><Korean>사람 / 물</Korean><small>Coda <Korean>ㄹ</Korean> in <Korean>물</Korean></small></th>
+                <td><Korean>ㄹ</Korean> taps between vowels in <Korean>사람</Korean> and sounds closer to “l” at the end of <Korean>물</Korean>.</td>
+              </tr>
             </tbody>
           </table></div>
           <a className="text-button" href="#pronunciation">Practice Hangul and batchim <Icon name="arrow" size={15} /></a>
@@ -90,12 +99,12 @@ export function Intro() {
 
         <article className="panel intro-panel">
           <h2 id="sentence" tabIndex={-1}>Sentence structure</h2>
-          <ExampleParts parts={[['Topic', '저는'], ['Object', '음식을'], ['Predicate', '먹어요.']]} meaning="I eat food." />
-          <ExampleParts parts={[['Time', '오늘'], ['Topic', '저는'], ['Place', '집에서'], ['Object', '밥을'], ['Predicate', '먹어요.']]} meaning="Today I’m eating at home." />
+          <ExampleParts parts={[['Topic', '저는', 'I'], ['Object', '음식을', 'food'], ['Predicate', '먹어요.', 'eat']]} meaning="I eat food." />
+          <ExampleParts parts={[['Time', '오늘', 'today'], ['Topic', '저는', 'I'], ['Place', '집에서', 'at home'], ['Object', '밥을', 'rice / a meal'], ['Predicate', '먹어요.', 'eat']]} meaning="Today I’m eating at home." />
           <p>The predicate usually comes last. The earlier parts can move or be left out when context supplies them.</p>
           <div className="intro-pairs">
-            <ExampleParts parts={[['Object', '음식을'], ['Predicate', '먹어요.']]} meaning="I eat food. The speaker is understood." />
-            <ExampleParts parts={[['Subject', '음식이'], ['Description', '맛있어요.']]} meaning="The food is delicious." />
+            <ExampleParts parts={[['Object', '음식을', 'food'], ['Predicate', '먹어요.', 'eat']]} meaning="I eat food. The speaker is understood." />
+            <ExampleParts parts={[['Subject', '음식이', 'food'], ['Description', '맛있어요.', 'is delicious']]} meaning="The food is delicious." />
           </div>
           <a className="text-button" href="#grammar">Practice sentence structure <Icon name="arrow" size={15} /></a>
         </article>
@@ -179,11 +188,12 @@ function SyllableBlock({ letters: [initial, vowel, result, endings = []], positi
 }) {
   return <figure className="syllable-card" aria-label={`Syllable ${result}, vowel ${position === 'right' ? 'on the right' : 'below'}`}>
     <div className={`syllable-block syllable-vowel-${position}`}>
-      <span className="syllable-initial"><small>C</small><Korean>{initial}</Korean></span>
-      <span className="syllable-vowel"><small>V</small><Korean>{vowel}</Korean></span>
-      {endings.map(letter => <span key={letter} className={endings.length === 1 ? 'syllable-final-wide' : undefined}>
-        <small>C</small><Korean>{letter}</Korean>
-      </span>)}
+      <span className="syllable-slot syllable-initial"><small>C</small><Korean>{initial}</Korean></span>
+      <span className="syllable-slot syllable-vowel"><small>V</small><Korean>{vowel}</Korean></span>
+      {endings.length > 0 && <div className="syllable-coda" role="group" aria-label="Coda">
+        {endings.map(letter => <span key={letter} className="syllable-slot"><small>C</small><Korean>{letter}</Korean></span>)}
+        <small className="syllable-coda-label" aria-hidden="true">Coda</small>
+      </div>}
     </div>
     <span aria-hidden="true" className="syllable-arrow">→</span>
     <strong className="syllable-result"><Korean>{result}</Korean></strong>
@@ -192,11 +202,14 @@ function SyllableBlock({ letters: [initial, vowel, result, endings = []], positi
 
 /** Keep labeled Korean chunks in reading order and pair them with a full gloss. */
 function ExampleParts({ parts, meaning }: {
-  parts: readonly (readonly [label: string, korean: string])[]; meaning: ReactNode
+  parts: readonly (readonly [label: string, korean: string, english?: string])[]; meaning: ReactNode
 }) {
   return <figure className="intro-example">
     <dl className="intro-parts">
-      {parts.map(([label, korean]) => <div key={label}><dt>{label}</dt><dd><Korean>{korean}</Korean></dd></div>)}
+      {parts.map(([label, korean, english]) => <div key={label}>
+        <dt>{label}</dt>
+        <dd><Korean>{korean}</Korean>{english && <small>{english}</small>}</dd>
+      </div>)}
     </dl>
     <figcaption>{meaning}</figcaption>
   </figure>

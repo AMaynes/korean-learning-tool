@@ -86,12 +86,23 @@ describe('deployed study workflow', { concurrency: false }, () => {
     await heading(page, 'Nominals and particles')
     assert.equal(await page.getByRole('figure', { name: /^Syllable / }).count(), 6)
     const stacked = page.getByRole('figure', { name: 'Syllable 몫, vowel below' })
-    const positions = await stacked.evaluate(card => [...card.querySelector('.syllable-block').children].map(slot => {
+    const positions = await stacked.evaluate(card => [...card.querySelectorAll('.syllable-slot')].map(slot => {
       const box = slot.getBoundingClientRect()
       return { x: box.x, y: box.y }
     }))
     assert.ok(positions[0].y < positions[1].y && positions[1].y < positions[2].y)
     assert.ok(positions[2].x < positions[3].x && positions[2].y === positions[3].y)
+    assert.equal(await stacked.getByRole('group', { name: 'Coda', exact: true }).count(), 1)
+    await page.getByText('받침', { exact: true }).waitFor()
+    await page.getByText('겹받침', { exact: true }).waitFor()
+    await page.getByText('ㅂ + ㅅ → ㅂ', { exact: true }).waitFor()
+    const sentenceExamples = page.locator('article').filter({ has: page.getByRole('heading', { name: 'Sentence structure', exact: true }) })
+    assert.deepEqual(await sentenceExamples.locator('dd small').allTextContents(), [
+      'I', 'food', 'eat',
+      'today', 'I', 'at home', 'rice / a meal', 'eat',
+      'food', 'eat', 'food', 'is delicious',
+    ])
+    await sentenceExamples.getByText('Today I’m eating at home.', { exact: true }).waitFor()
     await page.getByRole('button', { name: 'Nominals and particles', exact: true }).click()
     assert.equal(await page.evaluate(() => document.activeElement?.id), 'nominals')
     await page.getByText('커피 + 를 → 커피를', { exact: true }).waitFor()

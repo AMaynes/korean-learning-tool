@@ -189,11 +189,11 @@ export function Intro() {
             </> },
             { label: "Particles", content: <>
               <TypeTable title="What takes particles" rows={[
-                ['Nouns, pronouns, numerals', '음식을 / 저는 / 둘이', 'food / I / two people', ['을 / 는 / 이', 'object / topic / subject markers', 'can attach directly to the nouns, pronouns, and numerals in these examples.']],
-                ['Verbs and adjectives', '걷기가 / 맵지는', 'walking, as the subject / as for being spicy', ['-기 / -지', 'noun-forming / connecting endings', 'create forms that can take a particle. Bare stems take endings.']],
+                ['Nouns, pronouns, numerals', '음식을 / 저는 / 둘이', 'food / I / two people', ['을 / 는 / 이', 'object / topic / subject markers', 'can attach directly to these words.']],
+                ['Verbs and adjectives', '걷기가 / 맵지는', 'walking, as the subject / as for being spicy', ['-기 / -지', 'noun-forming / connecting endings', 'make forms that can take a particle.']],
                 ['Determiners', '이 책을', 'this book, as the object', ['을', 'object marker', 'comes after the full phrase 이 책.']],
                 ['Adverbs', '아직도', 'still', ['도', 'also, with emphasis here', 'adds emphasis to the adverb 아직.']],
-                ['Particles and connecting endings', '집에서는 / 먹지는', 'as for at home / as for eating', ['는', 'topic or contrast marker', 'follows 에서 in one example and the verb ending -지 in the other.']],
+                ['Particles and connecting endings', '집에서는 / 먹지는', 'as for at home / as for eating', ['는', 'topic or contrast marker', 'can follow 에서 or -지.']],
               ]} />
               <TypeTable title="Particle types" rows={particleTypes} />
               <ApplicationChecks unit="a particle" particles conjugates={false} note="Some particles stack, as in 집에서 + 는 → 집에서는. In traditional Korean grammar, the copula 이다 is the particle that conjugates, as in 학생이에요." />
@@ -201,8 +201,8 @@ export function Intro() {
             { label: "Conjugation", content: <>
               <TypeTable title="What conjugates" rows={[
                 ['Verbs', '먹다 → 먹어요', 'to eat → eat', ['-어요', 'everyday polite ending', 'attaches to the verb stem 먹.']],
-                ['Adjectives', '맵다 → 매워요', 'to be spicy → is spicy', ['맵 → 매워요', 'spicy → is spicy', 'shows how the adjective stem changes when an ending is added.']],
-                ['Copula 이다', '학생이다 → 학생이에요', 'to be a student → am a student', ['이다', 'to be', 'conjugates as a special case among particles in traditional Korean grammar.']],
+                ['Adjectives', '맵다 → 매워요', 'to be spicy → is spicy', ['맵 → 매워요', 'spicy → is spicy', 'shows how the adjective stem changes.']],
+                ['Copula 이다', '학생이다 → 학생이에요', 'to be a student → am a student', ['이다', 'to be', 'is the conjugating particle in traditional Korean grammar.']],
                 ['Nouns, pronouns, numerals, determiners, adverbs', '음식 / 저 / 둘 / 이 / 빨리', 'food / I / two / this / quickly', ['음식 / 저 / 둘 / 이 / 빨리', 'food / I / two / this / quickly', 'keep their base forms under conjugation.']],
                 ['Other particles and endings', '을 / -어요', 'object marker / everyday polite ending', ['을 / -어요', 'object marker / everyday polite ending', 'attach to other forms.']],
               ]} />
@@ -264,7 +264,7 @@ function SentenceStructure() {
       ]}
       meaning="Today I’m eating spicy food at home."
     />
-    <p><Korean>매운 음식을</Korean> is the <GrammarLabel term="Object">object</GrammarLabel> because it is what gets eaten. <Korean>음식</Korean> (<em>food</em>) is a <GrammarLabel term="Noun">noun</GrammarLabel> because it names a thing. <Korean>매운</Korean> (<em>spicy</em>) modifies it by telling what kind of food.</p>
+    <p><Korean>음식</Korean> (<em>food</em>) is a <GrammarLabel term="Noun">noun</GrammarLabel> because it’s a thing. <Korean>매운</Korean> (<em>spicy</em>) describes it.</p>
 
     <h3>What the predicate needs</h3>
     <div className="intro-pairs">
@@ -291,7 +291,7 @@ function SentenceStructure() {
     <h3><GrammarLabel term="Modifier">Modifiers</GrammarLabel> and <GrammarLabel term="Clause">clauses</GrammarLabel></h3>
     <div className="intro-pairs">
       <ExampleParts parts={[['Modifier', '매운', 'spicy'], ['Object', '음식을', 'food'], ['Action', '먹어요.', 'eat']]} meaning="I eat spicy food." note="The modifier stays with the noun when the rest of the sentence gets shorter." />
-      <ExampleParts parts={[['Object', '책을', 'a book'], ['Manner', '천천히', 'slowly'], ['Action', '읽어요.', 'read']]} meaning="I read a book slowly." note="천천히 is an adverb because it tells how the person reads." />
+      <ExampleParts parts={[['Object', '책을', 'a book'], ['Manner', '천천히', 'slowly'], ['Action', '읽어요.', 'read']]} meaning="I read a book slowly." note="천천히 is an adverb because it tells how I read." />
     </div>
     <ExampleParts parts={[['Who read it', '제가', 'I'], ['Noun-modifying verb', '읽은', 'read'], ['Main subject', '책이', 'the book'], ['Main predicate', '재미있어요.', 'is interesting']]} meaning="The book I read is interesting." note={<>The whole clause <Korean>제가 읽은</Korean> goes before <Korean>책</Korean>.</>} />
     <div className="intro-pairs">

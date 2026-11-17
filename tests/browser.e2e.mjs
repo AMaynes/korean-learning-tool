@@ -144,7 +144,7 @@ describe('deployed study workflow', { concurrency: false }, () => {
     const manner = modifierTable.getByRole('row', { name: /Manner adverb/ })
     await manner.getByText('빨리', { exact: true }).waitFor()
     assert.deepEqual(await manner.locator('em').allTextContents(), ['I eat quickly.', 'quickly'])
-    await manner.getByText(/because it tells how the person eats/).waitFor()
+    await manner.getByText(/because it tells how I eat/).waitFor()
     await page.getByRole('button', { name: 'Determiners', exact: true }).click()
     const determinerHelp = page.getByRole('complementary', { name: 'Grammar explanation' })
     await determinerHelp.getByRole('heading', { name: 'Determiner', exact: true }).waitFor()
@@ -178,7 +178,7 @@ describe('deployed study workflow', { concurrency: false }, () => {
     assert.deepEqual(await examples.locator('li > strong [lang="ko"]').allTextContents(), [
       '저는 집에서 먹어요.', '오늘은 제가 요리해요.', '저는 커피가 좋아요.',
     ])
-    await examples.getByText(/because 는 frames the sentence around the speaker/).waitFor()
+    await examples.getByText(/because I’m talking about myself/).waitFor()
     assert.deepEqual(await examples.locator('li > small em').allTextContents(), [
       'I eat at home.', 'Today I’m the one cooking.', 'I like coffee.',
     ])

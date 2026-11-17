@@ -12,7 +12,7 @@
 import { describe, expect, it } from 'vitest'
 import { conjugationRules, particleRules } from '../src/data/grammar'
 import type { WordClass } from '../src/data/model'
-import { generate, matchesAnswer, matchesEnglishAnswer, recallCard } from '../src/engine/exercises'
+import { generate, matchesAnswer, matchesEnglishAnswer, recallCard, toEnglishPractice } from '../src/engine/exercises'
 import { attach, batchim, conjugate } from '../src/engine/korean'
 import { emptyDeck, finishRecall, markRecallFailure, nextRecall } from '../src/engine/mastery'
 import { batchimCard, batchimCardCount, letterCards } from '../src/engine/pronunciation'
@@ -28,6 +28,19 @@ describe('vocabulary registry', () => {
     expect(active.pronouns.id).toBe('pronouns-1')
     expect(active.particles.entries).toHaveLength(20)
     expect(active.conjugations.entries).toHaveLength(20)
+  })
+
+  it('combines all lists in the selected category and preserves that selection in a backup', () => {
+    const active = activeLists({ ...defaultSelection, nouns: 'nouns-all', particles: 'particles-all' })
+    for (const category of ['nouns', 'particles'] as const) {
+      const entries = builtInLists.filter(list => list.category === category).flatMap(list => list.entries)
+      expect(active[category]).toMatchObject({ id: category + '-all', name: 'All lists', entries })
+    }
+    const state = { ...defaults(), selected: { ...defaultSelection, nouns: 'nouns-all', particles: 'particles-all' } }
+    expect(importBackup({ kind: 'korean-study-backup', state }).selected).toEqual(state.selected)
+    const particles = generate('particles', active, 'nouns')
+    expect(particles.some(item => item.prompt === '선생님')).toBe(true)
+    expect(particles.some(item => item.target === 'particles-all:even')).toBe(true)
   })
 
   it('resolves invalid or cross-category selections to the bundled defaults', () => {
@@ -68,6 +81,37 @@ describe('recall direction', () => {
     expect(card).toMatchObject({ prompt: '먹어요', answer: 'Eat (polite)' })
     expect(matchesEnglishAnswer('to eat', [card.answer])).toBe(true)
     expect(card.transformation?.original).toBe('먹다')
+  })
+})
+
+describe('practice in English', () => {
+  it('uses the finished Korean form for particle and conjugation recognition', () => {
+    const active = activeLists(defaultSelection)
+    for (const mode of ['particles', 'conjugations'] as const) {
+      const exercise = generate(mode, active)[0]
+      expect(toEnglishPractice(mode, exercise)).toMatchObject({
+        prompt: exercise.answer, answer: exercise.cue, target: 'ko-to-en:' + exercise.target,
+        transformation: exercise.transformation,
+      })
+    }
+  })
+
+  it('reverses sentence, dictation, and conversation prompts without changing the audio', () => {
+    const active = activeLists(defaultSelection)
+    const assembly = generate('assembly', active)[0]
+    const reversed = toEnglishPractice('assembly', assembly)
+    expect(reversed).toMatchObject({ prompt: assembly.answer, answer: assembly.prompt })
+    expect(reversed.tokens?.join(' ')).toBe(assembly.prompt.replace(/\.$/u, ''))
+    for (const mode of ['writing', 'dictation'] as const) {
+      const exercise = generate(mode, active)[0]
+      expect(toEnglishPractice(mode, exercise)).toMatchObject({
+        prompt: exercise.answer, answer: exercise.prompt, audio: exercise.audio,
+      })
+    }
+    const conversation = generate('conversation', active)[0]
+    expect(toEnglishPractice('conversation', conversation)).toMatchObject({
+      prompt: conversation.prompt, answer: conversation.translation, audio: conversation.audio,
+    })
   })
 })
 

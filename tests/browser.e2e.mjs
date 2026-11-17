@@ -588,4 +588,52 @@ describe('deployed study workflow', { concurrency: false }, () => {
     await page.getByText('Suggested responses', { exact: true }).waitFor()
     await page.close()
   })
+
+  it('uses all active lists and reads Korean for meaning across practice modes', async () => {
+    const page = await browser.newPage()
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.goto(projectPage + '#settings')
+    await heading(page, 'Study settings')
+    await select(page, 'Nouns', 'nouns-all')
+    await page.getByRole('link', { name: 'Tool', exact: true }).click()
+    await page.getByRole('link', { name: 'Vocabulary Library', exact: true }).click()
+    const entries = page.getByRole('table', { name: 'Nouns vocabulary' })
+    await entries.getByRole('rowheader', { name: '사람', exact: true }).waitFor()
+    await entries.getByRole('rowheader', { name: '선생님', exact: true }).waitFor()
+    assert.equal(await entries.getByRole('row').count(), 31)
+
+    await page.getByRole('link', { name: 'Grammar Trainer', exact: true }).click()
+    await page.locator('.practice-selectors summary').click()
+    assert.equal(await page.getByLabel('Nouns', { exact: true }).inputValue(), 'nouns-all')
+    const reading = page.getByRole('group', { name: 'Practice direction' }).getByRole('button', { name: 'Korean → English', exact: true })
+    await reading.click()
+    for (const mode of ['Particle Practice', 'Conjugation Practice', 'Sentence Assembly', 'Sentence Writing']) {
+      await page.getByRole('button', { name: mode, exact: true }).click()
+      await page.locator('.exercise-prompt h2 [lang="ko"]').waitFor()
+      assert.equal(await page.locator('.model-answer').count(), 0)
+      if (mode === 'Sentence Assembly') {
+        await page.getByText('Put the English words in order.', { exact: true }).waitFor()
+        assert.ok(await page.locator('.token-bank button').count() > 0)
+        assert.equal(await page.locator('.token-bank [lang="ko"]').count(), 0)
+      } else {
+        assert.equal(await page.getByRole('textbox', { name: 'English meaning' }).getAttribute('lang'), 'en')
+      }
+      await page.getByRole('button', { name: 'Reveal meaning' }).click()
+      await page.locator('.model-answer strong').waitFor()
+    }
+
+    await page.getByRole('link', { name: 'Listening & Conversation', exact: true }).click()
+    await reading.click()
+    await heading(page, 'Listen and give the English meaning')
+    assert.equal(await page.locator('.model-answer').count(), 0)
+    await page.getByRole('button', { name: 'Reveal meaning' }).click()
+    await page.locator('.feedback p').filter({ hasText: /^Transcript/ }).waitFor()
+    await page.locator('.model-answer strong').waitFor()
+    await page.getByRole('button', { name: 'Guided Conversation', exact: true }).click()
+    await page.locator('.exercise-prompt h2 [lang="ko"]').waitFor()
+    assert.equal(await page.getByRole('button', { name: 'Show English', exact: true }).count(), 0)
+    await page.getByRole('button', { name: 'Reveal meaning' }).click()
+    await page.locator('.model-answer strong').waitFor()
+    await page.close()
+  })
 })

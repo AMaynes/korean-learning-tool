@@ -15,12 +15,19 @@ import type { Category, Entry, Selection, WordList } from '../data/model'
 import { lexicalLists } from '../data/words'
 
 export const builtInLists = [...lexicalLists, ...grammarLists]
+export const selectableLists: WordList[] = [...builtInLists, ...categoryIds.map(category => {
+  const entries = builtInLists.filter(list => list.category === category).flatMap(list => list.entries)
+  return {
+    id: category + '-all', category, name: 'All lists',
+    entries: [...new Map(entries.map(entry => [entry.id, entry])).values()],
+  }
+})]
 export const defaultSelection = Object.fromEntries(categoryIds.map(category => [category, category + '-1'])) as Selection
 
 /** Resolve only catalog lists and fall back within each category for obsolete selections. */
 export function activeLists(selection: Partial<Record<Category, unknown>>) {
   return Object.fromEntries(categoryIds.map(category => {
-    const options = builtInLists.filter(list => list.category === category)
+    const options = selectableLists.filter(list => list.category === category)
     return [category, options.find(list => list.id === selection[category]) ?? options[0]]
   })) as Record<Category, WordList>
 }

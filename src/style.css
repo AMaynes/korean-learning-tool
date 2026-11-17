@@ -74,7 +74,8 @@ p { color: var(--muted); line-height: 1.55; }
 .study-main, .study-aside { display: grid; gap: 15px; min-width: 0; }
 .panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); }
 .deck-controls { padding: 16px; display: grid; grid-template-columns: 1fr 1.2fr; gap: 14px; }
-.recall-direction { grid-column: 1 / -1; justify-self: start; }
+.direction-switch { justify-self: start; max-width: 100%; }
+.deck-controls .direction-switch { grid-column: 1 / -1; }
 .field { display: grid; gap: 7px; color: var(--muted); font-weight: 650; font-size: 13px; min-width: 0; }
 .field small { font-weight: 400; }
 .field select, .field input, .field textarea { min-height: 42px; width: 100%; min-width: 0; padding: 8px 11px; color: var(--ink); background: var(--panel); border: 1px solid var(--control-line); border-radius: 8px; font-weight: 500; }

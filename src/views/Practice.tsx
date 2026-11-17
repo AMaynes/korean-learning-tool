@@ -11,11 +11,11 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import type { Category, WordList } from '../data/model'
-import { generate, matchesAnswer, shuffle } from '../engine/exercises'
-import type { Exercise } from '../engine/exercises'
+import { generate, matchesAnswer, matchesEnglishAnswer, shuffle, toEnglishPractice, toEnglishTargetPrefix } from '../engine/exercises'
+import type { Exercise, RecallDirection } from '../engine/exercises'
 import { addScore } from '../engine/storage'
 import type { PracticeMode, StudyState } from '../engine/storage'
-import { ActiveConfig, Empty, Icon, Korean, AnswerForm, koreanVoice, speakKorean, StandalonePronunciationNote, Transform } from './shared'
+import { ActiveConfig, AnswerForm, DirectionSwitch, Empty, Icon, Korean, koreanVoice, speakKorean, StandalonePronunciationNote, Transform } from './shared'
 import type { Save, SelectList } from './shared'
 
 const grammarModes = ['particles', 'conjugations', 'assembly', 'writing'] as const
@@ -23,6 +23,11 @@ const listeningModes = ['dictation', 'conversation'] as const
 const labels: Record<PracticeMode, string> = {
   particles: 'Particle Practice', conjugations: 'Conjugation Practice', assembly: 'Sentence Assembly',
   writing: 'Sentence Writing', dictation: 'Listening Dictation', conversation: 'Guided Conversation',
+}
+
+const forwardLabels: Partial<Record<PracticeMode, string>> = {
+  particles: 'Apply the particle', conjugations: 'Apply the ending',
+  dictation: 'Transcribe Korean', conversation: 'Reply in Korean',
 }
 
 const modeCategories: Record<PracticeMode, Category[]> = {
@@ -46,12 +51,15 @@ export function Practice({ module, active, lists, state, onSelect, save }: {
   const [scope, setScope] = useState<Scope>('both')
   const [ruleFilter, setRuleFilter] = useState('')
   const [revision, setRevision] = useState(0)
+  const [direction, setDirection] = useState<RecallDirection>('en-to-ko')
+  const reading = direction === 'ko-to-en'
   const ruleList = mode === 'particles' || mode === 'conjugations' ? active[mode] : undefined
   const validFilter = ruleList?.entries.some(entry => entry.id === ruleFilter) ? ruleFilter : ''
   const exercises = useMemo(() => {
     const generated = generate(mode, active, scope)
-    return validFilter ? generated.filter(exercise => exercise.target === `${ruleList?.id}:${validFilter}`) : generated
-  }, [mode, active, scope, validFilter, ruleList])
+    const filtered = validFilter ? generated.filter(exercise => exercise.target === `${ruleList?.id}:${validFilter}`) : generated
+    return reading ? filtered.map(exercise => toEnglishPractice(mode, exercise)) : filtered
+  }, [mode, active, scope, validFilter, ruleList, reading])
   const scopeKey = modeCategories[mode].map(category => active[category].id).join(':')
   const exerciseKey = exercises.map(exercise => exercise.id).join(',')
   const targets = new Set(exercises.map(exercise => exercise.target))
@@ -75,9 +83,10 @@ export function Practice({ module, active, lists, state, onSelect, save }: {
           <summary>Active vocabulary</summary>
           <ActiveConfig categories={modeCategories[mode]} lists={lists} active={active} onSelect={onSelect} />
         </details>
+        <DirectionSwitch direction={direction} onChange={setDirection} forwardLabel={forwardLabels[mode]} />
         {exercises.length ? <PracticeSession
-          key={`${mode}:${scopeKey}:${scope}:${validFilter}:${revision}:${exerciseKey}`}
-          mode={mode} exercises={exercises} save={save}
+          key={`${mode}:${direction}:${scopeKey}:${scope}:${validFilter}:${revision}:${exerciseKey}`}
+          mode={mode} reading={reading} exercises={exercises} save={save}
         /> : <Empty title="No compatible exercises">
           <p>{ruleList ? 'Choose another vocabulary list, rule, or word category.' :
             'Choose compatible active lists. Generated sentences use the Present Polite ending and words that fit a sentence frame.'}</p>
@@ -104,13 +113,16 @@ export function Practice({ module, active, lists, state, onSelect, save }: {
           </dl>
           <p className="inline-note">Three correct checks in a row master a practice item.</p>
           <button className="text-button" onClick={async () => {
-            if (!window.confirm(`Reset all progress for ${labels[mode]}?`)) return
+            if (!window.confirm(`Reset ${labels[mode]} progress for the selected direction?`)) return
             if (await save(previous => {
+              const remaining = Object.entries(previous.scores[mode] ?? {}).filter(([target]) =>
+                target.startsWith(toEnglishTargetPrefix) !== reading)
               const next = { ...previous.scores }
-              delete next[mode]
+              if (remaining.length) next[mode] = Object.fromEntries(remaining)
+              else delete next[mode]
               return { ...previous, scores: next }
             })) setRevision(value => value + 1)
-          }}>Reset this mode</button>
+          }}>Reset this direction’s progress</button>
         </div>
       </aside>
     </div>
@@ -118,7 +130,9 @@ export function Practice({ module, active, lists, state, onSelect, save }: {
 }
 
 /** Freeze one shuffled exercise queue until the learning scope changes. */
-function PracticeSession({ mode, exercises, save }: { mode: PracticeMode; exercises: Exercise[]; save: Save }) {
+function PracticeSession({ mode, reading, exercises, save }: {
+  mode: PracticeMode; reading: boolean; exercises: Exercise[]; save: Save
+}) {
   const [order, setOrder] = useState(() => shuffle(exercises.map(exercise => exercise.id)))
   const [position, setPosition] = useState(0)
   const exercise = exercises.find(item => item.id === order[position]) ?? exercises[0]
@@ -132,15 +146,15 @@ function PracticeSession({ mode, exercises, save }: { mode: PracticeMode; exerci
     setPosition(0)
   }
 
-  return <ExerciseCard key={exercise.id + ':' + position} mode={mode} exercise={exercise}
+  return <ExerciseCard key={exercise.id + ':' + position} mode={mode} reading={reading} exercise={exercise}
     number={position + 1} total={order.length} save={save} advance={advance} />
 }
 
 type Result = 'correct' | 'different' | 'incorrect' | 'revealed'
 
 /** Display a single attempt, with exact grading for constrained prompts and review for open writing. */
-function ExerciseCard({ mode, exercise, number, total, save, advance }: {
-  mode: PracticeMode; exercise: Exercise; number: number; total: number;
+function ExerciseCard({ mode, reading, exercise, number, total, save, advance }: {
+  mode: PracticeMode; reading: boolean; exercise: Exercise; number: number; total: number;
   save: Save; advance: () => void
 }) {
   const [input, setInput] = useState('')
@@ -159,13 +173,16 @@ function ExerciseCard({ mode, exercise, number, total, save, advance }: {
   const assembly = mode === 'assembly'
   const audio = dictation || conversation
   const sentenceWriting = mode === 'writing' || conversation
-  const examples = conversation ? exercise.responses ?? [exercise.answer] : [exercise.answer, ...exercise.alternatives ?? []]
+  const examples = conversation && !reading ? exercise.responses ?? [exercise.answer] : [exercise.answer, ...exercise.alternatives ?? []]
+  const prompt = dictation
+    ? reading ? 'Listen and give the English meaning' : 'Listen and type what you hear'
+    : (reading || conversation || exercise.transformation) ? <Korean>{exercise.prompt}</Korean> : exercise.prompt
 
   /** Score one attempt, deferring non-matching open-ended answers to learner review. */
   async function grade(answer: string, reveal = false) {
     if (busy || result) return
-    const correct = !reveal && matchesAnswer(answer, examples)
-    if (!correct && !reveal && sentenceWriting) { setResult('different'); return }
+    const correct = !reveal && (reading ? matchesEnglishAnswer(answer, examples) : matchesAnswer(answer, examples))
+    if (!correct && !reveal && (sentenceWriting || (reading && !assembly))) { setResult('different'); return }
     setBusy(true)
     const ok = await save(previous => addScore(previous, mode, exercise.target, correct))
     if (ok) setResult(reveal ? 'revealed' : correct ? 'correct' : 'incorrect')
@@ -188,35 +205,40 @@ function ExerciseCard({ mode, exercise, number, total, save, advance }: {
     <div className="card-meta"><span>{labels[mode]}</span><span>Exercise {number} of {total}</span></div>
     <div className="exercise-prompt">
       <span className="eyebrow">{exercise.cue}</span>
-      <h2>{dictation ? 'Listen and type what you hear' : (conversation || exercise.transformation) ? <Korean>{exercise.prompt}</Korean> : exercise.prompt}</h2>
-      {exercise.transformation && <>
+      <h2>{prompt}</h2>
+      {exercise.transformation && !reading && <>
         <StandalonePronunciationNote word={exercise.prompt} />
         <p>{exercise.transformation.originalMeaning}</p>
       </>}
-      {assembly && <p>Find the polite predicate first. It usually goes at the end.</p>}
+      {assembly && <p>{reading ? 'Put the English words in order.' : 'Find the polite predicate first. It usually goes at the end.'}</p>}
       {dictation && <p>Use Slow to hear each part, then replay at normal speed.</p>}
-      {mode === 'writing' && <p>Use a polite ending. You can leave out an obvious subject.</p>}
+      {mode === 'writing' && !reading && <p>Use a polite ending. You can leave out an obvious subject.</p>}
       {audio && exercise.audio && <AudioControls phrase={exercise.audio} />}
-      {conversation && <button className="text-button" onClick={() => setShowTranslation(value => !value)}>{showTranslation ? 'Hide English' : 'Show English'}</button>}
-      {conversation && showTranslation && <p>{exercise.translation}</p>}
-      {conversation && <p>Reply with a short polite sentence. You can say your answer aloud before comparing it.</p>}
+      {conversation && !reading && <button className="text-button" onClick={() => setShowTranslation(value => !value)}>{showTranslation ? 'Hide English' : 'Show English'}</button>}
+      {conversation && !reading && showTranslation && <p>{exercise.translation}</p>}
+      {conversation && !reading && <p>Reply with a short polite sentence. You can say your answer aloud before comparing it.</p>}
     </div>
     {assembly ? <>
       <div className="token-answer" aria-label="Your sentence">
         {choice.length ? choice.map(index => <button className="token selected" key={index} disabled={!!result} onClick={() =>
-          setChoice(choice.filter(item => item !== index))}><Korean>{tokens[index]}</Korean></button>) : <span>Add words here in sentence order.</span>}
+          setChoice(choice.filter(item => item !== index))}>{reading ? tokens[index] : <Korean>{tokens[index]}</Korean>}</button>) : <span>Add words here in sentence order.</span>}
       </div>
       <div className="token-bank" aria-label="Available words">{tokens.map((token, index) => <button className="token" key={index}
-        disabled={choice.includes(index) || !!result} onClick={() => setChoice([...choice, index])}><Korean>{token}</Korean></button>)}</div>
+        disabled={choice.includes(index) || !!result} onClick={() => setChoice([...choice, index])}>{reading ? token : <Korean>{token}</Korean>}</button>)}</div>
       <div className="button-row"><button className="button" disabled={!choice.length || !!result} onClick={() => setChoice([])}>Clear</button>
         <button className="button primary" disabled={choice.length !== tokens.length || busy || !!result}
           onClick={() => void grade(choice.map(index => tokens[index]).join(' '))}>Check answer</button></div>
     </> : <AnswerForm value={input} onChange={setInput} submit={() => void grade(input)} multiline={sentenceWriting}
-      label={conversation ? 'Your response' : dictation ? 'Your transcription' : 'Your answer'} disabled={busy || !!result} />}
+      language={reading ? 'en' : 'ko'} label={reading ? 'English meaning' : conversation ? 'Your response' : dictation ? 'Your transcription' : 'Your answer'} disabled={busy || !!result} />}
     <div className="feedback" aria-live="polite">
       {result && <>
         <p className={result === 'correct' ? 'success' : 'retry'}>{result === 'correct' && <Icon name="check" />}{feedbackText[result]}</p>
-        {exercise.transformation ? <Transform example={exercise.transformation} /> : <>
+        {reading && <>
+          <div className="model-answer"><small>English meaning</small><strong>{exercise.answer}</strong></div>
+          {dictation && <p>Transcript <Korean>{exercise.prompt}</Korean></p>}
+        </>}
+        {exercise.transformation && <Transform example={exercise.transformation} />}
+        {!reading && !exercise.transformation && <>
           <div className="model-answer"><small>{conversation ? 'Suggested responses' : 'Example answer'}</small>
             {[...new Set(examples)].slice(0, conversation ? 3 : 2).map(answer => <strong key={answer}><Korean>{answer}</Korean></strong>)}
           </div>
@@ -231,7 +253,7 @@ function ExerciseCard({ mode, exercise, number, total, save, advance }: {
     </div>}
     <div className="card-actions">
       <button className="button quiet" disabled={busy || !!result} onClick={() => void grade('', true)}>
-        {dictation ? 'Reveal transcript' : conversation ? 'Show responses' : 'Reveal answer'}
+        {reading ? 'Reveal meaning' : dictation ? 'Reveal transcript' : conversation ? 'Show responses' : 'Reveal answer'}
       </button>
       <button className="button" disabled={busy} onClick={advance}>{result ? 'Next' : 'Skip'} <Icon name="arrow" /></button>
     </div>

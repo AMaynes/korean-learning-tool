@@ -9,6 +9,7 @@
  */
 
 
+import type { RecallDirection } from '../engine/exercises'
 import { useRef } from 'react'
 import type { FormEvent, ReactNode } from 'react'
 import { categories, categoryIds } from '../data/model'
@@ -94,6 +95,16 @@ export function ListSelect({ category, lists, selected, onSelect, label = 'Vocab
       {lists.filter(list => list.category === category).map(list => <option value={list.id} key={list.id}>{list.name}</option>)}
     </select>
   </label>
+}
+
+/** Switch the target language for a recall or practice session. */
+export function DirectionSwitch({ direction, onChange, label = 'Practice direction', forwardLabel = 'English → Korean' }: {
+  direction: RecallDirection; onChange: (direction: RecallDirection) => void; label?: string; forwardLabel?: string
+}) {
+  return <div className="segmented direction-switch" role="group" aria-label={label}>
+    <button type="button" aria-pressed={direction === 'en-to-ko'} onClick={() => onChange('en-to-ko')}>{forwardLabel}</button>
+    <button type="button" aria-pressed={direction === 'ko-to-en'} onClick={() => onChange('ko-to-en')}>Korean → English</button>
+  </div>
 }
 
 /** Render source, operation, and result as a single study example. */

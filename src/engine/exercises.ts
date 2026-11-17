@@ -100,6 +100,25 @@ export function generate(mode: PracticeMode, active: Active, scope: HostCategory
   }
 }
 
+export const toEnglishTargetPrefix = 'ko-to-en:'
+
+/** Use the Korean model or spoken prompt to practice its meaning in English. */
+export function toEnglishPractice(mode: PracticeMode, exercise: Exercise): Exercise {
+  const transformation = exercise.transformation
+  const answer = transformation ? exercise.cue :
+    mode === 'conversation' ? exercise.translation ?? exercise.prompt : exercise.prompt
+  const cue = mode === 'particles' ? 'Explain the particle in English' :
+    mode === 'conjugations' ? 'Explain what the ending expresses' : 'Recall the English meaning'
+  return {
+    ...exercise,
+    target: toEnglishTargetPrefix + exercise.target,
+    prompt: mode === 'conversation' ? exercise.prompt : exercise.answer,
+    cue, answer,
+    alternatives: transformation ? answer.split(/\s+\/\s+/u) : undefined,
+    tokens: mode === 'assembly' ? normalizedAnswer(answer).split(/\s+/u) : undefined,
+  }
+}
+
 /** Expand particle rules over eligible active host words, including both batchim environments. */
 function particleExercises(active: Active, scope: HostCategory): Exercise[] {
   const lists = scope === 'both' ? [active.nouns, active.pronouns] : [active[scope]]

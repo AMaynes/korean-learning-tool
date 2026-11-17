@@ -16,7 +16,7 @@ import { matchesAnswer, matchesEnglishAnswer, recallCard, shuffle } from '../eng
 import type { RecallDirection } from '../engine/exercises'
 import { emptyDeck, finishRecall, markRecallFailure, nextRecall } from '../engine/mastery'
 import type { DeckProgress } from '../engine/mastery'
-import { AnswerForm, Empty, Icon, Korean, ListSelect, StandalonePronunciationNote, Transform } from './shared'
+import { AnswerForm, DirectionSwitch, Empty, Icon, Korean, ListSelect, StandalonePronunciationNote, Transform } from './shared'
 import type { Save, SelectList } from './shared'
 
 type Mode = 'mental' | 'typing'
@@ -54,10 +54,7 @@ export function Recall({ category, setCategory, deck, lists, onSelect, save, pro
             {categoryIds.map(id => <option key={id} value={id}>{categories[id]}</option>)}
           </select></label>
           <ListSelect category={category} lists={lists} selected={deck.id} onSelect={onSelect} />
-          <div className="segmented recall-direction" role="group" aria-label="Recall direction">
-            <button type="button" aria-pressed={!reading} onClick={() => setDirection('en-to-ko')}>English → Korean</button>
-            <button type="button" aria-pressed={reading} onClick={() => setDirection('ko-to-en')}>Korean → English</button>
-          </div>
+          <DirectionSwitch direction={direction} onChange={setDirection} label="Recall direction" />
         </div>
         {deck.entries.length ? mode === 'mental'
           ? <MentalRecall key={sessionKey} deck={deck} direction={direction} />

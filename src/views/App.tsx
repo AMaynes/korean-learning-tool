@@ -12,7 +12,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { categories } from '../data/model'
 import type { Category } from '../data/model'
-import { activeLists, builtInLists as lists } from '../engine/registry'
+import { activeLists, selectableLists as lists } from '../engine/registry'
 import { defaults, loadState, updateState } from '../engine/storage'
 import type { StudyState } from '../engine/storage'
 import { Intro } from './Intro'

@@ -204,10 +204,9 @@ describe('deployed study workflow', { concurrency: false }, () => {
     const subtypesByTab = {
       Pronouns: ['Personal', 'Demonstrative', 'Interrogative', 'Indefinite', 'Reflexive'],
       Numerals: ['Native Korean cardinal', 'Sino-Korean cardinal', 'Ordinal', 'Before a counter'],
-      Verbs: ['Intransitive', 'Transitive', 'With a recipient', 'Auxiliary verb', 'Passive', 'Causative', 'Regular verb', 'Irregular verb'],
-      Adjectives: ['Physical quality', 'State', 'Evaluation', 'Auxiliary adjective', 'Regular adjective', 'Irregular adjective', 'Before a noun'],
+      Verbs: ['Takes an object (transitive)', 'No object (intransitive)'],
     }
-    const firstFocusByTab = { Pronouns: '저', Numerals: '하나', Verbs: '자요', Adjectives: '커요' }
+    const firstFocusByTab = { Pronouns: '저', Numerals: '하나', Verbs: '먹어요' }
 
     const grammarGroups = [
       ['Nominals', ['Nouns', 'Pronouns', 'Numerals']],
@@ -224,6 +223,10 @@ describe('deployed study workflow', { concurrency: false }, () => {
         await category.waitFor({ state: 'visible' })
         const answers = await category.locator('.intro-application dd').allTextContents()
         assert.ok(answers.length >= 2 && answers.every(answer => answer === 'Yes' || answer === 'No'))
+        if (title === 'Adjectives') {
+          const examples = category.getByRole('list', { name: 'Examples' })
+          assert.deepEqual(await examples.locator('li > p b [lang="ko"]').allTextContents(), ['매워요', '매운', '조용했어요'])
+        }
         const labels = subtypesByTab[title]
         if (!labels) continue
         const table = category.getByRole('table')
@@ -235,6 +238,7 @@ describe('deployed study workflow', { concurrency: false }, () => {
           const focus = await nounHelp.locator('li > p b [lang="ko"]').allTextContents()
           assert.equal(focus.length, 3)
           if (label === labels[0]) assert.equal(focus[0], firstFocusByTab[title])
+          if (title === 'Verbs') assert.equal(focus[2], '멈춰요')
           await page.keyboard.press('Escape')
           await nounHelp.waitFor({ state: 'hidden' })
         }

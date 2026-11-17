@@ -12,10 +12,10 @@
 import { createContext, useContext, useEffect, useId, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import {
-  adjectiveTypes, conjugationTypes, introGlossary, introWordMeanings, modifierTypes, nounTypes,
+  conjugationTypes, introGlossary, introWordMeanings, modifierTypes, nounTypes,
   numeralTypes, particleTypes, pronounTypes, verbTypes,
 } from '../data/intro'
-import type { ExampleFocus, IntroTerm, IntroType } from '../data/intro'
+import type { ExampleFocus, GlossaryExample, IntroTerm, IntroType } from '../data/intro'
 import { hangulAlphabet } from '../engine/pronunciation'
 import { Icon, Korean, speakKorean } from './shared'
 
@@ -138,8 +138,9 @@ export function Intro() {
           <p>A <GrammarLabel term="Predicate">predicate</GrammarLabel> tells what happens, what something is like, or what it is. Start the worked sentence with the dictionary form <Korean>먹다</Korean> (<em>“to eat”</em>).</p>
           <LessonTabs sectionId="predicates" tabs={[
             { label: "Verbs", content: <>
-              <p>A <GrammarLabel term="Verb">verb</GrammarLabel> can be described by the sentence parts it needs and how its stem changes.</p>
+              <p>Group each main <GrammarLabel term="Verb">verb</GrammarLabel> by whether it can take a direct object in that use. Some verbs, like <Korean>멈추다</Korean> (<em>to stop</em>), work both ways.</p>
               <TypeTable title="Verb types" typeHeading="Verb Type" rows={verbTypes} />
+              <p>In <Korean>먹어 봐요</Korean> (<em>Try eating it</em>), <Korean>먹어</Korean> (<em>eat</em>) is the main verb and <Korean>봐요</Korean> (<em>try</em>) is the helping verb.</p>
               <ApplicationChecks unit="a verb stem" particles={false} conjugates note="Particles can follow some forms of the verb."
                 examples={[
                   ["걷기가", ["걷기", "walking", "is the noun form of the verb 걷다. 가 is the subject particle."]],
@@ -148,8 +149,8 @@ export function Intro() {
               />
             </> },
             { label: "Adjectives", content: <>
-              <p>An <GrammarLabel term="Adjective">adjective</GrammarLabel> can be the predicate of a clause. It can also describe a noun in a form like <Korean>매운</Korean>.</p>
-              <TypeTable title="Adjective types" typeHeading="Adjective Type" rows={adjectiveTypes} />
+              <p>An <GrammarLabel term="Adjective">adjective</GrammarLabel> describes what someone or something is like. It can be the predicate or go before the noun it describes.</p>
+              <GlossaryExamples examples={introGlossary.Adjective.examples} />
               <ApplicationChecks unit="an adjective stem" particles={false} conjugates note="Particles can follow some forms of the adjective."
                 examples={[
                   ["건강하기가 어렵다", ["건강하기", "being healthy", "is the noun form of the adjective 건강하다. 가 is the subject particle."]],
@@ -233,14 +234,7 @@ export function Intro() {
         </div>
         {explanation ? <>
           <p>{introGlossary[explanation.term].definition}</p>
-          <ul className="intro-explanation-examples" aria-label="Examples">
-            {introGlossary[explanation.term].examples.map(([korean, english, focus]) => <li className="intro-explanation-example" key={korean}>
-              <strong><Korean>{korean}</Korean></strong>
-              <small><em>{english}</em></small>
-              <WordGlosses korean={korean} english={english} />
-              <p><ExplainExample focus={focus} /></p>
-            </li>)}
-          </ul>
+          <GlossaryExamples examples={introGlossary[explanation.term].examples} />
         </> : <p>Select an underlined term for a definition and three examples.</p>}
       </aside>
     </div>
@@ -568,6 +562,18 @@ function WordGlosses({ korean, english }: { korean: string; english?: string }) 
       <Korean>{word}</Korean>{meaning && <> (<em>{meaning}</em>)</>}
     </span>)}
   </div>
+}
+
+/** Show the Korean form, translation, and what to notice. */
+function GlossaryExamples({ examples }: { examples: readonly GlossaryExample[] }) {
+  return <ul className="intro-explanation-examples" aria-label="Examples">
+    {examples.map(([korean, english, focus]) => <li className="intro-explanation-example" key={korean}>
+      <strong><Korean>{korean}</Korean></strong>
+      <small><em>{english}</em></small>
+      <WordGlosses korean={korean} english={english} />
+      <p><ExplainExample focus={focus} /></p>
+    </li>)}
+  </ul>
 }
 
 /** Identify the Korean part, its English meaning, and the reason it fits the example. */

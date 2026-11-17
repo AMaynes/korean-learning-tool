@@ -106,7 +106,7 @@ export function Intro() {
             { label: "Nouns", content: <>
               <p>A <GrammarLabel term="Noun">noun</GrammarLabel> can fit more than one type. <Korean>음식</Korean> is both common and concrete.</p>
               <TypeTable title="Noun types" typeHeading="Noun Type" rows={nounTypes} />
-              <ApplicationChecks unit="a noun" particles conjugates={false} note="The particle goes after the noun."
+              <ApplicationChecks unit="a noun" particles="Yes" conjugates={false} note="The particle goes after the noun."
                 examples={[
                   ["음식 + 을 → 음식을", ["음식", "food", "is the noun. 을 is the object particle."]],
                 ]}
@@ -115,7 +115,7 @@ export function Intro() {
             { label: "Pronouns", content: <>
               <p>A <GrammarLabel term="Pronoun">pronoun</GrammarLabel> can stand for a person or thing already clear from context.</p>
               <TypeTable title="Pronoun types" typeHeading="Pronoun Type" rows={pronounTypes} />
-              <ApplicationChecks unit="a pronoun" particles conjugates={false} note="저 takes 는 for the topic and changes to 제 before the subject particle 가."
+              <ApplicationChecks unit="a pronoun" particles="Yes" conjugates={false} note="저 takes 는 for the topic and changes to 제 before the subject particle 가."
                 examples={[
                   ["저 + 는 → 저는", ["저", "I", "is the pronoun. 는 is the topic particle."]],
                   ["저 + 가 → 제가", ["제", "I", "is the pronoun form that goes before the subject particle 가."]],
@@ -124,7 +124,7 @@ export function Intro() {
             </> },
             { label: "Numerals", content: <>
               <TypeTable title="Numeral types" typeHeading="Numeral Type" rows={numeralTypes} />
-              <ApplicationChecks unit="a numeral" particles conjugates={false} note="A particle can follow a number on its own or the full phrase with a counter."
+              <ApplicationChecks unit="a numeral" particles="Yes" conjugates={false} note="A particle can follow a number on its own or the full phrase with a counter."
                 examples={[
                   ["둘이", ["둘", "two", "is the numeral. 이 is the subject particle."]],
                   ["세 개를", ["세", "three", "is the number form before the counter 개. 를 marks the whole phrase as the object."]],
@@ -141,7 +141,7 @@ export function Intro() {
               <p>Group each main <GrammarLabel term="Verb">verb</GrammarLabel> by whether it can take a direct object in that use. Some verbs, like <Korean>멈추다</Korean> (<em>to stop</em>), work both ways.</p>
               <TypeTable title="Verb types" typeHeading="Verb Type" rows={verbTypes} />
               <p>In <Korean>먹어 봐요</Korean> (<em>Try eating it</em>), <Korean>먹어</Korean> (<em>eat</em>) is the main verb and <Korean>봐요</Korean> (<em>try</em>) is the helping verb.</p>
-              <ApplicationChecks unit="a verb stem" particles={false} conjugates note="Particles can follow some forms of the verb."
+              <ApplicationChecks unit="a verb" particles="Sometimes" conjugates note="The verb stem takes an ending first. Some forms, like 걷기 and 먹지, can then take a particle."
                 examples={[
                   ["걷기가", ["걷기", "walking", "is the noun form of the verb 걷다. 가 is the subject particle."]],
                   ["먹지는", ["먹지", "eat", "is the verb stem 먹 with the connecting ending -지. 는 adds contrast."]],
@@ -151,7 +151,7 @@ export function Intro() {
             { label: "Adjectives", content: <>
               <p>An <GrammarLabel term="Adjective">adjective</GrammarLabel> describes what someone or something is like. It can be the predicate or go before the noun it describes.</p>
               <GlossaryExamples examples={introGlossary.Adjective.examples} />
-              <ApplicationChecks unit="an adjective stem" particles={false} conjugates note="Particles can follow some forms of the adjective."
+              <ApplicationChecks unit="an adjective" particles="Sometimes" conjugates note="The adjective stem takes an ending first. Some forms, like 건강하기 and 맵지, can then take a particle."
                 examples={[
                   ["건강하기가 어렵다", ["건강하기", "being healthy", "is the noun form of the adjective 건강하다. 가 is the subject particle."]],
                   ["맵지는 않아요", ["맵지", "be spicy", "is the adjective stem 맵 with the connecting ending -지. 는 adds contrast."]],
@@ -167,12 +167,12 @@ export function Intro() {
             { label: "Determiners + Adverbs", content: <>
               <p><GrammarLabel term="Determiner">Determiners</GrammarLabel> go directly before nouns and tell which one, how many, or what kind. An <GrammarLabel term="Adverb">adverb</GrammarLabel> often tells when, how, or to what degree something happens.</p>
               <TypeTable title="Determiner and adverb types" rows={modifierTypes} />
-              <ApplicationChecks unit="a determiner" particles={false} conjugates={false} note="The particle follows the whole phrase."
+              <ApplicationChecks unit="a determiner" particles="No" conjugates={false} note="The particle follows the whole phrase."
                 examples={[
                   ["세 사람을", ["세", "three", "is the determiner. The object particle 을 comes after the noun 사람."]],
                 ]}
               />
-              <ApplicationChecks unit="an adverb" particles conjugates={false} note="Some adverbs take a particle for emphasis."
+              <ApplicationChecks unit="an adverb" particles="Yes" conjugates={false} note="Some adverbs take a particle for emphasis."
                 examples={[
                   ["아직도", ["아직", "still", "is the adverb. 도 adds emphasis."]],
                 ]}
@@ -187,7 +187,7 @@ export function Intro() {
                 ['Particles and connecting endings', '집에서는 / 먹지는', 'as for at home / as for eating', ['는', 'topic or contrast marker', 'is the particle that can follow 에서 or -지.']],
               ]} />
               <TypeTable title="Particle types" rows={particleTypes} />
-              <ApplicationChecks unit="a particle" particles conjugates={false} note="Some particles stack. In traditional Korean grammar, 이다 is the particle that conjugates."
+              <ApplicationChecks unit="a particle" particles="Yes" conjugates={false} note="Some particles stack. In traditional Korean grammar, 이다 is the particle that conjugates."
                 examples={[
                   ["집에서 + 는 → 집에서는", ["에서 + 는", "at + as for", "are the place and topic particles."]],
                   ["학생이에요", ["이에요", "is", "is the polite form of 이다, attached to 학생."]],
@@ -203,7 +203,7 @@ export function Intro() {
                 ['Other particles and endings', '을 / -어요', 'object marker / everyday polite ending', ['을 / -어요', 'object marker / everyday polite ending', 'are the object particle and the polite ending. Both attach to other forms.']],
               ]} />
               <TypeTable title="What endings do" rows={conjugationTypes} />
-              <ApplicationChecks unit="a verb ending" particles conjugates={false} note="A particle can follow certain connecting endings."
+              <ApplicationChecks unit="a verb ending" particles="Yes" conjugates={false} note="A particle can follow certain connecting endings."
                 examples={[
                   ["먹지는 않아요", ["-지", "connecting ending", "attaches to 먹 and is followed by the contrast particle 는."]],
                 ]}
@@ -595,12 +595,12 @@ function TypeTable({ title, typeHeading = 'Type', rows }: { title: string; typeH
 
 /** Show the attachment and conjugation answers for the form named in the question. */
 function ApplicationChecks({ unit, particles, conjugates, note, examples }: {
-  unit: string; particles: boolean; conjugates: boolean; note: string
+  unit: string; particles: 'Yes' | 'No' | 'Sometimes'; conjugates: boolean; note: string
   examples: readonly (readonly [korean: string, focus: ExampleFocus])[]
 }) {
   return <div className="intro-application">
     <dl>
-      <div><dt>Does {unit} take particles?</dt><dd>{particles ? 'Yes' : 'No'}</dd></div>
+      <div><dt>Does {unit} take particles?</dt><dd>{particles}</dd></div>
       <div><dt>Does {unit} conjugate?</dt><dd>{conjugates ? 'Yes' : 'No'}</dd></div>
     </dl>
     <p>{note}</p>

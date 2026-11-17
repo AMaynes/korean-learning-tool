@@ -222,7 +222,12 @@ describe('deployed study workflow', { concurrency: false }, () => {
         const category = page.getByRole('tabpanel', { name: title, exact: true })
         await category.waitFor({ state: 'visible' })
         const answers = await category.locator('.intro-application dd').allTextContents()
-        assert.ok(answers.length >= 2 && answers.every(answer => answer === 'Yes' || answer === 'No'))
+        assert.ok(answers.length >= 2 && answers.every(answer => ['Yes', 'No', 'Sometimes'].includes(answer)))
+        if (title === 'Verbs' || title === 'Adjectives') {
+          const unit = title === 'Verbs' ? 'a verb' : 'an adjective'
+          const particleCheck = category.locator('.intro-application dl > div').filter({ hasText: `Does ${unit} take particles?` })
+          assert.equal(await particleCheck.locator('dd').textContent(), 'Sometimes')
+        }
         if (title === 'Adjectives') {
           const examples = category.getByRole('list', { name: 'Examples' })
           assert.deepEqual(await examples.locator('li > p b [lang="ko"]').allTextContents(), ['매워요', '매운', '조용했어요'])

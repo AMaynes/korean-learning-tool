@@ -83,7 +83,7 @@ describe('deployed study workflow', { concurrency: false }, () => {
     assert.equal(await page.getByRole('heading', { name: 'How Korean works' }).count(), 0)
     await page.getByRole('link', { name: 'Intro', exact: true }).click()
     await heading(page, 'How Korean works')
-    const lessonHeadings = page.locator('.intro-content > article > h2')
+    const lessonHeadings = page.locator('.intro-lesson > summary h2')
     assert.deepEqual(await lessonHeadings.allTextContents(), [
       'Nominals', 'Predicates', 'Modifiers + Particles + Conjugation', 'Independent Forms', 'Sentence Structures',
     ])
@@ -103,26 +103,48 @@ describe('deployed study workflow', { concurrency: false }, () => {
     await page.getByRole('table', { name: 'Hangul spelling and sound examples' }).getByText('먹어요 → [머거요]', { exact: true }).waitFor()
     const sections = page.getByRole('complementary', { name: 'On this page' })
     await sections.getByRole('button', { name: 'Nominals', exact: true }).click()
-    assert.equal(await page.evaluate(() => document.activeElement?.id), 'nominals')
+    const nominals = page.locator('#nominals')
     const nouns = page.getByRole('table', { name: 'Noun types', exact: true })
-    await nouns.waitFor({ state: 'hidden' })
-    await page.locator('summary').filter({ hasText: /^Nouns$/ }).click()
     await nouns.getByRole('rowheader', { name: 'Dependent (bound)' }).waitFor()
     await nouns.getByRole('rowheader', { name: 'Abstract' }).waitFor()
+    const nounsTab = nominals.getByRole('tab', { name: 'Nouns', exact: true })
+    const pronounsTab = nominals.getByRole('tab', { name: 'Pronouns', exact: true })
+    assert.equal(await nounsTab.getAttribute('aria-selected'), 'true')
+    await nounsTab.press('ArrowRight')
+    assert.equal(await pronounsTab.getAttribute('aria-selected'), 'true')
+    assert.equal(await pronounsTab.evaluate(button => button === document.activeElement), true)
+    await nouns.waitFor({ state: 'hidden' })
+    await nominals.getByRole('tabpanel', { name: 'Pronouns' }).getByRole('table').waitFor()
+    await nominals.locator('summary').click()
+    await pronounsTab.waitFor({ state: 'hidden' })
+    await sections.getByRole('button', { name: 'Nominals', exact: true }).click()
+    assert.equal(await nominals.locator('summary').evaluate(summary => summary === document.activeElement), true)
+    assert.equal(await pronounsTab.getAttribute('aria-selected'), 'true')
 
-    const categoryTitles = ['Nouns', 'Pronouns', 'Numerals', 'Verbs', 'Adjectives', 'Determiners + Adverbs', 'Particles', 'Conjugation']
-    for (const title of categoryTitles) {
-      const summary = page.locator('summary').and(page.getByText(title, { exact: true }))
-      const category = page.locator('.intro-subgenre').filter({ has: summary })
-      if (title !== 'Nouns') await category.locator('summary').click()
-      const answers = await category.locator('.intro-application dd').allTextContents()
-      assert.ok(answers.length >= 2 && answers.every(answer => answer === 'Y (Yes)' || answer === 'N (No)'))
+    const grammarGroups = [
+      ['Nominals', ['Nouns', 'Pronouns', 'Numerals']],
+      ['Predicates', ['Verbs', 'Adjectives']],
+      ['Modifiers + Particles + Conjugation', ['Determiners + Adverbs', 'Particles', 'Conjugation']],
+    ]
+    for (const [group, tabs] of grammarGroups) {
+      await sections.getByRole('button', { name: group, exact: true }).click()
+      const tablist = page.getByRole('tablist', { name: group, exact: true })
+      assert.deepEqual(await tablist.getByRole('tab').allTextContents(), tabs)
+      for (const title of tabs) {
+        await tablist.getByRole('tab', { name: title, exact: true }).click()
+        const category = page.getByRole('tabpanel', { name: title, exact: true })
+        await category.waitFor({ state: 'visible' })
+        const answers = await category.locator('.intro-application dd').allTextContents()
+        assert.ok(answers.length >= 2 && answers.every(answer => answer === 'Y (Yes)' || answer === 'N (No)'))
+      }
     }
-    await page.getByRole('table', { name: 'What takes particles', exact: true }).getByText('아직도', { exact: true }).waitFor()
     await page.getByRole('table', { name: 'What conjugates', exact: true }).getByText('Copula 이다', { exact: true }).waitFor()
+    await page.getByRole('tab', { name: 'Particles', exact: true }).click()
+    await page.getByRole('table', { name: 'What takes particles', exact: true }).getByText('아직도', { exact: true }).waitFor()
     await page.getByText('커피 + 를 → 커피를', { exact: true }).waitFor()
 
-    const sentenceExamples = page.locator('article').filter({ has: page.getByRole('heading', { name: 'Sentence Structures', exact: true }) })
+    await sections.getByRole('button', { name: 'Sentence Structures', exact: true }).click()
+    const sentenceExamples = page.locator('#sentence')
     const fullSentence = sentenceExamples.locator('figure').filter({
       has: page.getByText('Today I’m eating spicy food at home.', { exact: true }),
     })
@@ -159,7 +181,7 @@ describe('deployed study workflow', { concurrency: false }, () => {
     assert.equal(await explanation.evaluate(element => getComputedStyle(element).position), 'fixed')
     await explanation.getByRole('button', { name: 'Close explanation' }).click()
     await explanation.waitFor({ state: 'hidden' })
-    const nominal = page.getByRole('heading', { name: 'Nominals', exact: true }).getByRole('button')
+    const nominal = nominals.locator('.intro-panel').getByRole('button', { name: 'nominals', exact: true })
     await nominal.click()
     await explanation.getByText(/something that works like one/).waitFor()
     await page.keyboard.press('Escape')

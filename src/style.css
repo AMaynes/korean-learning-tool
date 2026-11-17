@@ -195,10 +195,24 @@ details p { font-size: 13px; margin-bottom: 7px; }
 .intro-panel h2 { font-size: 24px; letter-spacing: -.035em; scroll-margin-top: 15px; }
 .intro-panel h3 { font-size: 15px; }
 .intro-panel p { font-size: 14px; }
-.intro-primer > summary, .intro-subgenre > summary { padding: 12px 14px; min-height: 44px; font-size: 14px; font-weight: 700; }
-.intro-primer[open] > summary, .intro-subgenre[open] > summary { border-bottom: 1px solid var(--line); }
-.intro-subgenre { min-width: 0; border: 1px solid var(--line); border-radius: 8px; background: var(--subtle); }
-.intro-subgenre-body { display: grid; gap: 10px; padding: 12px; }
+.intro-primer > summary, .intro-lesson > summary {
+  min-height: 44px;
+  padding: 12px clamp(16px, 3vw, 27px);
+  border-radius: var(--radius);
+  font-weight: 700;
+  line-height: 1.3;
+}
+.intro-primer > summary { font-size: 14px; }
+.intro-lesson > summary h2 { display: inline; font-size: clamp(17px, 3vw, 22px); }
+.intro-primer[open] > summary, .intro-lesson[open] > summary {
+  border-bottom: 1px solid var(--line);
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+.intro-lesson { min-width: 0; scroll-margin-top: 15px; }
+.intro-tabs { display: grid; gap: 10px; min-width: 0; }
+.intro-tablist { align-self: auto; justify-self: start; max-width: 100%; }
+.intro-tablist button[aria-selected="true"] { background: var(--accent-bg); border-color: var(--control-line); color: var(--accent); }
+.intro-tabs [role="tabpanel"]:not([hidden]) { display: grid; gap: 10px; min-width: 0; }
 .intro-application { padding: 10px; border: 1px solid var(--line); border-radius: 7px; background: var(--panel); }
 .intro-application dl { display: grid; gap: 6px; margin: 0 0 6px; }
 .intro-application dl > div { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; font-size: 13px; }

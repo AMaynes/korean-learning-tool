@@ -74,16 +74,19 @@ export function Intro() {
   }}>
     <div className="section-heading"><div>
       <h1>How Korean works</h1>
-      <p>Build up to “Today I’m eating spicy food at home.” Open a word category to see its types. Select an underlined term for three examples.</p>
+      <p>Build up to “Today I’m eating spicy food at home.” Choose a tab to see its examples and rules. Select an underlined term for three examples.</p>
     </div><a className="button primary" href="#recall">Go to practice <Icon name="arrow" /></a></div>
 
     <div className="intro-layout">
       <aside className="panel intro-index" aria-label="On this page">
         <h2>On this page</h2>
         {sections.map(([id, label]) => <button key={id} className="text-button" onClick={() => {
-          const heading = document.getElementById(id)
-          heading?.focus({ preventScroll: true })
-          heading?.scrollIntoView({ block: 'start' })
+          const section = document.getElementById(id)
+          if (!(section instanceof HTMLDetailsElement)) return
+          section.open = true
+          setExplanation(null)
+          section.querySelector('summary')?.focus({ preventScroll: true })
+          section.scrollIntoView({ block: 'start' })
         }}>{label}</button>)}
       </aside>
 
@@ -139,76 +142,78 @@ export function Intro() {
           </div>
         </details>
 
-        <article className="panel intro-panel">
-          <h2 id="nominals" tabIndex={-1}><GrammarLabel term="Nominal">Nominals</GrammarLabel></h2>
-          <p>Nouns, pronouns, and numerals can act as nominals. In the worked sentence, <Korean>저</Korean> means “I” and <Korean>음식</Korean> means “food”.</p>
-          <Subgenre title="Nouns">
-            <p>A <GrammarLabel term="Noun">noun</GrammarLabel> can fit more than one type. <Korean>음식</Korean> is both common and concrete.</p>
-            <TypeTable title="Noun types" rows={nounTypes} />
-            <ApplicationChecks unit="a noun" particles conjugates={false} note="음식 + 을 → 음식을 (food, marked as the object)." />
-          </Subgenre>
-          <Subgenre title="Pronouns">
-            <p>A <GrammarLabel term="Pronoun">pronoun</GrammarLabel> can stand for a person or thing already clear from context.</p>
-            <TypeTable title="Pronoun types" rows={pronounTypes} />
-            <ApplicationChecks unit="a pronoun" particles conjugates={false} note="저 + 는 → 저는. With 가, 저 + 가 becomes 제가. This is the subject form of the pronoun." />
-          </Subgenre>
-          <Subgenre title="Numerals">
-            <TypeTable title="Numeral types" rows={numeralTypes} />
-            <ApplicationChecks unit="a numeral" particles conjugates={false} note="A standalone number can take a particle, as in 둘이 (two people, as the subject). Before a counter, attach the particle to the counter phrase, as in 세 개를." />
-          </Subgenre>
-        </article>
+        <LessonSection id="nominals" title="Nominals" initiallyOpen>
+          <p>Nouns, pronouns, and numerals can act as <GrammarLabel term="Nominal">nominals</GrammarLabel>. In the worked sentence, <Korean>저</Korean> means “I” and <Korean>음식</Korean> means “food”.</p>
+          <LessonTabs sectionId="nominals" tabs={[
+            { label: "Nouns", content: <>
+              <p>A <GrammarLabel term="Noun">noun</GrammarLabel> can fit more than one type. <Korean>음식</Korean> is both common and concrete.</p>
+              <TypeTable title="Noun types" rows={nounTypes} />
+              <ApplicationChecks unit="a noun" particles conjugates={false} note="음식 + 을 → 음식을 (food, marked as the object)." />
+            </> },
+            { label: "Pronouns", content: <>
+              <p>A <GrammarLabel term="Pronoun">pronoun</GrammarLabel> can stand for a person or thing already clear from context.</p>
+              <TypeTable title="Pronoun types" rows={pronounTypes} />
+              <ApplicationChecks unit="a pronoun" particles conjugates={false} note="저 + 는 → 저는. With 가, 저 + 가 becomes 제가. This is the subject form of the pronoun." />
+            </> },
+            { label: "Numerals", content: <>
+              <TypeTable title="Numeral types" rows={numeralTypes} />
+              <ApplicationChecks unit="a numeral" particles conjugates={false} note="A standalone number can take a particle, as in 둘이 (two people, as the subject). Before a counter, attach the particle to the counter phrase, as in 세 개를." />
+            </> },
+          ]} />
+        </LessonSection>
 
-        <article className="panel intro-panel">
-          <h2 id="predicates" tabIndex={-1}><GrammarLabel term="Predicate">Predicates</GrammarLabel></h2>
-          <p>A predicate tells what happens, what something is like, or what it is. Start the worked sentence with the dictionary form <Korean>먹다</Korean> (“to eat”).</p>
-          <Subgenre title="Verbs">
-            <p>A <GrammarLabel term="Verb">verb</GrammarLabel> can be described by the sentence parts it needs and how its stem changes.</p>
-            <TypeTable title="Verb types" rows={verbTypes} />
-            <ApplicationChecks unit="a verb stem" particles={false} conjugates note="Particles can follow some derived verb forms, such as 걷기가 (walking, as the subject) and 먹지는 (with 는 after -지)." />
-          </Subgenre>
-          <Subgenre title="Adjectives">
-            <p>An <GrammarLabel term="Adjective">adjective</GrammarLabel> can be the predicate of a clause. It can also describe a noun in a form like <Korean>매운</Korean>.</p>
-            <TypeTable title="Adjective types" rows={adjectiveTypes} />
-            <ApplicationChecks unit="an adjective stem" particles={false} conjugates note="A noun-like form can take a particle, as in 건강하기가 어렵다 (it is hard to be healthy). An ending can also take a particle, as in 맵지는 않아요 (it’s not spicy)." />
-          </Subgenre>
-        </article>
+        <LessonSection id="predicates" title="Predicates">
+          <p>A <GrammarLabel term="Predicate">predicate</GrammarLabel> tells what happens, what something is like, or what it is. Start the worked sentence with the dictionary form <Korean>먹다</Korean> (“to eat”).</p>
+          <LessonTabs sectionId="predicates" tabs={[
+            { label: "Verbs", content: <>
+              <p>A <GrammarLabel term="Verb">verb</GrammarLabel> can be described by the sentence parts it needs and how its stem changes.</p>
+              <TypeTable title="Verb types" rows={verbTypes} />
+              <ApplicationChecks unit="a verb stem" particles={false} conjugates note="Particles can follow some derived verb forms, such as 걷기가 (walking, as the subject) and 먹지는 (with 는 after -지)." />
+            </> },
+            { label: "Adjectives", content: <>
+              <p>An <GrammarLabel term="Adjective">adjective</GrammarLabel> can be the predicate of a clause. It can also describe a noun in a form like <Korean>매운</Korean>.</p>
+              <TypeTable title="Adjective types" rows={adjectiveTypes} />
+              <ApplicationChecks unit="an adjective stem" particles={false} conjugates note="A noun-like form can take a particle, as in 건강하기가 어렵다 (it is hard to be healthy). An ending can also take a particle, as in 맵지는 않아요 (it’s not spicy)." />
+            </> },
+          ]} />
+        </LessonSection>
 
-        <article className="panel intro-panel">
-          <h2 id="modifiers" tabIndex={-1}><GrammarLabel term="Modifier">Modifiers</GrammarLabel> + <GrammarLabel term="Particles" /> + Conjugation</h2>
-          <p>Add details to the sentence, mark each phrase’s job, and give the predicate an ending.</p>
-          <Subgenre title="Determiners + Adverbs">
-            <p>Determiners go before nominals. An <GrammarLabel term="Adverb">adverb</GrammarLabel> often tells when, how, or to what degree something happens.</p>
-            <TypeTable title="Determiner and adverb types" rows={modifierTypes} />
-            <ApplicationChecks unit="a determiner" particles={false} conjugates={false} note="In 세 사람을, 을 comes after the full phrase “three people”." />
-            <ApplicationChecks unit="an adverb" particles conjugates={false} note="Some adverbs take particles that add emphasis, as in 아직도 (still)." />
-          </Subgenre>
-          <Subgenre title="Particles">
-            <TypeTable title="What takes particles" rows={[
-              ['Nouns, pronouns, numerals', '음식을 / 저는 / 둘이', 'Yes. They can take particles directly.'],
-              ['Verbs and adjectives', '걷기가 / 맵지는', 'Some derived forms take particles. The bare stem takes endings.'],
-              ['Determiners', '이 책을', 'The particle comes after the nominal phrase.'],
-              ['Adverbs', '아직도', 'Some take an extra meaning such as emphasis.'],
-              ['Particles and connecting endings', '집에서는 / 먹지는', 'Some particles can follow another particle or an ending.'],
-            ]} />
-            <TypeTable title="Particle types" rows={particleTypes} />
-            <ApplicationChecks unit="a particle" particles conjugates={false} note="Some particles stack, as in 집에서 + 는 → 집에서는. In traditional Korean grammar, the copula 이다 is the particle that conjugates, as in 학생이에요." />
-          </Subgenre>
-          <Subgenre title="Conjugation">
-            <TypeTable title="What conjugates" rows={[
-              ['Verbs', '먹다 → 먹어요', 'Yes. Add an ending to the stem.'],
-              ['Adjectives', '맵다 → 매워요', 'Yes. Korean adjectives take endings too.'],
-              ['Copula 이다', '학생이다 → 학생이에요', 'Yes. This is the traditional grammar exception among particles.'],
-              ['Nouns, pronouns, numerals, determiners, adverbs', '음식 / 저 / 둘 / 이 / 빨리', 'These keep their base form under conjugation.'],
-              ['Other particles and endings', '을 / -어요', 'These attach to other forms.'],
-            ]} />
-            <TypeTable title="What endings do" rows={conjugationTypes} />
-            <ApplicationChecks unit="a verb ending" particles conjugates={false} note="A particle can follow certain connecting endings. In 먹지는 않아요, 는 follows -지. The verb stem is what conjugates." />
-          </Subgenre>
+        <LessonSection id="modifiers" title="Modifiers + Particles + Conjugation">
+          <p><GrammarLabel term="Modifier">Modifiers</GrammarLabel> add detail, <GrammarLabel term="Particles">particles</GrammarLabel> mark each phrase’s job, and conjugation gives the predicate an ending.</p>
+          <LessonTabs sectionId="modifiers" tabs={[
+            { label: "Determiners + Adverbs", content: <>
+              <p>Determiners go before nominals. An <GrammarLabel term="Adverb">adverb</GrammarLabel> often tells when, how, or to what degree something happens.</p>
+              <TypeTable title="Determiner and adverb types" rows={modifierTypes} />
+              <ApplicationChecks unit="a determiner" particles={false} conjugates={false} note="In 세 사람을, 을 comes after the full phrase “three people”." />
+              <ApplicationChecks unit="an adverb" particles conjugates={false} note="Some adverbs take particles that add emphasis, as in 아직도 (still)." />
+            </> },
+            { label: "Particles", content: <>
+              <TypeTable title="What takes particles" rows={[
+                ['Nouns, pronouns, numerals', '음식을 / 저는 / 둘이', 'Yes. They can take particles directly.'],
+                ['Verbs and adjectives', '걷기가 / 맵지는', 'Some derived forms take particles. The bare stem takes endings.'],
+                ['Determiners', '이 책을', 'The particle comes after the nominal phrase.'],
+                ['Adverbs', '아직도', 'Some take an extra meaning such as emphasis.'],
+                ['Particles and connecting endings', '집에서는 / 먹지는', 'Some particles can follow another particle or an ending.'],
+              ]} />
+              <TypeTable title="Particle types" rows={particleTypes} />
+              <ApplicationChecks unit="a particle" particles conjugates={false} note="Some particles stack, as in 집에서 + 는 → 집에서는. In traditional Korean grammar, the copula 이다 is the particle that conjugates, as in 학생이에요." />
+            </> },
+            { label: "Conjugation", content: <>
+              <TypeTable title="What conjugates" rows={[
+                ['Verbs', '먹다 → 먹어요', 'Yes. Add an ending to the stem.'],
+                ['Adjectives', '맵다 → 매워요', 'Yes. Korean adjectives take endings too.'],
+                ['Copula 이다', '학생이다 → 학생이에요', 'Yes. This is the traditional grammar exception among particles.'],
+                ['Nouns, pronouns, numerals, determiners, adverbs', '음식 / 저 / 둘 / 이 / 빨리', 'These keep their base form under conjugation.'],
+                ['Other particles and endings', '을 / -어요', 'These attach to other forms.'],
+              ]} />
+              <TypeTable title="What endings do" rows={conjugationTypes} />
+              <ApplicationChecks unit="a verb ending" particles conjugates={false} note="A particle can follow certain connecting endings. In 먹지는 않아요, 는 follows -지. The verb stem is what conjugates." />
+            </> },
+          ]} />
           <a className="text-button" href="#grammar">Practice particles and conjugation <Icon name="arrow" size={15} /></a>
-        </article>
+        </LessonSection>
 
-        <article className="panel intro-panel">
-          <h2 id="independent" tabIndex={-1}>Independent Forms</h2>
+        <LessonSection id="independent" title="Independent Forms">
           <p>Interjections can stand on their own or come before a clause. They can respond, express a reaction, or get someone’s attention.</p>
           <TypeTable title="Independent forms" rows={[
             ['Response', '네! / 아니요!', 'Yes! / No!'],
@@ -216,7 +221,7 @@ export function Intro() {
             ['Attention', '저기요!', 'Excuse me!'],
           ]} />
           <p><Korean>네, 오늘 집에서 먹어요.</Korean> (“Yes, I’m eating at home today.”) <Korean>네</Korean> is the response before the clause.</p>
-        </article>
+        </LessonSection>
 
         <SentenceStructure />
       </div>
@@ -244,8 +249,7 @@ export function Intro() {
 
 /** Show how to assemble a clause, change what it says, and combine it with other clauses. */
 function SentenceStructure() {
-  return <article className="panel intro-panel">
-    <h2 id="sentence" tabIndex={-1}>Sentence Structures</h2>
+  return <LessonSection id="sentence" title="Sentence Structures">
     <p>Start with the <GrammarLabel term="Predicate">predicate</GrammarLabel>. It tells you what happens, what something is like, or what it is. In the basic sentence pattern it comes last, after the people, things, time, and place.</p>
     <ExampleParts parts={[['Topic', '저는', 'I'], ['Object', '음식을', 'food'], ['Predicate', '먹어요.', 'eat']]} meaning="I eat food." />
     <h3>Build the full sentence</h3>
@@ -316,7 +320,7 @@ function SentenceStructure() {
     </table></div>
     <p>Put <Korean>뭘</Korean> (“what,” the object) in the same place as <Korean>매운 음식을</Korean> in the original sentence.</p>
     <a className="text-button" href="#grammar">Practice sentence structure <Icon name="arrow" size={15} /></a>
-  </article>
+  </LessonSection>
 }
 
 /** Match the shape of the written slots and show their assembled Hangul block. */
@@ -369,12 +373,57 @@ function GrammarLabel({ term, children = term }: { term: IntroTerm; children?: R
   </button>
 }
 
-/** Reveal a category's types and application checks under its own title. */
-function Subgenre({ title, children }: { title: string; children: ReactNode }) {
-  return <details className="intro-subgenre">
-    <summary>{title}</summary>
-    <div className="intro-subgenre-body">{children}</div>
+/** Let readers open a main lesson while keeping its selected tab. */
+function LessonSection({ id, title, initiallyOpen = false, children }: {
+  id: string; title: string; initiallyOpen?: boolean; children: ReactNode
+}) {
+  return <details className="panel intro-lesson" id={id} open={initiallyOpen}>
+    <summary><h2 id={id + '-title'}>{title}</h2></summary>
+    <div className="intro-panel">{children}</div>
   </details>
+}
+
+/** Switch lessons within a section using click, touch, or the standard tab keys. */
+function LessonTabs({ sectionId, tabs }: {
+  sectionId: string; tabs: readonly { label: string; content: ReactNode }[]
+}) {
+  const [selected, setSelected] = useState(0)
+
+  return <div className="intro-tabs">
+    <div className="segmented intro-tablist" role="tablist" aria-labelledby={sectionId + '-title'}>
+      {tabs.map(({ label }, index) => <button
+        key={label}
+        type="button"
+        role="tab"
+        id={sectionId + '-tab-' + index}
+        aria-controls={sectionId + '-panel-' + index}
+        aria-selected={index === selected}
+        tabIndex={index === selected ? 0 : -1}
+        onClick={() => setSelected(index)}
+        onKeyDown={event => {
+          let next: number
+          switch (event.key) {
+            case 'ArrowLeft': next = (index + tabs.length - 1) % tabs.length; break
+            case 'ArrowRight': next = (index + 1) % tabs.length; break
+            case 'Home': next = 0; break
+            case 'End': next = tabs.length - 1; break
+            default: return
+          }
+          event.preventDefault()
+          setSelected(next)
+          event.currentTarget.parentElement?.querySelectorAll('button')[next]?.focus()
+        }}
+      >{label}</button>)}
+    </div>
+    {tabs.map(({ label, content }, index) => <div
+      key={label}
+      role="tabpanel"
+      id={sectionId + '-panel-' + index}
+      aria-labelledby={sectionId + '-tab-' + index}
+      hidden={index !== selected}
+      tabIndex={0}
+    >{content}</div>)}
+  </div>
 }
 
 /** Present each category or application rule beside a Korean example. */

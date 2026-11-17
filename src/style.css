@@ -194,7 +194,6 @@ details p { font-size: 13px; margin-bottom: 7px; }
 .intro-panel { display: grid; gap: 12px; padding: clamp(16px, 3vw, 27px); }
 .intro-panel h2 { font-size: 24px; letter-spacing: -.035em; scroll-margin-top: 15px; }
 .intro-panel h3 { font-size: 15px; }
-.intro-panel h4 { margin: 0; font-size: 14px; }
 .intro-panel p { font-size: 14px; }
 .intro-lesson > summary {
   min-height: 44px;

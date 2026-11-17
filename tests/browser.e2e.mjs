@@ -241,9 +241,10 @@ describe('deployed study workflow', { concurrency: false }, () => {
         const labels = subtypesByTab[title]
         if (!labels) continue
         const table = title === 'Verbs'
-          ? category.getByRole('table', { name: 'Verb conjugation buckets' })
+          ? category.getByRole('table', { name: 'Verb types', exact: true })
           : category.getByRole('table')
         if (title === 'Verbs') {
+          assert.equal(await table.evaluate(element => element.parentElement?.nextElementSibling?.classList.contains('intro-application')), true)
           const rules = category.getByRole('table', { name: 'How verb endings attach' })
           assert.deepEqual(await rules.getByRole('rowheader').allTextContents(), ['Direct attach', '아/어', '(으) buffer'])
         }

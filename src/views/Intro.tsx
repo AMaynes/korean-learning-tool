@@ -139,6 +139,8 @@ export function Intro() {
           <p>A <GrammarLabel term="Predicate">predicate</GrammarLabel> tells what happens, what something is like, or what it is. Start the worked sentence with the dictionary form <Korean>먹다</Korean> (<em>“to eat”</em>).</p>
           <LessonTabs sectionId="predicates" tabs={[
             { label: "Verbs", content: <>
+              <h3>Verb types</h3>
+              <TypeTable title="Verb types" typeHeading="Verb pattern" rows={verbTypes} />
               <ApplicationChecks unit="a verb" showRulesHeading particles="Sometimes" conjugates note="The verb stem takes an ending first. Some forms, like 걷기 and 먹지, can then take a particle."
                 examples={[
                   ["걷기가", ["걷기", "walking", "is the noun form of the verb 걷다. 가 is the subject particle."]],
@@ -152,8 +154,6 @@ export function Intro() {
                 ['아/어', '먹어요 → 먹어서', 'eat → because I eat', ['먹어', 'eat', 'is the part before 요. Add -서 here, or use the same form with -도 and -야 돼요.']],
                 ['(으) buffer', '가면 / 먹으면', 'if I go / if I eat', ['-면 / -으면', 'if', 'show the pattern: 가 ends in a vowel, and 먹 ends in a consonant. Check the final sound with -(으)니까 and -(으)ㄹ 거예요 too.']],
               ]} />
-              <h4>Four verb patterns</h4>
-              <TypeTable title="Verb conjugation buckets" typeHeading="Verb pattern" rows={verbTypes} />
               <p>Check the exact ending for stem changes. For <Korean>살다</Korean> (<em>to live</em>), <Korean>살면</Korean> (<em>if I live</em>) keeps <Korean>ㄹ</Korean> and <Korean>사니까</Korean> (<em>because I live</em>) drops it.</p>
             </> },
             { label: "Adjectives", content: <>

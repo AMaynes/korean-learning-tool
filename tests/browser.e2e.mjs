@@ -83,7 +83,11 @@ describe('deployed study workflow', { concurrency: false }, () => {
     assert.equal(await page.getByRole('heading', { name: 'How Korean works' }).count(), 0)
     await page.getByRole('link', { name: 'Intro', exact: true }).click()
     await heading(page, 'How Korean works')
-    await heading(page, 'Nominals and particles')
+    const lessonHeadings = page.locator('.intro-content > article > h2')
+    assert.deepEqual(await lessonHeadings.allTextContents(), [
+      'Nominals', 'Predicates', 'Modifiers + Particles + Conjugation', 'Independent Forms', 'Sentence Structures',
+    ])
+    await page.getByText('Hangul and sound', { exact: true }).click()
     assert.equal(await page.getByRole('figure', { name: /^Syllable / }).count(), 6)
     const stacked = page.getByRole('figure', { name: 'Syllable 몫, vowel below' })
     const positions = await stacked.evaluate(card => [...card.querySelectorAll('.syllable-slot')].map(slot => {
@@ -97,35 +101,56 @@ describe('deployed study workflow', { concurrency: false }, () => {
     await page.getByText('겹받침', { exact: true }).waitFor()
     await page.getByText('ㅂ + ㅅ → ㅂ', { exact: true }).waitFor()
     await page.getByRole('table', { name: 'Hangul spelling and sound examples' }).getByText('먹어요 → [머거요]', { exact: true }).waitFor()
-    const sentenceExamples = page.locator('article').filter({ has: page.getByRole('heading', { name: 'Sentence structure', exact: true }) })
+    const sections = page.getByRole('complementary', { name: 'On this page' })
+    await sections.getByRole('button', { name: 'Nominals', exact: true }).click()
+    assert.equal(await page.evaluate(() => document.activeElement?.id), 'nominals')
+    const nouns = page.getByRole('table', { name: 'Noun types', exact: true })
+    await nouns.waitFor({ state: 'hidden' })
+    await page.locator('summary').filter({ hasText: /^Nouns$/ }).click()
+    await nouns.getByRole('rowheader', { name: 'Dependent (bound)' }).waitFor()
+    await nouns.getByRole('rowheader', { name: 'Abstract' }).waitFor()
+
+    const categoryTitles = ['Nouns', 'Pronouns', 'Numerals', 'Verbs', 'Adjectives', 'Determiners + Adverbs', 'Particles', 'Conjugation']
+    for (const title of categoryTitles) {
+      const category = page.locator('.intro-subgenre').filter({ has: page.getByText(title, { exact: true }) })
+      if (title !== 'Nouns') await category.locator('summary').click()
+      const answers = await category.locator('.intro-application dd').allTextContents()
+      assert.ok(answers.length >= 2 && answers.every(answer => answer === 'Y (Yes)' || answer === 'N (No)'))
+    }
+    await page.getByRole('table', { name: 'What takes particles', exact: true }).getByText('아직도', { exact: true }).waitFor()
+    await page.getByRole('table', { name: 'What conjugates', exact: true }).getByText('Copula 이다', { exact: true }).waitFor()
+    await page.getByText('커피 + 를 → 커피를', { exact: true }).waitFor()
+
+    const sentenceExamples = page.locator('article').filter({ has: page.getByRole('heading', { name: 'Sentence Structures', exact: true }) })
     const fullSentence = sentenceExamples.locator('figure').filter({
       has: page.getByText('Today I’m eating spicy food at home.', { exact: true }),
     })
     assert.deepEqual(await fullSentence.locator('dd [lang="ko"]').allTextContents(), ['오늘', '저는', '집에서', '매운', '음식을', '먹어요.'])
     assert.deepEqual(await fullSentence.locator('dd small').allTextContents(), ['today', 'I', 'at home', 'spicy', 'food', 'eat'])
-    assert.equal(await sentenceExamples.locator('dd').count(), await sentenceExamples.locator('dd small').count())
-    await sentenceExamples.getByRole('table', { name: 'What Korean particles can attach to' }).getByText('먹지 + 는 → 먹지는').waitFor()
-    await sentenceExamples.getByRole('table', { name: 'Ways to end a Korean sentence' }).getByText('뭘 먹어요?').waitFor()
-    await sentenceExamples.getByText('If it rains, I’ll stay home.', { exact: true }).waitFor()
-    await page.getByRole('button', { name: 'Nominals and particles', exact: true }).click()
-    assert.equal(await page.evaluate(() => document.activeElement?.id), 'nominals')
-    await page.getByText('커피 + 를 → 커피를', { exact: true }).waitFor()
+    assert.deepEqual(await fullSentence.getByRole('button').allTextContents(), ['Topic', 'Modifier', 'Object', 'Predicate'])
+    const glossaryLabels = new Set((await page.locator('.intro-grammar-label').allTextContents()).map(label => label.toLowerCase()))
+    assert.deepEqual([...glossaryLabels].sort(), [
+      'adjective', 'adverb', 'batchim', 'clauses', 'coda', 'modifier', 'modifiers', 'nominals',
+      'noun', 'object', 'particles', 'predicate', 'predicates', 'pronoun', 'subject', 'topic', 'verb',
+    ])
 
     await page.setViewportSize({ width: 1280, height: 860 })
-    const topic = fullSentence.getByRole('button', { name: 'Subject + topic particle', exact: true })
+    const topic = fullSentence.getByRole('button', { name: 'Topic', exact: true })
     const explanation = page.getByRole('complementary', { name: 'Grammar explanation' })
     await topic.click()
-    await explanation.getByRole('heading', { name: 'Subject + topic particle' }).waitFor()
-    await explanation.getByText('저는', { exact: true }).waitFor()
-    await explanation.getByText(/as for me/).waitFor()
+    await explanation.getByRole('heading', { name: 'Topic', exact: true }).waitFor()
+    const examples = explanation.getByRole('list', { name: 'Examples' })
+    assert.deepEqual(await examples.locator('[lang="ko"]').allTextContents(), [
+      '저는 집에서 먹어요.', '오늘은 제가 요리해요.', '저는 커피가 좋아요.',
+    ])
     assert.equal(await topic.getAttribute('aria-expanded'), 'true')
     const articleBounds = await sentenceExamples.boundingBox()
     const panelBounds = await explanation.boundingBox()
     assert.ok(panelBounds.x >= articleBounds.x + articleBounds.width)
 
-    await fullSentence.getByRole('button', { name: 'Everyday polite action' }).click()
-    await explanation.getByText('먹어요.', { exact: true }).waitFor()
-    await explanation.getByText(/먹 is the stem/).waitFor()
+    await fullSentence.getByRole('button', { name: 'Predicate', exact: true }).click()
+    await explanation.getByRole('heading', { name: 'Predicate', exact: true }).waitFor()
+    assert.equal(await examples.getByRole('listitem').count(), 3)
     assert.equal(await topic.getAttribute('aria-expanded'), 'false')
 
     await page.setViewportSize({ width: 320, height: 760 })
@@ -133,9 +158,9 @@ describe('deployed study workflow', { concurrency: false }, () => {
     assert.equal(await explanation.evaluate(element => getComputedStyle(element).position), 'fixed')
     await explanation.getByRole('button', { name: 'Close explanation' }).click()
     await explanation.waitFor({ state: 'hidden' })
-    const nominal = page.getByRole('button', { name: 'Nominals', exact: true })
+    const nominal = page.getByRole('heading', { name: 'Nominals', exact: true }).getByRole('button')
     await nominal.click()
-    await explanation.getByText(/something that works like a noun/).waitFor()
+    await explanation.getByText(/something that works like one/).waitFor()
     await page.keyboard.press('Escape')
     await explanation.waitFor({ state: 'hidden' })
     assert.equal(await nominal.evaluate(button => document.activeElement === button), true)

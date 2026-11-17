@@ -195,6 +195,15 @@ details p { font-size: 13px; margin-bottom: 7px; }
 .intro-panel h2 { font-size: 24px; letter-spacing: -.035em; scroll-margin-top: 15px; }
 .intro-panel h3 { font-size: 15px; }
 .intro-panel p { font-size: 14px; }
+.intro-primer > summary, .intro-subgenre > summary { padding: 12px 14px; min-height: 44px; font-size: 14px; font-weight: 700; }
+.intro-primer[open] > summary, .intro-subgenre[open] > summary { border-bottom: 1px solid var(--line); }
+.intro-subgenre { min-width: 0; border: 1px solid var(--line); border-radius: 8px; background: var(--subtle); }
+.intro-subgenre-body { display: grid; gap: 10px; padding: 12px; }
+.intro-application { padding: 10px; border: 1px solid var(--line); border-radius: 7px; background: var(--panel); }
+.intro-application dl { display: grid; gap: 6px; margin: 0 0 6px; }
+.intro-application dl > div { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; font-size: 13px; }
+.intro-application dd { margin: 0; font-weight: 700; white-space: nowrap; }
+.intro-application p { font-size: 13px; }
 .intro-grammar-label {
   min-height: 24px;
   padding: 0;
@@ -212,9 +221,11 @@ details p { font-size: 13px; margin-bottom: 7px; }
 .intro-explanation-header h2 { font-size: 17px; overflow-wrap: anywhere; }
 .intro-explanation-header button { min-height: 44px; flex: none; }
 .intro-explanation p { font-size: 14px; line-height: 1.5; }
+.intro-explanation-examples { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
 .intro-explanation-example { display: grid; gap: 4px; padding: 9px 10px; border-radius: 6px; background: var(--subtle); }
-.intro-explanation-example strong { font-size: 20px; }
+.intro-explanation-example strong { font-size: 16px; }
 .intro-explanation-example small { color: var(--muted); font-size: 13px; }
+.intro-explanation-example p { font-size: 12px; }
 
 @media (min-width: 1024px) {
   .full-frame:has(.intro) { max-width: 1380px; }

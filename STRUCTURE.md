@@ -21,6 +21,7 @@ korean-learning-tool/
 │   ├── style.css
 │   ├── data/
 │   │   ├── grammar.ts
+│   │   ├── intro.ts
 │   │   ├── model.ts
 │   │   └── words.ts
 │   ├── engine/
@@ -58,6 +59,7 @@ korean-learning-tool/
 | `tsconfig.json` / `vite.config.ts` | Set strict checking and repository-relative build assets. |
 | `src/main.tsx` / `src/style.css` | Mount the app and define the grayscale palette and responsive layout. |
 | `src/data/grammar.ts` | Owns the catalog of particle and conjugation rules, explanations, and examples. |
+| `src/data/intro.ts` | Holds the Intro’s glossary examples and word-category tables. |
 | `src/data/model.ts` | Defines shared data contracts. |
 | `src/data/words.ts` | Owns starter lexical vocabulary and semantic tags. |
 | `src/engine/exercises.ts` | Generates study exercises from active decks and evaluates known alternatives. |
@@ -67,7 +69,7 @@ korean-learning-tool/
 | `src/engine/registry.ts` | Resolves active decks from the bundled catalog and looks up grammar rules. |
 | `src/engine/storage.ts` | Saves browser study data atomically and validates full backups. |
 | `src/views/App.tsx` | Owns navigation, active selections, and study-state lifecycle. |
-| `src/views/Intro.tsx` | Explains the language system through worked examples. |
+| `src/views/Intro.tsx` | Guides learners through word categories and a worked sentence, with an interactive glossary. |
 | `src/views/Library.tsx` | Displays bundled vocabulary decks in a compact searchable table. |
 | `src/views/Practice.tsx` | Houses grammar, sentence, dictation, and conversation interactions. |
 | `src/views/Pronunciation.tsx` | Presents Hangul and batchim sound recall with playback and self-rating. |

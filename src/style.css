@@ -195,6 +195,44 @@ details p { font-size: 13px; margin-bottom: 7px; }
 .intro-panel h2 { font-size: 24px; letter-spacing: -.035em; scroll-margin-top: 15px; }
 .intro-panel h3 { font-size: 15px; }
 .intro-panel p { font-size: 14px; }
+.intro-grammar-label {
+  min-height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  text-decoration: underline dotted;
+  text-underline-offset: .25em;
+}
+.intro-grammar-label:hover, .intro-grammar-label[aria-expanded="true"] { color: var(--ink); background: var(--accent-bg); }
+.intro-explanation { display: grid; gap: 12px; min-width: 0; padding: 14px 16px; overflow: auto; }
+.intro-explanation-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.intro-explanation-header h2 { font-size: 17px; overflow-wrap: anywhere; }
+.intro-explanation-header button { min-height: 44px; flex: none; }
+.intro-explanation p { font-size: 14px; line-height: 1.5; }
+.intro-explanation-example { display: grid; gap: 4px; padding: 9px 10px; border-radius: 6px; background: var(--subtle); }
+.intro-explanation-example strong { font-size: 20px; }
+.intro-explanation-example small { color: var(--muted); font-size: 13px; }
+
+@media (min-width: 1024px) {
+  .full-frame:has(.intro) { max-width: 1380px; }
+  .intro-layout { grid-template-columns: 175px minmax(0, 1fr) clamp(226px, 20vw, 264px); }
+  .intro-explanation { position: sticky; top: 16px; max-height: calc(100dvh - 32px); }
+}
+@media (max-width: 1023px) {
+  .intro-explanation:not(.is-open) { display: none; }
+  .intro-explanation.is-open {
+    position: fixed;
+    z-index: 10;
+    inset: auto 10px max(10px, env(safe-area-inset-bottom)) 10px;
+    max-height: 44dvh;
+    border-color: var(--control-line);
+    box-shadow: 0 4px 32px #000b;
+  }
+  .intro-layout:has(.intro-explanation.is-open) { padding-bottom: 44dvh; }
+}
 
 .syllable-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; color: var(--muted); font-size: 13px; }
 .syllable-legend strong, .syllable-pattern h3 strong { display: inline-block; padding: 2px 6px; border-radius: 4px; background: var(--accent-bg); color: var(--ink); font: 700 12px ui-monospace, monospace; }

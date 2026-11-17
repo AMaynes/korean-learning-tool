@@ -107,12 +107,12 @@ export function Transform({ example }: { example: Transformation }) {
   </div>
 }
 
-/** Provide an IME-safe form for Korean typing and normal Enter submission. */
-export function KoreanForm({ value, onChange, submit, label = 'Your answer', action = 'Check answer', disabled = false, multiline = false }: {
-  value: string; onChange: (value: string) => void; submit: () => void; label?: string; action?: string; disabled?: boolean; multiline?: boolean
+/** Provide an IME-safe answer form in the expected language. */
+export function AnswerForm({ value, onChange, submit, label = 'Your answer', action = 'Check answer', disabled = false, multiline = false, language = 'ko' }: {
+  value: string; onChange: (value: string) => void; submit: () => void; label?: string; action?: string; disabled?: boolean; multiline?: boolean; language?: 'ko' | 'en'
 }) {
   const props = {
-    lang: 'ko', value, autoComplete: 'off', spellCheck: false, disabled,
+    lang: language, value, autoComplete: 'off', spellCheck: false, disabled,
     onChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => onChange(event.target.value),
     onKeyDown: (event: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       if (event.key === 'Enter' && (event.nativeEvent.isComposing || event.nativeEvent.keyCode === 229)) event.preventDefault()
@@ -123,7 +123,7 @@ export function KoreanForm({ value, onChange, submit, label = 'Your answer', act
     if (value.trim() && !disabled) submit()
   }
   return <form onSubmit={handleSubmit} className="answer-form">
-    <label className="field">{label}{multiline ? <textarea {...props} rows={3} /> : <input {...props} placeholder="Type in Hangul…" />}</label>
+    <label className="field">{label}{multiline ? <textarea {...props} rows={3} /> : <input {...props} placeholder={language === 'ko' ? 'Type in Hangul…' : 'Type the English meaning…'} />}</label>
     <button type="submit" className="button primary" disabled={disabled || !value.trim()}>{action}</button>
   </form>
 }

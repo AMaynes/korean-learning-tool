@@ -15,7 +15,7 @@ import { generate, matchesAnswer, shuffle } from '../engine/exercises'
 import type { Exercise } from '../engine/exercises'
 import { addScore } from '../engine/storage'
 import type { PracticeMode, StudyState } from '../engine/storage'
-import { ActiveConfig, Empty, Icon, Korean, KoreanForm, koreanVoice, speakKorean, StandalonePronunciationNote, Transform } from './shared'
+import { ActiveConfig, Empty, Icon, Korean, AnswerForm, koreanVoice, speakKorean, StandalonePronunciationNote, Transform } from './shared'
 import type { Save, SelectList } from './shared'
 
 const grammarModes = ['particles', 'conjugations', 'assembly', 'writing'] as const
@@ -211,7 +211,7 @@ function ExerciseCard({ mode, exercise, number, total, save, advance }: {
       <div className="button-row"><button className="button" disabled={!choice.length || !!result} onClick={() => setChoice([])}>Clear</button>
         <button className="button primary" disabled={choice.length !== tokens.length || busy || !!result}
           onClick={() => void grade(choice.map(index => tokens[index]).join(' '))}>Check answer</button></div>
-    </> : <KoreanForm value={input} onChange={setInput} submit={() => void grade(input)} multiline={sentenceWriting}
+    </> : <AnswerForm value={input} onChange={setInput} submit={() => void grade(input)} multiline={sentenceWriting}
       label={conversation ? 'Your response' : dictation ? 'Your transcription' : 'Your answer'} disabled={busy || !!result} />}
     <div className="feedback" aria-live="polite">
       {result && <>

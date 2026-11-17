@@ -5,28 +5,34 @@
  *
  * External Resources: None.
  *
- * Notes: Local input resets on deck changes; study history remains keyed by deck and entry.
+ * Notes: Local input resets on deck changes; study history remains independent for each deck and direction.
  */
 
 
 import { useState } from 'react'
 import { categories, categoryIds } from '../data/model'
 import type { Category, WordList } from '../data/model'
-import { matchesAnswer, recallCard, shuffle } from '../engine/exercises'
+import { matchesAnswer, matchesEnglishAnswer, recallCard, shuffle } from '../engine/exercises'
+import type { RecallDirection } from '../engine/exercises'
 import { emptyDeck, finishRecall, markRecallFailure, nextRecall } from '../engine/mastery'
 import type { DeckProgress } from '../engine/mastery'
-import { Empty, Icon, Korean, KoreanForm, ListSelect, StandalonePronunciationNote, Transform } from './shared'
+import { AnswerForm, Empty, Icon, Korean, ListSelect, StandalonePronunciationNote, Transform } from './shared'
 import type { Save, SelectList } from './shared'
 
 type Mode = 'mental' | 'typing'
 
 /** Display list selection, independent practice modes, and current deck progress. */
-export function Recall({ category, setCategory, deck, lists, onSelect, save, progress = emptyDeck }: {
+export function Recall({ category, setCategory, deck, lists, onSelect, save, progressByDeck }: {
   category: Category; setCategory: (category: Category) => void; deck: WordList; lists: WordList[];
-  onSelect: SelectList; save: Save; progress?: DeckProgress
+  onSelect: SelectList; save: Save; progressByDeck: Record<string, DeckProgress>
 }) {
   const [mode, setMode] = useState<Mode>('mental')
+  const [direction, setDirection] = useState<RecallDirection>('en-to-ko')
   const [revision, setRevision] = useState(0)
+  const reading = direction === 'ko-to-en'
+  const progressKey = reading ? `${deck.id}-ko-to-en` : deck.id
+  const progress = progressByDeck[progressKey] ?? emptyDeck
+  const sessionKey = `${progressKey}:${revision}:${deck.entries.map(entry => entry.id).join(',')}`
   const mastered = deck.entries.filter(entry => progress.entries[entry.id]?.streak === 4).length
   const activeCount = deck.entries.filter(entry => {
     const info = progress.entries[entry.id]
@@ -48,10 +54,14 @@ export function Recall({ category, setCategory, deck, lists, onSelect, save, pro
             {categoryIds.map(id => <option key={id} value={id}>{categories[id]}</option>)}
           </select></label>
           <ListSelect category={category} lists={lists} selected={deck.id} onSelect={onSelect} />
+          <div className="segmented recall-direction" role="group" aria-label="Recall direction">
+            <button type="button" aria-pressed={!reading} onClick={() => setDirection('en-to-ko')}>English → Korean</button>
+            <button type="button" aria-pressed={reading} onClick={() => setDirection('ko-to-en')}>Korean → English</button>
+          </div>
         </div>
         {deck.entries.length ? mode === 'mental'
-          ? <MentalRecall key={deck.id + ':' + revision + ':' + deck.entries.map(entry => entry.id).join(',')} deck={deck} />
-          : <TypingRecall key={deck.id + ':' + revision + ':' + deck.entries.map(entry => entry.id).join(',')} deck={deck} progress={progress} save={save} />
+          ? <MentalRecall key={sessionKey} deck={deck} direction={direction} />
+          : <TypingRecall key={sessionKey} deck={deck} direction={direction} progressKey={progressKey} progress={progress} save={save} />
           : <Empty title="This list is empty"><p>Add entries from the Vocabulary Library or switch decks.</p></Empty>}
       </section>
       <aside className="study-aside" aria-label="Deck information">
@@ -67,16 +77,16 @@ export function Recall({ category, setCategory, deck, lists, onSelect, save, pro
         </div>
         <div className="panel aside-panel note-panel">
           <div className="aside-title"><Icon name="info" /><h2>{mode === 'mental' ? 'How to practice' : 'How mastery works'}</h2></div>
-          <p>{mode === 'mental' ? 'Recall the answer in Hangul, then flip the card to compare. Mental recall is ungraded.' : 'Complete three clean recalls with two cards in between, then pass a fourth after four intervening cards.'}</p>
+          <p>{mode === 'mental' ? (reading ? 'Read the Korean and recall its English meaning. Flip the card to compare.' : 'Recall the answer in Hangul, then flip the card to compare. Mental recall is ungraded.') : 'Complete three clean recalls with two cards in between, then pass a fourth after four intervening cards.'}</p>
           {mode === 'typing' && deck.entries.length > 0 && <button className="text-button" onClick={async () => {
-            if (!window.confirm('Reset typing progress for this list?')) return
+            if (!window.confirm('Reset this list’s typing progress for the selected direction?')) return
             const ok = await save(state => {
               const recall = { ...state.recall }
-              delete recall[deck.id]
+              delete recall[progressKey]
               return { ...state, recall }
             })
             if (ok) setRevision(value => value + 1)
-          }}>Reset this list’s progress</button>}
+          }}>Reset this direction’s progress</button>}
         </div>
       </aside>
     </div>
@@ -84,19 +94,25 @@ export function Recall({ category, setCategory, deck, lists, onSelect, save, pro
 }
 
 /** Present a local, ungraded deck whose order can be reshuffled independently. */
-function MentalRecall({ deck }: { deck: WordList }) {
+function MentalRecall({ deck, direction }: { deck: WordList; direction: RecallDirection }) {
   const [order, setOrder] = useState(deck.entries.map(entry => entry.id))
   const [position, setPosition] = useState(0)
   const [flipped, setFlipped] = useState(false)
   const entry = deck.entries.find(candidate => candidate.id === order[position]) ?? deck.entries[0]
-  const card = recallCard(deck.category, entry)
+  const card = recallCard(deck.category, entry, direction)
+  const reading = direction === 'ko-to-en'
+  const word = flipped ? card.answer : card.prompt
+  const koreanFace = reading ? !flipped : flipped || Boolean(card.transformation)
+  const caption = reading
+    ? (flipped ? null : 'Recall the English meaning.')
+    : flipped ? card.transformation?.meaning ?? entry.english : card.transformation?.originalMeaning ?? 'Recall the Korean word.'
   return <div className="panel recall-panel">
     <div className="card-meta"><span>{categories[deck.category]}</span><span>Card {position + 1} of {order.length}</span></div>
     <div className="recall-face" aria-live="polite">
-      <span className="eyebrow">{flipped ? 'Answer' : card.transformation ? card.cue : 'English prompt'}</span>
-      <div className="recall-word">{flipped || card.transformation ? <Korean>{flipped ? card.answer : card.prompt}</Korean> : card.prompt}</div>
-      {flipped && <StandalonePronunciationNote word={card.answer} />}
-      <p>{flipped ? (card.transformation?.meaning ?? entry.english) : (card.transformation?.originalMeaning ?? 'Recall the Korean word.')}</p>
+      <span className="eyebrow">{flipped ? 'Answer' : reading || card.transformation ? card.cue : 'English prompt'}</span>
+      <div className="recall-word">{koreanFace ? <Korean>{word}</Korean> : word}</div>
+      {koreanFace && <StandalonePronunciationNote word={word} />}
+      {caption && <p>{caption}</p>}
     </div>
     {flipped && card.transformation && <Transform example={card.transformation} />}
     {flipped && card.explanation && <p className="inline-note">{card.explanation}</p>}
@@ -111,7 +127,9 @@ function MentalRecall({ deck }: { deck: WordList }) {
 }
 
 /** Enforce correction before advancing and persist the scheduling result once. */
-function TypingRecall({ deck, progress, save }: { deck: WordList; progress: DeckProgress; save: Save }) {
+function TypingRecall({ deck, direction, progressKey, progress, save }: {
+  deck: WordList; direction: RecallDirection; progressKey: string; progress: DeckProgress; save: Save
+}) {
   const ids = deck.entries.map(entry => entry.id)
   const [current, setCurrent] = useState(() => nextRecall(ids, progress))
   const [input, setInput] = useState('')
@@ -120,22 +138,25 @@ function TypingRecall({ deck, progress, save }: { deck: WordList; progress: Deck
   const [busy, setBusy] = useState(false)
   if (!current) return <Empty title="Deck mastered"><p>Every entry has passed its fourth clean recall.</p></Empty>
   const entry = deck.entries.find(candidate => candidate.id === current.id)!
-  const card = recallCard(deck.category, entry)
+  const card = recallCard(deck.category, entry, direction)
+  const reading = direction === 'ko-to-en'
 
   /** Store the first failure immediately while keeping the current card open for correction. */
   async function reveal() {
     if (failed || !current) return
     setFailed(true)
-    await save(state => ({ ...state, recall: { ...state.recall, [deck.id]: markRecallFailure(state.recall[deck.id] ?? emptyDeck, current.id) } }))
+    await save(state => ({ ...state, recall: { ...state.recall, [progressKey]: markRecallFailure(state.recall[progressKey] ?? emptyDeck, current.id) } }))
   }
 
   /** Grade before showing the mastery update and locking the completed input. */
   async function check() {
     if (!current || busy || correct) return
-    if (!matchesAnswer(input, [card.answer, ...card.alternatives ?? []])) { await reveal(); return }
+    const accepted = [card.answer, ...card.alternatives ?? []]
+    const matches = reading ? matchesEnglishAnswer(input, accepted) : matchesAnswer(input, accepted)
+    if (!matches) { await reveal(); return }
     setBusy(true)
     const ok = await save(state => ({ ...state, recall: { ...state.recall,
-      [deck.id]: finishRecall(state.recall[deck.id] ?? emptyDeck, current.id, failed, current.review, ids.length),
+      [progressKey]: finishRecall(state.recall[progressKey] ?? emptyDeck, current.id, failed, current.review, ids.length),
     } }))
     if (ok) setCorrect(true)
     setBusy(false)
@@ -144,15 +165,17 @@ function TypingRecall({ deck, progress, save }: { deck: WordList; progress: Deck
   return <div className="panel recall-panel">
     <div className="card-meta"><span>{categories[deck.category]}</span><span>{current.review ? 'Spacing review' : `Clean recalls ${progress.entries[entry.id]?.streak ?? 0} / 4`}</span></div>
     <div className="recall-face typing-face">
-      <span className="eyebrow">{card.transformation ? card.cue : 'English prompt'}</span>
-      <div className="recall-word">{card.transformation ? <Korean>{card.prompt}</Korean> : card.prompt}</div>
+      <span className="eyebrow">{reading || card.transformation ? card.cue : 'English prompt'}</span>
+      <div className="recall-word">{reading || card.transformation ? <Korean>{card.prompt}</Korean> : card.prompt}</div>
+      {reading && <StandalonePronunciationNote word={card.prompt} />}
       {current.review && <p>{ids.length === 1 ? 'Add cards to this list to complete the spacing requirement.' : 'This review fills a spacing gap without adding mastery credit.'}</p>}
     </div>
-    <KoreanForm value={input} onChange={setInput} submit={() => void check()} disabled={correct || busy} />
+    <AnswerForm value={input} onChange={setInput} submit={() => void check()} disabled={correct || busy} language={reading ? 'en' : 'ko'} />
     <div className="feedback" aria-live="polite">
       {correct && <p className="success"><Icon name="check" /> {failed ? 'Correction complete.' : 'Correct.'}</p>}
-      {failed && !correct && <p className="retry">Type <Korean>{card.answer}</Korean> correctly to continue.</p>}
-      {(failed || correct) && <StandalonePronunciationNote word={card.answer} />}
+      {failed && !correct && <p className="retry">Type {reading ? <strong>{card.answer}</strong> : <Korean>{card.answer}</Korean>} correctly to continue.</p>}
+      {correct && reading && <p className="inline-note">{card.answer}</p>}
+      {(failed || correct) && !reading && <StandalonePronunciationNote word={card.answer} />}
     </div>
     {(failed || correct) && card.transformation && <Transform example={card.transformation} />}
     {(failed || correct) && card.explanation && <p className="inline-note">{card.explanation}</p>}

@@ -12,7 +12,7 @@
 import { describe, expect, it } from 'vitest'
 import { conjugationRules, particleRules } from '../src/data/grammar'
 import type { WordClass } from '../src/data/model'
-import { generate, matchesAnswer } from '../src/engine/exercises'
+import { generate, matchesAnswer, matchesEnglishAnswer, recallCard } from '../src/engine/exercises'
 import { attach, batchim, conjugate } from '../src/engine/korean'
 import { emptyDeck, finishRecall, markRecallFailure, nextRecall } from '../src/engine/mastery'
 import { batchimCard, batchimCardCount, letterCards } from '../src/engine/pronunciation'
@@ -46,6 +46,28 @@ describe('vocabulary registry', () => {
         }))
       }
     }
+  })
+})
+
+describe('recall direction', () => {
+  it('reverses vocabulary while accepting the listed English meanings', () => {
+    const deck = activeLists(defaultSelection).nouns
+    const house = deck.entries.find(entry => entry.id === 'home')!
+    expect(recallCard(deck.category, house)).toMatchObject({ prompt: 'House / Home', answer: '집' })
+    const card = recallCard(deck.category, house, 'ko-to-en')
+    expect(card).toMatchObject({ prompt: '집', answer: 'House / Home' })
+    const answers = [card.answer, ...card.alternatives ?? []]
+    expect(matchesEnglishAnswer('  home. ', answers)).toBe(true)
+    expect(matchesEnglishAnswer('HOUSE', answers)).toBe(true)
+    expect(matchesEnglishAnswer('Hotel', answers)).toBe(false)
+  })
+
+  it('uses the completed Korean example in reverse grammar recall', () => {
+    const deck = activeLists(defaultSelection).conjugations
+    const card = recallCard(deck.category, deck.entries[0], 'ko-to-en')
+    expect(card).toMatchObject({ prompt: '먹어요', answer: 'Eat (polite)' })
+    expect(matchesEnglishAnswer('to eat', [card.answer])).toBe(true)
+    expect(card.transformation?.original).toBe('먹다')
   })
 })
 

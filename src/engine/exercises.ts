@@ -45,10 +45,28 @@ export function matchesAnswer(answer: string, accepted: string[]) {
   return normalized.length > 0 && accepted.some(option => normalized === normalizedAnswer(option))
 }
 
-/** Convert one vocabulary entry into a retrieval prompt; grammar entries use a worked example. */
-export function recallCard(category: Category, entry: Entry): Exercise {
+export type RecallDirection = 'en-to-ko' | 'ko-to-en'
+
+/** Accept the listed English alternatives with optional usage labels and “to”. */
+export function matchesEnglishAnswer(input: string, accepted: string[]) {
+  const simplify = (text: string) => normalizedAnswer(text.replace(/\([^)]*\)/gu, '').replace(/[‘’]/gu, "'").replace(/·/gu, ' '))
+    .toLowerCase().replace(/^to\s+/u, '')
+  const answer = simplify(input)
+  return Boolean(answer) && accepted.some(option => simplify(option) === answer)
+}
+
+/** Convert one vocabulary entry into a retrieval prompt in the chosen direction. */
+export function recallCard(category: Category, entry: Entry, direction: RecallDirection = 'en-to-ko'): Exercise {
   const rule = entryRule(category, entry)
   const transformation = rule?.examples[0]
+  if (direction === 'ko-to-en') {
+    return {
+      id: entry.id, target: entry.id, prompt: transformation?.result ?? entry.korean, cue: 'Korean prompt',
+      answer: transformation?.meaning ?? entry.english, explanation: rule?.note ?? [entry.note, entry.example].filter(Boolean).join(' · '),
+      alternatives: transformation ? undefined : entry.english.replace(/\([^)]*\)/gu, '').split(/\s+\/\s+/u),
+      transformation,
+    }
+  }
   if (rule && transformation) {
     return {
       id: entry.id, target: entry.id, prompt: transformation.original, cue: rule.english,

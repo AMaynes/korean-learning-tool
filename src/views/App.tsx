@@ -132,7 +132,7 @@ export function App() {
         {state && view === 'settings' && <Settings state={state} lists={lists} active={active}
           onSelect={onSelect} save={save} invalidate={() => setRevision(value => value + 1)} />}
         {state && view === 'recall' && <Recall key={revision} category={category} setCategory={setCategory} deck={active[category]}
-          lists={lists} onSelect={onSelect} save={save} progress={state.recall[active[category].id]} />}
+          lists={lists} onSelect={onSelect} save={save} progressByDeck={state.recall} />}
         {state && view === 'library' && <Library category={category} setCategory={setCategory} active={active[category]}
           lists={lists} onSelect={onSelect} />}
         {state && (view === 'grammar' || view === 'listening') && <Practice key={view + revision}

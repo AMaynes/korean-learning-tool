@@ -204,9 +204,9 @@ describe('deployed study workflow', { concurrency: false }, () => {
     const subtypesByTab = {
       Pronouns: ['Personal', 'Demonstrative', 'Interrogative', 'Indefinite', 'Reflexive'],
       Numerals: ['Native Korean cardinal', 'Sino-Korean cardinal', 'Ordinal', 'Before a counter'],
-      Verbs: ['Takes an object (transitive)', 'No object (intransitive)'],
+      Verbs: ['Dark (-어요)', 'Light (-아요)', 'Shapeshifting (irregular)', '하다 (→ 해요)'],
     }
-    const firstFocusByTab = { Pronouns: '저', Numerals: '하나', Verbs: '먹어요' }
+    const firstFocusByTab = { Pronouns: '저', Numerals: '하나', Verbs: '먹 + -어요' }
 
     const grammarGroups = [
       ['Nominals', ['Nouns', 'Pronouns', 'Numerals']],
@@ -234,7 +234,13 @@ describe('deployed study workflow', { concurrency: false }, () => {
         }
         const labels = subtypesByTab[title]
         if (!labels) continue
-        const table = category.getByRole('table')
+        const table = title === 'Verbs'
+          ? category.getByRole('table', { name: 'Verb conjugation buckets' })
+          : category.getByRole('table')
+        if (title === 'Verbs') {
+          const rules = category.getByRole('table', { name: 'How verb endings attach' })
+          assert.deepEqual(await rules.getByRole('rowheader').allTextContents(), ['Direct attach', '아/어', '(으) buffer'])
+        }
         assert.deepEqual(await table.getByRole('rowheader').allTextContents(), labels)
         for (const label of labels) {
           await table.getByRole('button', { name: label, exact: true }).click()
@@ -243,7 +249,6 @@ describe('deployed study workflow', { concurrency: false }, () => {
           const focus = await nounHelp.locator('li > p b [lang="ko"]').allTextContents()
           assert.equal(focus.length, 3)
           if (label === labels[0]) assert.equal(focus[0], firstFocusByTab[title])
-          if (title === 'Verbs') assert.equal(focus[2], '멈춰요')
           await page.keyboard.press('Escape')
           await nounHelp.waitFor({ state: 'hidden' })
         }

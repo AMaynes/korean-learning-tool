@@ -138,13 +138,19 @@ export function Intro() {
           <p>A <GrammarLabel term="Predicate">predicate</GrammarLabel> tells what happens, what something is like, or what it is. Start the worked sentence with the dictionary form <Korean>먹다</Korean> (<em>“to eat”</em>).</p>
           <LessonTabs sectionId="predicates" tabs={[
             { label: "Verbs", content: <>
-              <p>Group each main <GrammarLabel term="Verb">verb</GrammarLabel> by whether it can take a direct object in that use. Some verbs, like <Korean>멈추다</Korean> (<em>to stop</em>), work both ways.</p>
-              <TypeTable title="Verb types" typeHeading="Verb Type" rows={verbTypes} />
-              <p>In <Korean>먹어 봐요</Korean> (<em>Try eating it</em>), <Korean>먹어</Korean> (<em>eat</em>) is the main verb and <Korean>봐요</Korean> (<em>try</em>) is the helping verb.</p>
+              <p>Drop <Korean>다</Korean> from a dictionary-form <GrammarLabel term="Verb">verb</GrammarLabel> to find its stem. Then check which form the ending needs.</p>
+              <TypeTable title="How verb endings attach" typeHeading="Connection rule" rows={[
+                ['Direct attach', '먹다 → 먹고', 'to eat → eat and then', ['-고', 'and then', 'attaches to 먹 as it is. -지만 and the -기 in -기 전에 do too. In -고 싶다, -고 is the part that attaches.']],
+                ['아/어', '먹어요 → 먹어서', 'eat → because I eat', ['먹어', 'eat', 'is the part before 요. Add -서 here, or use the same form with -도 and -야 돼요.']],
+                ['(으) buffer', '가면 / 먹으면', 'if I go / if I eat', ['-면 / -으면', 'if', 'show the pattern: 가 ends in a vowel, and 먹 ends in a consonant. Check the final sound with -(으)니까 and -(으)ㄹ 거예요 too.']],
+              ]} />
+              <h3>The four 아/어 buckets</h3>
+              <TypeTable title="Verb conjugation buckets" typeHeading="Bucket" rows={verbTypes} />
+              <p>Check the exact ending for stem changes. For <Korean>살다</Korean> (<em>to live</em>), <Korean>살면</Korean> (<em>if I live</em>) keeps <Korean>ㄹ</Korean> and <Korean>사니까</Korean> (<em>because I live</em>) drops it.</p>
               <ApplicationChecks unit="a verb" particles="Sometimes" conjugates note="The verb stem takes an ending first. Some forms, like 걷기 and 먹지, can then take a particle."
                 examples={[
                   ["걷기가", ["걷기", "walking", "is the noun form of the verb 걷다. 가 is the subject particle."]],
-                  ["먹지는", ["먹지", "eat", "is the verb stem 먹 with the connecting ending -지. 는 adds contrast."]],
+                  ["먹지는 않아요", ["는", "contrast particle", "attaches after the ending -지 and adds contrast to “I don’t eat it.”"]],
                 ]}
               />
             </> },

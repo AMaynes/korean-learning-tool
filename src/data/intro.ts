@@ -156,12 +156,11 @@ export type IntroTerm = keyof typeof introGlossary
 export type IntroType = readonly [type: string, korean: string, english: string, focus?: ExampleFocus]
 
 export const nounTypes: readonly IntroType[] = [
-  ['Common', '음식', 'food', ['음식', 'food', 'is common because it names a general kind of thing.']],
-  ['Proper', '서울', 'Seoul', ['서울', 'Seoul', 'is proper because it names a specific city.']],
-  ['Independent', '책', 'book', ['책', 'book', 'is independent because it can stand alone.']],
-  ['Dependent (bound)', '갈 수 있어요.', 'I can go.', ['수', 'way or possibility', 'is dependent because it needs a word before it, like 갈.']],
-  ['Concrete', '사과', 'apple', ['사과', 'apple', 'is concrete because you can touch it.']],
-  ['Abstract', '기쁨', 'joy', ['기쁨', 'joy', 'is abstract because it’s a feeling.']],
+  ['Common (general entities)', '음식', 'food', ['음식', 'food', 'is common because it names a general kind of thing.']],
+  ['Proper (specific names)', '서울', 'Seoul', ['서울', 'Seoul', 'is proper because it names a specific city.']],
+  ['Dependent (requires a modifier)', '갈 수 있어요.', 'I can go.', ['수', 'way or possibility', 'is dependent because it needs a word before it, like 갈.']],
+  ['Concrete (physical entities)', '사과', 'apple', ['사과', 'apple', 'is concrete because you can touch it.']],
+  ['Abstract (concepts)', '기쁨', 'joy', ['기쁨', 'joy', 'is abstract because it’s a feeling.']],
 ]
 
 export const pronounTypes: readonly IntroType[] = [

@@ -68,11 +68,28 @@ async function select(page, label, value) {
   }), { category, value })
 }
 
+async function mockKoreanAudio(page) {
+  await page.addInitScript(() => {
+    Object.defineProperty(window, 'SpeechSynthesisUtterance', {
+      value: class { constructor(text) { this.text = text } },
+    })
+    Object.defineProperties(window.speechSynthesis, {
+      getVoices: { value: () => [{ lang: 'ko-KR' }] },
+      speak: { value: utterance => {
+        window.lastPronunciation = utterance.text
+        queueMicrotask(() => utterance.onend())
+      } },
+      cancel: { value: () => {} },
+    })
+  })
+}
+
 describe('deployed study workflow', { concurrency: false }, () => {
   it('opens the tool by default and navigates to the separate intro on a narrow screen', async () => {
     const page = await browser.newPage()
     await page.setViewportSize({ width: 390, height: 844 })
     await page.emulateMedia({ colorScheme: 'light' })
+    await mockKoreanAudio(page)
     await page.goto(projectPage)
     await heading(page, 'Vocabulary Recall')
     const palette = await page.evaluate(() => {
@@ -85,9 +102,30 @@ describe('deployed study workflow', { concurrency: false }, () => {
     await heading(page, 'How Korean works')
     const lessonHeadings = page.locator('.intro-lesson > summary h2')
     assert.deepEqual(await lessonHeadings.allTextContents(), [
-      'Nominals', 'Predicates', 'Modifiers + Particles + Conjugation', 'Independent Forms', 'Sentence Structures',
+      'Hangul + Pronunciation', 'Nominals', 'Predicates', 'Modifiers + Particles + Conjugation', 'Independent Forms', 'Sentence Structures',
     ])
-    await page.getByText('Hangul and sound', { exact: true }).click()
+    const hangul = page.locator('#hangul')
+    await hangul.locator('summary').click()
+    const alphabetTab = hangul.getByRole('tab', { name: 'Korean Alphabet (Hangul)', exact: true })
+    assert.equal(await alphabetTab.getAttribute('aria-selected'), 'true')
+    const alphabet = hangul.getByRole('tabpanel', { name: 'Korean Alphabet (Hangul)', exact: true })
+    const vowels = alphabet.getByRole('region', { name: 'Vowels' })
+    const consonants = alphabet.getByRole('region', { name: 'Consonants' })
+    assert.equal(await vowels.getByRole('button').count(), 21)
+    assert.equal(await consonants.getByRole('button').count(), 19)
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true)
+    for (const [group, label, syllable] of [
+      [vowels, 'Play ㅓ, eo', '어'],
+      [consonants, 'Play ㄱ, g / k', '그'],
+      [consonants, 'Play ㅇ, silent / ng', '응'],
+    ]) {
+      await group.getByRole('button', { name: label, exact: true }).click()
+      assert.equal(await page.evaluate(() => window.lastPronunciation), syllable)
+    }
+    const syllablesTab = hangul.getByRole('tab', { name: 'Hangul Syllables', exact: true })
+    await syllablesTab.click()
+    assert.equal(await syllablesTab.getAttribute('aria-selected'), 'true')
+    assert.equal(await alphabet.isVisible(), false)
     assert.equal(await page.getByRole('figure', { name: /^Syllable / }).count(), 6)
     const stacked = page.getByRole('figure', { name: 'Syllable 몫, vowel below' })
     const positions = await stacked.evaluate(card => [...card.querySelectorAll('.syllable-slot')].map(slot => {
@@ -105,8 +143,10 @@ describe('deployed study workflow', { concurrency: false }, () => {
     await sections.getByRole('button', { name: 'Nominals', exact: true }).click()
     const nominals = page.locator('#nominals')
     const nouns = page.getByRole('table', { name: 'Noun types', exact: true })
-    await nouns.getByRole('rowheader', { name: 'Dependent (bound)' }).waitFor()
-    await nouns.getByRole('rowheader', { name: 'Abstract' }).waitFor()
+    assert.deepEqual(await nouns.getByRole('rowheader').allTextContents(), [
+      'Common (general entities)', 'Proper (specific names)', 'Dependent (requires a modifier)',
+      'Concrete (physical entities)', 'Abstract (concepts)',
+    ])
     await nouns.getByRole('columnheader', { name: 'Noun Type', exact: true }).waitFor()
     const nounsTab = nominals.getByRole('tab', { name: 'Nouns', exact: true })
     const pronounsTab = nominals.getByRole('tab', { name: 'Pronouns', exact: true })
@@ -329,19 +369,7 @@ describe('deployed study workflow', { concurrency: false }, () => {
   it('plays a pronunciation card before offering Y or N and advances after rating', async () => {
     const page = await browser.newPage()
     await page.setViewportSize({ width: 390, height: 844 })
-    await page.addInitScript(() => {
-      Object.defineProperty(window, 'SpeechSynthesisUtterance', {
-        value: class { constructor(text) { this.text = text } },
-      })
-      Object.defineProperties(window.speechSynthesis, {
-        getVoices: { value: () => [{ lang: 'ko-KR' }] },
-        speak: { value: utterance => {
-          window.lastPronunciation = utterance.text
-          queueMicrotask(() => utterance.onend())
-        } },
-        cancel: { value: () => {} },
-      })
-    })
+    await mockKoreanAudio(page)
     await page.goto(projectPage)
     await page.getByRole('link', { name: 'Pronunciation', exact: true }).click()
     await heading(page, 'Pronunciation')

@@ -16,9 +16,11 @@ import {
   numeralTypes, particleTypes, pronounTypes, verbTypes,
 } from '../data/intro'
 import type { ExampleFocus, IntroTerm, IntroType } from '../data/intro'
-import { Icon, Korean } from './shared'
+import { hangulAlphabet } from '../engine/pronunciation'
+import { Icon, Korean, speakKorean } from './shared'
 
 const sections = [
+  ['hangul', 'Hangul + Pronunciation'],
   ['nominals', 'Nominals'],
   ['predicates', 'Predicates'],
   ['modifiers', 'Modifiers + Particles + Conjugation'],
@@ -91,56 +93,12 @@ export function Intro() {
       </aside>
 
       <div className="intro-content">
-        <details className="panel intro-primer">
-          <summary>Hangul and sound</summary>
-          <div className="intro-panel">
-          <div className="syllable-legend">
-            <span><strong>C</strong> Consonant letter</span>
-            <span><strong>V</strong> Vowel letter</span>
-          </div>
-          <p>Each Hangul block is one syllable. Any final consonant letters, called <GrammarLabel term="Batchim">batchim</GrammarLabel> (<Korean>받침</Korean>), go in the <GrammarLabel term="Coda">coda</GrammarLabel> at the bottom.</p>
-
-          <div className="syllable-matrix">
-            <div className="syllable-pair syllable-columns">
-              <div>Vertical vowel <Korean>ㅏ</Korean><small>Goes on the right</small></div>
-              <div>Horizontal vowel <Korean>ㅗ</Korean><small>Goes below</small></div>
-            </div>
-            {syllablePatterns.map(({ pattern, ending, right, below }) => <section key={pattern} className="syllable-pattern">
-              <h3><strong>{pattern}</strong> <span>{ending}{pattern === 'CVCC' && <> · Double batchim (<Korean>겹받침</Korean>)</>}</span></h3>
-              <div className="syllable-pair">
-                <SyllableBlock letters={right} position="right" />
-                <SyllableBlock letters={below} position="below" />
-              </div>
-            </section>)}
-          </div>
-
-          <h3>How the spelling sounds</h3>
-          <div className="table-wrap intro-table hangul-sounds"><table aria-label="Hangul spelling and sound examples">
-            <thead><tr><th scope="col">Example</th><th scope="col">What to notice</th></tr></thead>
-            <tbody>
-              <tr><th scope="row"><Korean>ㅇ + ㅏ → 아</Korean></th><td>Initial <Korean>ㅇ</Korean> is silent. Final <Korean>ㅇ</Korean> sounds like “ng,” as in <Korean>공</Korean>.</td></tr>
-              <tr><th scope="row"><Korean>ㄱ + ㅘ → 과</Korean></th><td><Korean>ㅘ</Korean> is one vowel that extends below and to the right.</td></tr>
-              <tr>
-                <th scope="row"><Korean>값 → [갑]</Korean><WordGlosses korean="값 → [갑]" /><small>Coda <Korean>ㅂ + ㅅ → ㅂ</Korean></small></th>
-                <td>Both letters share one coda. Said on its own, <Korean>값</Korean> has only the <Korean>ㅂ</Korean> sound at the end.</td>
-              </tr>
-              <tr>
-                <th scope="row"><Korean>밥을 → [바블]</Korean><WordGlosses korean="밥을 → [바블]" /><small>Coda <Korean>ㅂ</Korean> in <Korean>밥</Korean></small></th>
-                <td>The <Korean>ㅂ</Korean> sound moves to the start of the next syllable.</td>
-              </tr>
-              <tr>
-                <th scope="row"><Korean>사람 / 물</Korean><WordGlosses korean="사람 / 물" /><small>Coda <Korean>ㄹ</Korean> in <Korean>물</Korean></small></th>
-                <td><Korean>ㄹ</Korean> taps between vowels in <Korean>사람</Korean> and sounds closer to “l” at the end of <Korean>물</Korean>.</td>
-              </tr>
-              <tr>
-                <th scope="row"><Korean>ㅁ + ㅓ + ㄱ → 먹</Korean><small><Korean>먹어요 → [머거요]</Korean></small></th>
-                <td>The <Korean>ㄱ</Korean> is the coda in <Korean>먹</Korean>. In <Korean>먹어요</Korean> (<em>“eat”</em>), it moves to the start of the next syllable in speech.</td>
-              </tr>
-            </tbody>
-          </table></div>
-          <a className="text-button" href="#pronunciation">Practice Hangul and batchim <Icon name="arrow" size={15} /></a>
-          </div>
-        </details>
+        <LessonSection id="hangul" title="Hangul + Pronunciation">
+          <LessonTabs sectionId="hangul" tabs={[
+            { label: 'Korean Alphabet (Hangul)', content: <HangulAlphabet /> },
+            { label: 'Hangul Syllables', content: <HangulSyllables /> },
+          ]} />
+        </LessonSection>
 
         <LessonSection id="nominals" title="Nominals" initiallyOpen>
           <p>Nouns, pronouns, and numerals can act as <GrammarLabel term="Nominal">nominals</GrammarLabel>.</p>
@@ -247,6 +205,94 @@ export function Intro() {
     </div>
   </div>
   </GrammarHelp.Provider>
+}
+
+/** Display the modern alphabet and play its sounds on demand. */
+function HangulAlphabet() {
+  const [audioError, setAudioError] = useState('')
+  useEffect(() => () => window.speechSynthesis?.cancel(), [])
+
+  function play(sound: string) {
+    setAudioError('')
+    const started = speakKorean(sound, 0.85, () => {}, () => setAudioError('Sound couldn’t play. Try again.'))
+    if (!started) setAudioError('Enable a Korean voice in your device settings to play the sounds.')
+  }
+
+  return <>
+    <p>Tap a letter to hear it. Consonants play with <Korean>ㅡ</Korean>. <Korean>ㅇ</Korean> is silent at the start, so you’ll hear its <em>ng</em> sound in <Korean>응</Korean>.</p>
+    {audioError && <p role="status">{audioError}</p>}
+    <AlphabetGroup title="Vowels" letters={hangulAlphabet.vowels} onPlay={play} />
+    <AlphabetGroup title="Consonants" letters={hangulAlphabet.consonants} onPlay={play} />
+  </>
+}
+
+/** Render one group of Hangul letters with romanization and playback. */
+function AlphabetGroup({ title, letters, onPlay }: {
+  title: string; letters: readonly { prompt: string; sound: string; romanization: string }[]; onPlay: (sound: string) => void
+}) {
+  return <section className="hangul-letter-group" aria-label={title}>
+    <h3>{title}</h3>
+    <div className="hangul-letter-grid">
+      {letters.map(({ prompt, sound, romanization }) => <button
+        key={prompt} type="button" className="hangul-letter button" aria-label={`Play ${prompt}, ${romanization}`}
+        onClick={() => onPlay(sound)}
+      >
+        <Korean>{prompt}</Korean><Icon name="sound" size={14} />
+        <small>{romanization}</small>
+      </button>)}
+    </div>
+  </section>
+}
+
+/** Show where consonants and vowels sit in a single Hangul syllable block. */
+function HangulSyllables() {
+  return <>
+    <div className="syllable-legend">
+      <span><strong>C</strong> Consonant letter</span>
+      <span><strong>V</strong> Vowel letter</span>
+    </div>
+    <p>Each Hangul block is one syllable. Any final consonant letters, called <GrammarLabel term="Batchim">batchim</GrammarLabel> (<Korean>받침</Korean>), go in the <GrammarLabel term="Coda">coda</GrammarLabel> at the bottom.</p>
+
+    <div className="syllable-matrix">
+      <div className="syllable-pair syllable-columns">
+        <div>Vertical vowel <Korean>ㅏ</Korean><small>Goes on the right</small></div>
+        <div>Horizontal vowel <Korean>ㅗ</Korean><small>Goes below</small></div>
+      </div>
+      {syllablePatterns.map(({ pattern, ending, right, below }) => <section key={pattern} className="syllable-pattern">
+        <h3><strong>{pattern}</strong> <span>{ending}{pattern === 'CVCC' && <> · Double batchim (<Korean>겹받침</Korean>)</>}</span></h3>
+        <div className="syllable-pair">
+          <SyllableBlock letters={right} position="right" />
+          <SyllableBlock letters={below} position="below" />
+        </div>
+      </section>)}
+    </div>
+
+    <h3>How the spelling sounds</h3>
+    <div className="table-wrap intro-table hangul-sounds"><table aria-label="Hangul spelling and sound examples">
+      <thead><tr><th scope="col">Example</th><th scope="col">What to notice</th></tr></thead>
+      <tbody>
+        <tr><th scope="row"><Korean>ㅇ + ㅏ → 아</Korean></th><td>Initial <Korean>ㅇ</Korean> is silent. Final <Korean>ㅇ</Korean> sounds like “ng,” as in <Korean>공</Korean>.</td></tr>
+        <tr><th scope="row"><Korean>ㄱ + ㅘ → 과</Korean></th><td><Korean>ㅘ</Korean> is one vowel that extends below and to the right.</td></tr>
+        <tr>
+          <th scope="row"><Korean>값 → [갑]</Korean><WordGlosses korean="값 → [갑]" /><small>Coda <Korean>ㅂ + ㅅ → ㅂ</Korean></small></th>
+          <td>Both letters share one coda. Said on its own, <Korean>값</Korean> has only the <Korean>ㅂ</Korean> sound at the end.</td>
+        </tr>
+        <tr>
+          <th scope="row"><Korean>밥을 → [바블]</Korean><WordGlosses korean="밥을 → [바블]" /><small>Coda <Korean>ㅂ</Korean> in <Korean>밥</Korean></small></th>
+          <td>The <Korean>ㅂ</Korean> sound moves to the start of the next syllable.</td>
+        </tr>
+        <tr>
+          <th scope="row"><Korean>사람 / 물</Korean><WordGlosses korean="사람 / 물" /><small>Coda <Korean>ㄹ</Korean> in <Korean>물</Korean></small></th>
+          <td><Korean>ㄹ</Korean> taps between vowels in <Korean>사람</Korean> and sounds closer to “l” at the end of <Korean>물</Korean>.</td>
+        </tr>
+        <tr>
+          <th scope="row"><Korean>ㅁ + ㅓ + ㄱ → 먹</Korean><small><Korean>먹어요 → [머거요]</Korean></small></th>
+          <td>The <Korean>ㄱ</Korean> is the coda in <Korean>먹</Korean>. In <Korean>먹어요</Korean> (<em>“eat”</em>), it moves to the start of the next syllable in speech.</td>
+        </tr>
+      </tbody>
+    </table></div>
+    <a className="text-button" href="#pronunciation">Practice Hangul and batchim <Icon name="arrow" size={15} /></a>
+  </>
 }
 
 /** Show how to assemble a clause, change what it says, and combine it with other clauses. */

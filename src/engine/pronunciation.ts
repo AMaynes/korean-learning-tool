@@ -31,12 +31,32 @@ export interface PronunciationCard {
   silent?: boolean
 }
 
-export const letterCards: readonly PronunciationCard[] = [
-  ...initials.map((prompt, index) => ({
-    prompt, sound: composeHangul(index, carrierVowel, 0), silent: index === silentInitial,
+const consonantCards = initials.map((prompt, index) => ({
+  prompt, sound: composeHangul(index, carrierVowel, 0), silent: index === silentInitial,
+}))
+const vowelCards = vowels.map((prompt, index) => ({ prompt, sound: composeHangul(silentInitial, index, 0) }))
+
+export const letterCards: readonly PronunciationCard[] = [...consonantCards, ...vowelCards]
+
+// Revised Romanization for the modern letters. Some consonants have a different spelling at the end.
+const consonantRomanization: Readonly<Record<string, string>> = {
+  ㄱ: 'g / k', ㄲ: 'kk', ㄴ: 'n', ㄷ: 'd / t', ㄸ: 'tt', ㄹ: 'r / l', ㅁ: 'm',
+  ㅂ: 'b / p', ㅃ: 'pp', ㅅ: 's', ㅆ: 'ss', ㅇ: 'silent / ng', ㅈ: 'j', ㅉ: 'jj',
+  ㅊ: 'ch', ㅋ: 'k', ㅌ: 't', ㅍ: 'p', ㅎ: 'h',
+}
+const vowelRomanization: Readonly<Record<string, string>> = {
+  ㅏ: 'a', ㅐ: 'ae', ㅑ: 'ya', ㅒ: 'yae', ㅓ: 'eo', ㅔ: 'e', ㅕ: 'yeo',
+  ㅖ: 'ye', ㅗ: 'o', ㅘ: 'wa', ㅙ: 'wae', ㅚ: 'oe', ㅛ: 'yo', ㅜ: 'u',
+  ㅝ: 'wo', ㅞ: 'we', ㅟ: 'wi', ㅠ: 'yu', ㅡ: 'eu', ㅢ: 'ui', ㅣ: 'i',
+}
+
+/** The chart plays final ㅇ in 응 so learners can hear its ng sound. */
+export const hangulAlphabet = {
+  vowels: vowelCards.map(card => ({ ...card, romanization: vowelRomanization[card.prompt] })),
+  consonants: consonantCards.map(({ prompt, sound, silent }) => ({
+    prompt, sound: silent ? '응' : sound, romanization: consonantRomanization[prompt],
   })),
-  ...vowels.map((prompt, index) => ({ prompt, sound: composeHangul(silentInitial, index, 0) })),
-]
+}
 
 export const batchimCardCount = initials.length * vowels.length * writtenFinalCount
 

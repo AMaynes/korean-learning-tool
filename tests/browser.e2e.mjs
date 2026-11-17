@@ -204,7 +204,7 @@ describe('deployed study workflow', { concurrency: false }, () => {
     const subtypesByTab = {
       Pronouns: ['Personal', 'Demonstrative', 'Interrogative', 'Indefinite', 'Reflexive'],
       Numerals: ['Native Korean cardinal', 'Sino-Korean cardinal', 'Ordinal', 'Before a counter'],
-      Verbs: ['Dark (-어요)', 'Light (-아요)', 'Shapeshifting (irregular)', '하다 (→ 해요)'],
+      Verbs: ['Dark-vowel verbs', 'Light-vowel verbs', 'Irregular verbs (shapeshifting)', 'Do verbs (hada)'],
     }
     const firstFocusByTab = { Pronouns: '저', Numerals: '하나', Verbs: '먹 + -어요' }
 
@@ -223,7 +223,13 @@ describe('deployed study workflow', { concurrency: false }, () => {
         await category.waitFor({ state: 'visible' })
         const answers = await category.locator('.intro-application dd').allTextContents()
         assert.ok(answers.length >= 2 && answers.every(answer => ['Yes', 'No', 'Sometimes'].includes(answer)))
+        if (group === 'Nominals' || group === 'Predicates') {
+          const particleRules = category.getByRole('heading', { name: 'Particle rules', exact: true })
+          assert.equal(await particleRules.evaluate(heading => heading.previousElementSibling?.tagName), 'DL')
+        }
         if (title === 'Verbs' || title === 'Adjectives') {
+          const conjugationRules = category.getByRole('heading', { name: 'Conjugation rules', exact: true })
+          assert.equal(await conjugationRules.evaluate(heading => heading.previousElementSibling?.classList.contains('intro-application')), true)
           const unit = title === 'Verbs' ? 'a verb' : 'an adjective'
           const particleCheck = category.locator('.intro-application dl > div').filter({ hasText: `Does ${unit} take particles?` })
           assert.equal(await particleCheck.locator('dd').textContent(), 'Sometimes')

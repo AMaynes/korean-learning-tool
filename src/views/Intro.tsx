@@ -106,16 +106,17 @@ export function Intro() {
             { label: "Nouns", content: <>
               <p>A <GrammarLabel term="Noun">noun</GrammarLabel> can fit more than one type. <Korean>음식</Korean> is both common and concrete.</p>
               <TypeTable title="Noun types" typeHeading="Noun Type" rows={nounTypes} />
-              <ApplicationChecks unit="a noun" particles="Yes" conjugates={false} note="The particle goes after the noun."
+              <ApplicationChecks unit="a noun" showRulesHeading particles="Yes" conjugates={false} note="Put the particle after the noun. For an object, use 을 after a final consonant and 를 after a vowel."
                 examples={[
-                  ["음식 + 을 → 음식을", ["음식", "food", "is the noun. 을 is the object particle."]],
+                  ["음식 + 을 → 음식을", ["을", "object particle", "follows 음식 because it ends in ㄱ."]],
+                  ["커피 + 를 → 커피를", ["를", "object particle", "follows 커피 because it ends in ㅣ."]],
                 ]}
               />
             </> },
             { label: "Pronouns", content: <>
               <p>A <GrammarLabel term="Pronoun">pronoun</GrammarLabel> can stand for a person or thing already clear from context.</p>
               <TypeTable title="Pronoun types" typeHeading="Pronoun Type" rows={pronounTypes} />
-              <ApplicationChecks unit="a pronoun" particles="Yes" conjugates={false} note="저 takes 는 for the topic and changes to 제 before the subject particle 가."
+              <ApplicationChecks unit="a pronoun" showRulesHeading particles="Yes" conjugates={false} note="저 takes 는 for the topic and changes to 제 before the subject particle 가."
                 examples={[
                   ["저 + 는 → 저는", ["저", "I", "is the pronoun. 는 is the topic particle."]],
                   ["저 + 가 → 제가", ["제", "I", "is the pronoun form that goes before the subject particle 가."]],
@@ -124,7 +125,7 @@ export function Intro() {
             </> },
             { label: "Numerals", content: <>
               <TypeTable title="Numeral types" typeHeading="Numeral Type" rows={numeralTypes} />
-              <ApplicationChecks unit="a numeral" particles="Yes" conjugates={false} note="A particle can follow a number on its own or the full phrase with a counter."
+              <ApplicationChecks unit="a numeral" showRulesHeading particles="Yes" conjugates={false} note="A particle can follow a number on its own or the full phrase with a counter."
                 examples={[
                   ["둘이", ["둘", "two", "is the numeral. 이 is the subject particle."]],
                   ["세 개를", ["세", "three", "is the number form before the counter 개. 를 marks the whole phrase as the object."]],
@@ -138,31 +139,34 @@ export function Intro() {
           <p>A <GrammarLabel term="Predicate">predicate</GrammarLabel> tells what happens, what something is like, or what it is. Start the worked sentence with the dictionary form <Korean>먹다</Korean> (<em>“to eat”</em>).</p>
           <LessonTabs sectionId="predicates" tabs={[
             { label: "Verbs", content: <>
+              <ApplicationChecks unit="a verb" showRulesHeading particles="Sometimes" conjugates note="The verb stem takes an ending first. Some forms, like 걷기 and 먹지, can then take a particle."
+                examples={[
+                  ["걷기가", ["걷기", "walking", "is the noun form of the verb 걷다. 가 is the subject particle."]],
+                  ["먹지는 않아요", ["는", "contrast particle", "attaches after the ending -지 and adds contrast to “I don’t eat it.”"]],
+                ]}
+              />
+              <h3>Conjugation rules</h3>
               <p>Drop <Korean>다</Korean> from a dictionary-form <GrammarLabel term="Verb">verb</GrammarLabel> to find its stem. Then check which form the ending needs.</p>
               <TypeTable title="How verb endings attach" typeHeading="Connection rule" rows={[
                 ['Direct attach', '먹다 → 먹고', 'to eat → eat and then', ['-고', 'and then', 'attaches to 먹 as it is. -지만 and the -기 in -기 전에 do too. In -고 싶다, -고 is the part that attaches.']],
                 ['아/어', '먹어요 → 먹어서', 'eat → because I eat', ['먹어', 'eat', 'is the part before 요. Add -서 here, or use the same form with -도 and -야 돼요.']],
                 ['(으) buffer', '가면 / 먹으면', 'if I go / if I eat', ['-면 / -으면', 'if', 'show the pattern: 가 ends in a vowel, and 먹 ends in a consonant. Check the final sound with -(으)니까 and -(으)ㄹ 거예요 too.']],
               ]} />
-              <h3>The four 아/어 buckets</h3>
-              <TypeTable title="Verb conjugation buckets" typeHeading="Bucket" rows={verbTypes} />
+              <h4>Four verb patterns</h4>
+              <TypeTable title="Verb conjugation buckets" typeHeading="Verb pattern" rows={verbTypes} />
               <p>Check the exact ending for stem changes. For <Korean>살다</Korean> (<em>to live</em>), <Korean>살면</Korean> (<em>if I live</em>) keeps <Korean>ㄹ</Korean> and <Korean>사니까</Korean> (<em>because I live</em>) drops it.</p>
-              <ApplicationChecks unit="a verb" particles="Sometimes" conjugates note="The verb stem takes an ending first. Some forms, like 걷기 and 먹지, can then take a particle."
-                examples={[
-                  ["걷기가", ["걷기", "walking", "is the noun form of the verb 걷다. 가 is the subject particle."]],
-                  ["먹지는 않아요", ["는", "contrast particle", "attaches after the ending -지 and adds contrast to “I don’t eat it.”"]],
-                ]}
-              />
             </> },
             { label: "Adjectives", content: <>
               <p>An <GrammarLabel term="Adjective">adjective</GrammarLabel> describes what someone or something is like. It can be the predicate or go before the noun it describes.</p>
               <GlossaryExamples examples={introGlossary.Adjective.examples} />
-              <ApplicationChecks unit="an adjective" particles="Sometimes" conjugates note="The adjective stem takes an ending first. Some forms, like 건강하기 and 맵지, can then take a particle."
+              <ApplicationChecks unit="an adjective" showRulesHeading particles="Sometimes" conjugates note="The adjective stem takes an ending first. Some forms, like 건강하기 and 맵지, can then take a particle."
                 examples={[
                   ["건강하기가 어렵다", ["건강하기", "being healthy", "is the noun form of the adjective 건강하다. 가 is the subject particle."]],
                   ["맵지는 않아요", ["맵지", "be spicy", "is the adjective stem 맵 with the connecting ending -지. 는 adds contrast."]],
                 ]}
               />
+              <h3>Conjugation rules</h3>
+              <p>Drop <Korean>다</Korean> to get the adjective stem. Before the everyday polite ending, the irregular stem <Korean>맵-</Korean> (<em>spicy</em>) changes and combines with the ending to make <Korean>매워요</Korean> (<em>is spicy</em>).</p>
             </> },
           ]} />
         </LessonSection>
@@ -600,15 +604,17 @@ function TypeTable({ title, typeHeading = 'Type', rows }: { title: string; typeH
 }
 
 /** Show the attachment and conjugation answers for the form named in the question. */
-function ApplicationChecks({ unit, particles, conjugates, note, examples }: {
+function ApplicationChecks({ unit, particles, conjugates, note, examples, showRulesHeading = false }: {
   unit: string; particles: 'Yes' | 'No' | 'Sometimes'; conjugates: boolean; note: string
   examples: readonly (readonly [korean: string, focus: ExampleFocus])[]
+  showRulesHeading?: boolean
 }) {
   return <div className="intro-application">
     <dl>
       <div><dt>Does {unit} take particles?</dt><dd>{particles}</dd></div>
       <div><dt>Does {unit} conjugate?</dt><dd>{conjugates ? 'Yes' : 'No'}</dd></div>
     </dl>
+    {showRulesHeading && <h3>Particle rules</h3>}
     <p>{note}</p>
     {examples.map(([korean, focus]) => <div key={korean} className="intro-check-example">
       <WordGlosses korean={korean} />

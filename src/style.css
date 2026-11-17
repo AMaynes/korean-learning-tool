@@ -194,6 +194,7 @@ details p { font-size: 13px; margin-bottom: 7px; }
 .intro-panel { display: grid; gap: 12px; padding: clamp(16px, 3vw, 27px); }
 .intro-panel h2 { font-size: 24px; letter-spacing: -.035em; scroll-margin-top: 15px; }
 .intro-panel h3 { font-size: 15px; }
+.intro-panel h4 { margin: 0; font-size: 14px; }
 .intro-panel p { font-size: 14px; }
 .intro-lesson > summary {
   min-height: 44px;
@@ -216,6 +217,7 @@ details p { font-size: 13px; margin-bottom: 7px; }
 .intro-application dl { display: grid; gap: 6px; margin: 0 0 6px; }
 .intro-application dl > div { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; font-size: 13px; }
 .intro-application dd { margin: 0; font-weight: 700; white-space: nowrap; }
+.intro-application h3 { margin: 10px 0 4px; }
 .intro-application p { font-size: 13px; }
 .intro-check-example + .intro-check-example { margin-top: 6px; }
 .intro-grammar-label {

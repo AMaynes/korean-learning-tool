@@ -142,7 +142,7 @@ const numeralGlossary = {
 } as const satisfies Record<string, GlossaryEntry>
 
 const verbGlossary = {
-  'Dark (-어요)': {
+  'Dark-vowel verbs': {
     definition: 'In the regular 아/어 pattern, use 어 when the last vowel of the stem is something other than ㅏ or ㅗ. Vowels can combine.',
     examples: [
       ['먹다 → 먹어요', 'to eat → eat', ['먹 + -어요', 'eat', 'shows the stem 먹 taking -어요 because its vowel is ㅓ.']],
@@ -150,7 +150,7 @@ const verbGlossary = {
       ['마시다 → 마셔요', 'to drink → drink', ['시 + -어 → 셔', 'drink', 'shows ㅣ and ㅓ combining in the verb 마시다.']],
     ],
   },
-  'Light (-아요)': {
+  'Light-vowel verbs': {
     definition: 'In the regular 아/어 pattern, use 아 when the last vowel of the stem is ㅏ or ㅗ. Vowels can combine.',
     examples: [
       ['받다 → 받아요', 'to receive → receive', ['받 + -아요', 'receive', 'shows the stem 받 taking -아요 because its vowel is ㅏ.']],
@@ -158,7 +158,7 @@ const verbGlossary = {
       ['오다 → 와요', 'to come → come', ['오 + -아 → 와', 'come', 'shows ㅗ and ㅏ combining into ㅘ.']],
     ],
   },
-  'Shapeshifting (irregular)': {
+  'Irregular verbs (shapeshifting)': {
     definition: 'Some verb stems change in a special way with certain endings. Learn the change with the verb.',
     examples: [
       ['듣다 → 들어요', 'to listen → listen', ['듣 → 들', 'listen', 'shows the irregular ㄷ changing to ㄹ before -어요.']],
@@ -166,8 +166,8 @@ const verbGlossary = {
       ['모르다 → 몰라요', 'to not know → don’t know', ['모르 → 몰라요', 'don’t know', 'shows the irregular 르 pattern adding ㄹ to the syllable before 르.']],
     ],
   },
-  '하다 (→ 해요)': {
-    definition: '하다 and verbs ending in -하다 use 해 in the everyday 아/어 pattern.',
+  'Do verbs (hada)': {
+    definition: '하다 means “to do.” It and verbs that end in -하다, like 공부하다 (to study), change 하다 to 해요 in everyday polite speech.',
     examples: [
       ['하다 → 해요', 'to do → do', ['하다 → 해요', 'do', 'shows 하여 shortening to 해 before 요.']],
       ['공부하다 → 공부해요', 'to study → study', ['해요', 'do', 'is the conjugated 하다 part of 공부하다.']],

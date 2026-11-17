@@ -39,7 +39,7 @@ export function Intro() {
   return <div className="intro">
     <div className="section-heading"><div>
       <h1>How Korean works</h1>
-      <p>Build a syllable, then see how words fit together in a sentence.</p>
+      <p>Work up from a Hangul block to “Today I’m eating spicy food at home.”</p>
     </div><a className="button primary" href="#recall">Go to practice <Icon name="arrow" /></a></div>
 
     <div className="intro-layout">
@@ -93,6 +93,10 @@ export function Intro() {
                 <th scope="row"><Korean>사람 / 물</Korean><small>Coda <Korean>ㄹ</Korean> in <Korean>물</Korean></small></th>
                 <td><Korean>ㄹ</Korean> taps between vowels in <Korean>사람</Korean> and sounds closer to “l” at the end of <Korean>물</Korean>.</td>
               </tr>
+              <tr>
+                <th scope="row"><Korean>ㅁ + ㅓ + ㄱ → 먹</Korean><small><Korean>먹어요 → [머거요]</Korean></small></th>
+                <td>The <Korean>ㄱ</Korean> is the coda in <Korean>먹</Korean>. In <Korean>먹어요</Korean> (“eat”), it moves to the start of the next syllable in speech.</td>
+              </tr>
             </tbody>
           </table></div>
           <a className="text-button" href="#pronunciation">Practice Hangul and batchim <Icon name="arrow" size={15} /></a>
@@ -100,7 +104,7 @@ export function Intro() {
 
         <article className="panel intro-panel">
           <h2 id="nominals" tabIndex={-1}>Nominals and particles</h2>
-          <ExampleParts parts={[['Noun', '책'], ['Object particle', '을'], ['Result', '책을']]} meaning={<><Korean>책</Korean> means “book.” <Korean>을</Korean> marks it as the object.</>} />
+          <ExampleParts parts={[['Noun', '음식', 'food'], ['Object particle', '을', 'marks the object'], ['Object phrase', '음식을', 'food']]} meaning={<>The last block of <Korean>음식</Korean> ends in <Korean>ㄱ</Korean>, so attach <Korean>을</Korean>.</>} />
           <p>Particles often attach to noun phrases. For pairs like <Korean>을/를</Korean>, check whether the last block has a final consonant before choosing the form.</p>
           <div className="table-wrap intro-table"><table aria-label="Particle forms after consonants and vowels">
             <thead><tr><th scope="col">Role</th><th scope="col">After consonant</th><th scope="col">After vowel</th></tr></thead>
@@ -114,8 +118,9 @@ export function Intro() {
             <thead><tr><th scope="col">Use</th><th scope="col">Example</th><th scope="col">Meaning</th></tr></thead>
             <tbody>
               <tr><th scope="row">Destination <Korean>에</Korean></th><td><Korean>학교에 가요.</Korean></td><td>I’m going to school.</td></tr>
-              <tr><th scope="row">Action location <Korean>에서</Korean></th><td><Korean>학교에서 공부해요.</Korean></td><td>I study at school.</td></tr>
+              <tr><th scope="row">Action location <Korean>에서</Korean></th><td><Korean>집에서 먹어요.</Korean></td><td>I eat at home.</td></tr>
               <tr><th scope="row">Time <Korean>에</Korean></th><td><Korean>세 시에 만나요.</Korean></td><td>Let’s meet at three.</td></tr>
+              <tr><th scope="row">Time word <Korean>오늘</Korean></th><td><Korean>오늘 먹어요.</Korean></td><td>I’m eating it today. <Korean>오늘</Korean> (“today”) stands on its own.</td></tr>
               <tr><th scope="row">Possession <Korean>의</Korean></th><td><Korean>친구의 집</Korean></td><td>A friend’s house.</td></tr>
             </tbody>
           </table></div>
@@ -125,7 +130,7 @@ export function Intro() {
 
         <article className="panel intro-panel">
           <h2 id="predicates" tabIndex={-1}>Predicates and endings</h2>
-          <ExampleParts parts={[['Dictionary form', '먹다'], ['Stem', '먹'], ['Stem + ending', '먹어요']]} meaning={<>Remove <Korean>다</Korean> to find the stem. <Korean>먹 + 어요</Korean> makes the polite present.</>} />
+          <ExampleParts parts={[['Dictionary form', '먹다', 'to eat'], ['Stem', '먹', 'eat'], ['Stem + ending', '먹어요', 'eat, everyday polite']]} meaning={<>Remove <Korean>다</Korean> to get the block <Korean>먹</Korean>. Add <Korean>어요</Korean> to make the everyday polite form.</>} />
           <div className="table-wrap intro-table"><table aria-label="Predicate ending examples">
             <thead><tr><th scope="col">Change</th><th scope="col">Example</th><th scope="col">Meaning</th></tr></thead>
             <tbody>
@@ -144,10 +149,10 @@ export function Intro() {
         <article className="panel intro-panel">
           <h2 id="modifiers" tabIndex={-1}>Modifiers and clauses</h2>
           <div className="intro-pairs">
-            <ExampleParts parts={[['Description', '예쁜'], ['Noun', '집']]} meaning={<>A pretty house. <Korean>예쁘다 → 예쁜</Korean> before a noun.</>} />
+            <ExampleParts parts={[['Noun modifier', '매운', 'spicy'], ['Noun', '음식', 'food']]} meaning={<>Change <Korean>맵다</Korean> (“be spicy”) to <Korean>매운</Korean> before <Korean>음식</Korean>. The object phrase is <Korean>매운 음식을</Korean> (“spicy food”).</>} />
             <ExampleParts parts={[['Action clause', '먹는'], ['Noun', '사람']]} meaning={<>A person eating. <Korean>먹다 → 먹는</Korean> before a noun.</>} />
             <ExampleParts parts={[['Manner', '빨리'], ['Action', '먹어요.']]} meaning="Eat quickly. The adverb comes before the action." />
-            <ExampleParts parts={[['Linked action', '먹고'], ['Final action', '가요.']]} meaning={<>Eat and then go. <Korean>-고</Korean> links the two actions.</>} />
+            <ExampleParts parts={[['Linked action', '먹고', 'eat and then'], ['Final action', '쉬어요.', 'rest']]} meaning={<>Eat and then rest. <Korean>-고</Korean> links the two actions.</>} />
           </div>
           <p><Korean>먹다 → 먹기 → 먹기 전에</Korean> means “eat → eating → before eating.” <Korean>-기</Korean> lets an action work like a noun.</p>
         </article>
@@ -155,15 +160,15 @@ export function Intro() {
         <article className="panel intro-panel">
           <h2 id="conversation" tabIndex={-1}>Everyday usage</h2>
           <div className="table-wrap intro-table"><table aria-label="Speech style examples">
-            <thead><tr><th scope="col">Style</th><th scope="col">“I’m going”</th><th scope="col">When to use it</th></tr></thead>
+            <thead><tr><th scope="col">Style</th><th scope="col">“I eat”</th><th scope="col">When to use it</th></tr></thead>
             <tbody>
-              <tr><th scope="row">Polite</th><td><Korean>가요.</Korean></td><td>Everyday default with strangers.</td></tr>
-              <tr><th scope="row">Formal</th><td><Korean>갑니다.</Korean></td><td>Formal introductions and public settings.</td></tr>
-              <tr><th scope="row">Casual</th><td><Korean>가.</Korean></td><td>Close relationships where casual speech is established.</td></tr>
+              <tr><th scope="row">Everyday polite</th><td><Korean>먹어요.</Korean></td><td>Everyday default with strangers.</td></tr>
+              <tr><th scope="row">Formal polite</th><td><Korean>먹습니다.</Korean></td><td>Formal introductions and public settings.</td></tr>
+              <tr><th scope="row">Casual</th><td><Korean>먹어.</Korean></td><td>Close relationships where casual speech is established.</td></tr>
             </tbody>
           </table></div>
           <ExampleParts parts={[['Honored subject', '선생님께서'], ['Honorific verb + polite ending', '오세요.']]} meaning={<>“The teacher is coming.” <Korean>께서</Korean> and <Korean>-시-</Korean> honor the teacher. <Korean>요</Korean> shows politeness toward the listener.</>} />
-          <ExampleParts parts={[['Statement', '학교에 가요.'], ['Question', '학교에 가요?']]} meaning="“I’m going to school.” / “Are you going to school?” Rising intonation can signal the question." />
+          <ExampleParts parts={[['Statement', '매운 음식을 먹어요.', 'I eat spicy food.'], ['Question', '매운 음식을 먹어요?', 'Do you eat spicy food?']]} meaning="The words can stay the same. Rising intonation can signal the question." />
           <a className="text-button" href="#listening">Practice listening and conversation <Icon name="arrow" size={15} /></a>
         </article>
 
@@ -179,7 +184,19 @@ function SentenceStructure() {
     <h2 id="sentence" tabIndex={-1}>Sentence structure</h2>
     <p>Start with the predicate. It tells you what happens, what something is like, or what it is. In the basic sentence pattern it comes last, after the people, things, time, and place.</p>
     <ExampleParts parts={[['Subject + topic particle', '저는', 'I'], ['Object · 을/를', '음식을', 'food'], ['Action', '먹어요.', 'eat']]} meaning="I eat food." />
-    <ExampleParts parts={[['Time', '오늘', 'today'], ['Subject + topic particle', '저는', 'I'], ['Place · 에서', '집에서', 'at home'], ['Object · 을/를', '밥을', 'rice / a meal'], ['Action', '먹어요.', 'eat']]} meaning="Today I’m eating at home." />
+    <h3>Build the full sentence</h3>
+    <ExampleParts
+      parts={[
+        ['Time', '오늘', 'today'],
+        ['Subject + topic particle', '저는', 'I'],
+        ['Place · 에서', '집에서', 'at home'],
+        ['Noun modifier', '매운', 'spicy'],
+        ['Object noun · 을', '음식을', 'food'],
+        ['Everyday polite action', '먹어요.', 'eat'],
+      ]}
+      meaning="Today I’m eating spicy food at home."
+    />
+    <p><Korean>매운 음식을</Korean> is one object phrase. The particle <Korean>을</Korean> goes after the noun <Korean>음식</Korean>, and the polite predicate <Korean>먹어요</Korean> closes the sentence.</p>
 
     <h3>What the predicate needs</h3>
     <div className="intro-pairs">
@@ -207,7 +224,7 @@ function SentenceStructure() {
 
     <h3>Moving and leaving out parts</h3>
     <p>Time and other phrases can move. Leave out a subject or object when the listener can supply it from context.</p>
-    <ExampleParts parts={[['Topic', '저는', 'I'], ['Time', '오늘', 'today'], ['Place', '집에서', 'at home'], ['Object', '밥을', 'rice / a meal'], ['Action', '먹어요.', 'eat']]} meaning="“Today I’m eating at home,” with the topic first this time." />
+    <ExampleParts parts={[['Topic', '저는', 'I'], ['Time', '오늘', 'today'], ['Place', '집에서', 'at home'], ['Noun modifier', '매운', 'spicy'], ['Object noun', '음식을', 'food'], ['Action', '먹어요.', 'eat']]} meaning="“Today I’m eating spicy food at home,” with the topic first this time." />
     <div className="intro-pairs">
       <ExampleParts parts={[['Object', '음식을', 'food'], ['Action', '먹어요.', 'eat']]} meaning="I eat food. The speaker is understood." />
       <ExampleParts parts={[['Action', '먹어요.', 'eat']]} meaning="I’m eating it. The listener supplies who is eating and what they’re eating." />
@@ -216,12 +233,12 @@ function SentenceStructure() {
 
     <h3>Modifiers and clauses</h3>
     <div className="intro-pairs">
-      <ExampleParts parts={[['Noun modifier', '매운', 'spicy'], ['Object', '음식을', 'food'], ['Action', '먹어요.', 'eat']]} meaning="I eat spicy food. The modifier goes before its noun." />
+      <ExampleParts parts={[['Noun modifier', '매운', 'spicy'], ['Object', '음식을', 'food'], ['Action', '먹어요.', 'eat']]} meaning="I eat spicy food. The modifier stays with the noun when the rest of the sentence gets shorter." />
       <ExampleParts parts={[['Object', '책을', 'a book'], ['Manner', '천천히', 'slowly'], ['Action', '읽어요.', 'read']]} meaning="I read a book slowly. The adverb goes before the action it describes." />
     </div>
     <ExampleParts parts={[['Who read it', '제가', 'I'], ['Noun-modifying verb', '읽은', 'read'], ['Main subject', '책이', 'the book'], ['Main predicate', '재미있어요.', 'is interesting']]} meaning={<>The book I read is interesting. The whole clause <Korean>제가 읽은</Korean> goes before <Korean>책</Korean>.</>} />
     <div className="intro-pairs">
-      <ExampleParts parts={[['First object', '책을', 'a book'], ['First action · -고', '읽고', 'read and then'], ['Final action', '자요.', 'sleep']]} meaning="I read a book and then go to sleep." />
+      <ExampleParts parts={[['Noun modifier', '매운', 'spicy'], ['First object', '음식을', 'food'], ['First action · -고', '먹고', 'eat and then'], ['Final action', '쉬어요.', 'rest']]} meaning="I eat spicy food and then rest. The last action keeps the polite ending." />
       <ExampleParts parts={[['Reason subject', '비가', 'rain'], ['Reason · -아서/어서', '와서', 'because it’s falling'], ['Location', '집에', 'at home'], ['Main predicate', '있어요.', 'stay']]} meaning="I’m staying home because it’s raining." />
       <ExampleParts parts={[['Condition subject', '비가', 'rain'], ['Condition · -(으)면', '오면', 'if it falls'], ['Location', '집에', 'at home'], ['Main predicate', '있어요.', 'stay']]} meaning="If it rains, I’ll stay home." />
       <ExampleParts parts={[['Speaker', '민수가', 'Minsu'], ['Quoted subject', '비가', 'rain'], ['Quoted predicate · -다고', '온다고', 'that it’s falling'], ['Main action', '했어요.', 'said']]} meaning="Minsu said it was raining." />
@@ -232,19 +249,19 @@ function SentenceStructure() {
     <div className="table-wrap intro-table"><table aria-label="Ways to end a Korean sentence">
       <thead><tr><th scope="col">Use</th><th scope="col">Example</th><th scope="col">Meaning</th></tr></thead>
       <tbody>
-        <tr><th scope="row">Everyday polite</th><td><Korean>읽어요.</Korean></td><td>I read it.</td></tr>
-        <tr><th scope="row">Casual</th><td><Korean>읽어.</Korean></td><td>I read it.</td></tr>
-        <tr><th scope="row">Formal polite</th><td><Korean>읽습니다.</Korean></td><td>I read it.</td></tr>
-        <tr><th scope="row">Past</th><td><Korean>읽었어요.</Korean></td><td>I read it earlier.</td></tr>
-        <tr><th scope="row">Future</th><td><Korean>읽을 거예요.</Korean></td><td>I’ll read it.</td></tr>
-        <tr><th scope="row">Negation</th><td><Korean>안 읽어요.</Korean></td><td>I don’t read it.</td></tr>
-        <tr><th scope="row">Yes/no question</th><td><Korean>읽어요?</Korean></td><td>Do you read it?</td></tr>
-        <tr><th scope="row">Question word</th><td><Korean>뭘 읽어요?</Korean></td><td>What are you reading?</td></tr>
-        <tr><th scope="row">Polite request</th><td><Korean>읽어 주세요.</Korean></td><td>Please read it.</td></tr>
-        <tr><th scope="row">Suggestion</th><td><Korean>같이 읽을까요?</Korean></td><td>Shall we read it together?</td></tr>
+        <tr><th scope="row">Everyday polite</th><td><Korean>먹어요.</Korean></td><td>I eat it.</td></tr>
+        <tr><th scope="row">Casual</th><td><Korean>먹어.</Korean></td><td>I eat it.</td></tr>
+        <tr><th scope="row">Formal polite</th><td><Korean>먹습니다.</Korean></td><td>I eat it.</td></tr>
+        <tr><th scope="row">Past</th><td><Korean>먹었어요.</Korean></td><td>I ate it.</td></tr>
+        <tr><th scope="row">Future</th><td><Korean>먹을 거예요.</Korean></td><td>I’ll eat it.</td></tr>
+        <tr><th scope="row">Negation</th><td><Korean>안 먹어요.</Korean></td><td>I don’t eat it.</td></tr>
+        <tr><th scope="row">Yes/no question</th><td><Korean>먹어요?</Korean></td><td>Do you eat it?</td></tr>
+        <tr><th scope="row">Question word</th><td><Korean>뭘 먹어요?</Korean></td><td>What are you eating?</td></tr>
+        <tr><th scope="row">Polite request</th><td><Korean>먹어 주세요.</Korean></td><td>Please eat it.</td></tr>
+        <tr><th scope="row">Suggestion</th><td><Korean>같이 먹을까요?</Korean></td><td>Shall we eat together?</td></tr>
       </tbody>
     </table></div>
-    <p>In a question, <Korean>뭘</Korean> (“what,” the object) goes where the answer would go. A polite yes/no question like <Korean>읽어요?</Korean> can use the same words as the statement with a different intonation.</p>
+    <p>Put <Korean>뭘</Korean> (“what,” the object) in the same place as <Korean>매운 음식을</Korean> in the original sentence.</p>
     <a className="text-button" href="#grammar">Practice sentence structure <Icon name="arrow" size={15} /></a>
   </article>
 }

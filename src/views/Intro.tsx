@@ -345,7 +345,7 @@ function HangulSyllables() {
       </section>)}
     </div>
 
-    <h3>How the spelling sounds</h3>
+    <h3>Things to note</h3>
     <div className="table-wrap intro-table hangul-sounds"><table aria-label="Hangul spelling and sound examples">
       <thead><tr><th scope="col">Example</th><th scope="col">What to notice</th></tr></thead>
       <tbody>

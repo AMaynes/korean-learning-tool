@@ -154,7 +154,7 @@ describe('deployed study workflow', { concurrency: false }, () => {
     const glossaryLabels = new Set((await page.locator('.intro-grammar-label').allTextContents()).map(label => label.toLowerCase()))
     assert.deepEqual([...glossaryLabels].sort(), [
       'adjective', 'adverb', 'batchim', 'clauses', 'coda', 'modifier', 'modifiers', 'nominals',
-      'noun', 'object', 'particles', 'predicate', 'predicates', 'pronoun', 'subject', 'topic', 'verb',
+      'noun', 'object', 'particles', 'predicate', 'pronoun', 'subject', 'topic', 'verb',
     ])
 
     await page.setViewportSize({ width: 1280, height: 860 })

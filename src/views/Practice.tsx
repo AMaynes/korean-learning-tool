@@ -15,7 +15,7 @@ import { generate, matchesAnswer, shuffle } from '../engine/exercises'
 import type { Exercise } from '../engine/exercises'
 import { addScore } from '../engine/storage'
 import type { PracticeMode, StudyState } from '../engine/storage'
-import { ActiveConfig, Empty, Icon, Korean, KoreanForm, koreanVoice, speakKorean, Transform } from './shared'
+import { ActiveConfig, Empty, Icon, Korean, KoreanForm, koreanVoice, speakKorean, StandalonePronunciationNote, Transform } from './shared'
 import type { Save, SelectList } from './shared'
 
 const grammarModes = ['particles', 'conjugations', 'assembly', 'writing'] as const
@@ -189,7 +189,10 @@ function ExerciseCard({ mode, exercise, number, total, save, advance }: {
     <div className="exercise-prompt">
       <span className="eyebrow">{exercise.cue}</span>
       <h2>{dictation ? 'Listen and type what you hear' : (conversation || exercise.transformation) ? <Korean>{exercise.prompt}</Korean> : exercise.prompt}</h2>
-      {exercise.transformation && <p>{exercise.transformation.originalMeaning}</p>}
+      {exercise.transformation && <>
+        <StandalonePronunciationNote word={exercise.prompt} />
+        <p>{exercise.transformation.originalMeaning}</p>
+      </>}
       {assembly && <p>Find the polite predicate first. It usually goes at the end.</p>}
       {dictation && <p>Use Slow to hear each part, then replay at normal speed.</p>}
       {mode === 'writing' && <p>Use a polite ending. You can leave out an obvious subject.</p>}

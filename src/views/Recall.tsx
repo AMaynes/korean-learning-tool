@@ -15,7 +15,7 @@ import type { Category, WordList } from '../data/model'
 import { matchesAnswer, recallCard, shuffle } from '../engine/exercises'
 import { emptyDeck, finishRecall, markRecallFailure, nextRecall } from '../engine/mastery'
 import type { DeckProgress } from '../engine/mastery'
-import { Empty, Icon, Korean, KoreanForm, ListSelect, Transform } from './shared'
+import { Empty, Icon, Korean, KoreanForm, ListSelect, StandalonePronunciationNote, Transform } from './shared'
 import type { Save, SelectList } from './shared'
 
 type Mode = 'mental' | 'typing'
@@ -95,6 +95,7 @@ function MentalRecall({ deck }: { deck: WordList }) {
     <div className="recall-face" aria-live="polite">
       <span className="eyebrow">{flipped ? 'Answer' : card.transformation ? card.cue : 'English prompt'}</span>
       <div className="recall-word">{flipped || card.transformation ? <Korean>{flipped ? card.answer : card.prompt}</Korean> : card.prompt}</div>
+      {flipped && <StandalonePronunciationNote word={card.answer} />}
       <p>{flipped ? (card.transformation?.meaning ?? entry.english) : (card.transformation?.originalMeaning ?? 'Recall the Korean word.')}</p>
     </div>
     {flipped && card.transformation && <Transform example={card.transformation} />}
@@ -151,6 +152,7 @@ function TypingRecall({ deck, progress, save }: { deck: WordList; progress: Deck
     <div className="feedback" aria-live="polite">
       {correct && <p className="success"><Icon name="check" /> {failed ? 'Correction complete.' : 'Correct.'}</p>}
       {failed && !correct && <p className="retry">Type <Korean>{card.answer}</Korean> correctly to continue.</p>}
+      {(failed || correct) && <StandalonePronunciationNote word={card.answer} />}
     </div>
     {(failed || correct) && card.transformation && <Transform example={card.transformation} />}
     {(failed || correct) && card.explanation && <p className="inline-note">{card.explanation}</p>}

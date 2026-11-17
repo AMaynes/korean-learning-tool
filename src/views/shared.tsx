@@ -46,6 +46,14 @@ export function Korean({ children, className }: { children: ReactNode; className
   return <span lang="ko" className={className}>{children}</span>
 }
 
+/** Explain the standalone pronunciation on the Korean side of a word. */
+export function StandalonePronunciationNote({ word }: { word: string }) {
+  if (word !== '무엇') return null
+  return <small className="inline-note pronunciation-note">
+    Said on its own, final <Korean>ㅅ</Korean> (S) sounds like a flat, unreleased T. <Korean>[무얻]</Korean>
+  </small>
+}
+
 /** Resolve a voice at playback time because browsers may load voices asynchronously. */
 export function koreanVoice() {
   return window.speechSynthesis?.getVoices().find(voice => /^ko(?:[-_]|$)/i.test(voice.lang))

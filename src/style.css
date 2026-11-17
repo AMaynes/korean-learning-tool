@@ -132,6 +132,7 @@ progress::-moz-progress-bar { background: var(--accent); }
 .dot.mastered { background: var(--accent); border-color: var(--accent); }
 .dot.learning { background: #909090; border-color: #909090; }
 .inline-note { color: var(--muted); font-size: 13px; margin: 3px 0; }
+.pronunciation-note { display: block; font-weight: 400; }
 .answer-form { display: flex; align-items: end; gap: 8px; }
 .answer-form .field { flex: 1; }
 .answer-form .button { min-height: 42px; }

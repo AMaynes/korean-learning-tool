@@ -13,7 +13,7 @@ import { useState } from 'react'
 import { categories, categoryIds } from '../data/model'
 import type { Category, WordList } from '../data/model'
 import { entryRule } from '../engine/registry'
-import { Icon, Korean, ListSelect } from './shared'
+import { Icon, Korean, ListSelect, StandalonePronunciationNote } from './shared'
 import type { SelectList } from './shared'
 
 /** Browse the active list and link directly to its recall deck. */
@@ -58,7 +58,10 @@ export function Library({ category, setCategory, lists, active, onSelect }: {
         </tr></thead>
         <tbody>
           {rows.map(({ entry, example }) => <tr key={entry.id}>
-            <th scope="row"><Korean>{entry.korean}</Korean></th>
+            <th scope="row">
+              <Korean>{entry.korean}</Korean>
+              <StandalonePronunciationNote word={entry.korean} />
+            </th>
             <td>{entry.english}</td>
             {isGrammar && <td>{example && <Korean>
               {example.original}{category === 'particles' && <> + {example.applied}</>} → <strong>{example.result}</strong>

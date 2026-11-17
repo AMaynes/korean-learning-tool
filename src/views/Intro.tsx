@@ -207,6 +207,9 @@ export function Intro() {
   </GrammarHelp.Provider>
 }
 
+const similarVowels = ['ㅐㅔ', 'ㅒㅖ', 'ㅙㅚㅞ']
+const relatedConsonants = ['ㄱㄲㅋ', 'ㄷㄸㅌ', 'ㅂㅃㅍ', 'ㅅㅆ', 'ㅈㅉㅊ']
+
 /** Display the modern alphabet and play its sounds on demand. */
 function HangulAlphabet() {
   const [audioError, setAudioError] = useState('')
@@ -221,25 +224,47 @@ function HangulAlphabet() {
   return <>
     <p>Tap a letter to hear it. Consonants play with <Korean>ㅡ</Korean>. <Korean>ㅇ</Korean> is silent at the start, so you’ll hear its <em>ng</em> sound in <Korean>응</Korean>.</p>
     {audioError && <p role="status">{audioError}</p>}
-    <AlphabetGroup title="Vowels" letters={hangulAlphabet.vowels} onPlay={play} />
-    <AlphabetGroup title="Consonants" letters={hangulAlphabet.consonants} onPlay={play} />
+    <AlphabetGroup
+      title="Vowels" note="Vowels in each box often sound alike in modern Korean."
+      letters={hangulAlphabet.vowels} soundGroups={similarVowels} onPlay={play}
+    />
+    <AlphabetGroup
+      title="Consonants" note="Consonants in each box have related starting sounds. Listen for differences in airflow or tension."
+      letters={hangulAlphabet.consonants} soundGroups={relatedConsonants} onPlay={play}
+    />
   </>
 }
 
-/** Render one group of Hangul letters with romanization and playback. */
-function AlphabetGroup({ title, letters, onPlay }: {
-  title: string; letters: readonly { prompt: string; sound: string; romanization: string }[]; onPlay: (sound: string) => void
+/** Place similar letters together while keeping a play button for every letter. */
+function AlphabetGroup({ title, note, letters, soundGroups, onPlay }: {
+  title: string
+  note: string
+  letters: readonly { prompt: string; sound: string; romanization: string }[]
+  soundGroups: readonly string[]
+  onPlay: (sound: string) => void
 }) {
+  const groupedLetters = soundGroups.join('')
+
+  function renderLetter({ prompt, sound, romanization }: (typeof letters)[number]) {
+    return <button
+      key={prompt} type="button" className="hangul-letter button" aria-label={`Play ${prompt}, ${romanization}`}
+      onClick={() => onPlay(sound)}
+    >
+      <Korean>{prompt}</Korean><Icon name="sound" size={14} />
+      <small>{romanization}</small>
+    </button>
+  }
+
   return <section className="hangul-letter-group" aria-label={title}>
     <h3>{title}</h3>
+    <p className="hangul-group-note">{note}</p>
+    <div className="hangul-sound-groups">
+      {soundGroups.map(group => <div className="hangul-sound-group" key={group} role="group" aria-label={[...group].join(' ')}>
+        {letters.filter(({ prompt }) => group.includes(prompt)).map(renderLetter)}
+      </div>)}
+    </div>
     <div className="hangul-letter-grid">
-      {letters.map(({ prompt, sound, romanization }) => <button
-        key={prompt} type="button" className="hangul-letter button" aria-label={`Play ${prompt}, ${romanization}`}
-        onClick={() => onPlay(sound)}
-      >
-        <Korean>{prompt}</Korean><Icon name="sound" size={14} />
-        <small>{romanization}</small>
-      </button>)}
+      {letters.filter(({ prompt }) => !groupedLetters.includes(prompt)).map(renderLetter)}
     </div>
   </section>
 }

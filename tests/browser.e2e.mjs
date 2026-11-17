@@ -113,10 +113,20 @@ describe('deployed study workflow', { concurrency: false }, () => {
     const consonants = alphabet.getByRole('region', { name: 'Consonants' })
     assert.equal(await vowels.getByRole('button').count(), 21)
     assert.equal(await consonants.getByRole('button').count(), 19)
+    for (const group of ['ㅐ ㅔ', 'ㅒ ㅖ', 'ㅙ ㅚ ㅞ']) {
+      assert.equal(await vowels.getByRole('group', { name: group, exact: true }).getByRole('button').count(), group.split(' ').length)
+    }
+    const relatedConsonants = consonants.getByRole('group', { name: 'ㄱ ㄲ ㅋ', exact: true })
+    assert.equal(await relatedConsonants.getByRole('button').count(), 3)
+    await page.setViewportSize({ width: 320, height: 844 })
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true)
+    await page.setViewportSize({ width: 390, height: 844 })
     for (const [group, label, syllable] of [
       [vowels, 'Play ㅓ, eo', '어'],
-      [consonants, 'Play ㄱ, g / k', '그'],
+      [vowels, 'Play ㅐ, ae', '애'],
+      [vowels, 'Play ㅔ, e', '에'],
+      [relatedConsonants, 'Play ㄱ, g / k', '그'],
+      [relatedConsonants, 'Play ㅋ, k', '크'],
       [consonants, 'Play ㅇ, silent / ng', '응'],
     ]) {
       await group.getByRole('button', { name: label, exact: true }).click()

@@ -259,6 +259,18 @@ details p { font-size: 13px; margin-bottom: 7px; }
 }
 
 .hangul-letter-group { display: grid; gap: 8px; min-width: 0; }
+.hangul-group-note { color: var(--muted); font-size: 13px; }
+.hangul-sound-groups { display: flex; flex-wrap: wrap; gap: 8px; }
+.hangul-sound-group {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 68px;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--control-line);
+  border-radius: 8px;
+  background: var(--subtle);
+}
 .hangul-letter-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 6px; }
 .hangul-letter.button {
   display: grid;

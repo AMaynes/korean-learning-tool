@@ -114,7 +114,7 @@ export function Intro() {
             </> },
             { label: "Pronouns", content: <>
               <p>A <GrammarLabel term="Pronoun">pronoun</GrammarLabel> can stand for a person or thing already clear from context.</p>
-              <TypeTable title="Pronoun types" rows={pronounTypes} />
+              <TypeTable title="Pronoun types" typeHeading="Pronoun Type" rows={pronounTypes} />
               <ApplicationChecks unit="a pronoun" particles conjugates={false} note="저 takes 는 for the topic and changes to 제 before the subject particle 가."
                 examples={[
                   ["저 + 는 → 저는", ["저", "I", "is the pronoun. 는 is the topic particle."]],
@@ -123,7 +123,7 @@ export function Intro() {
               />
             </> },
             { label: "Numerals", content: <>
-              <TypeTable title="Numeral types" rows={numeralTypes} />
+              <TypeTable title="Numeral types" typeHeading="Numeral Type" rows={numeralTypes} />
               <ApplicationChecks unit="a numeral" particles conjugates={false} note="A particle can follow a number on its own or the full phrase with a counter."
                 examples={[
                   ["둘이", ["둘", "two", "is the numeral. 이 is the subject particle."]],
@@ -139,7 +139,7 @@ export function Intro() {
           <LessonTabs sectionId="predicates" tabs={[
             { label: "Verbs", content: <>
               <p>A <GrammarLabel term="Verb">verb</GrammarLabel> can be described by the sentence parts it needs and how its stem changes.</p>
-              <TypeTable title="Verb types" rows={verbTypes} />
+              <TypeTable title="Verb types" typeHeading="Verb Type" rows={verbTypes} />
               <ApplicationChecks unit="a verb stem" particles={false} conjugates note="Particles can follow some forms of the verb."
                 examples={[
                   ["걷기가", ["걷기", "walking", "is the noun form of the verb 걷다. 가 is the subject particle."]],
@@ -149,7 +149,7 @@ export function Intro() {
             </> },
             { label: "Adjectives", content: <>
               <p>An <GrammarLabel term="Adjective">adjective</GrammarLabel> can be the predicate of a clause. It can also describe a noun in a form like <Korean>매운</Korean>.</p>
-              <TypeTable title="Adjective types" rows={adjectiveTypes} />
+              <TypeTable title="Adjective types" typeHeading="Adjective Type" rows={adjectiveTypes} />
               <ApplicationChecks unit="an adjective stem" particles={false} conjugates note="Particles can follow some forms of the adjective."
                 examples={[
                   ["건강하기가 어렵다", ["건강하기", "being healthy", "is the noun form of the adjective 건강하다. 가 is the subject particle."]],
@@ -558,6 +558,7 @@ function WordGlosses({ korean, english }: { korean: string; english?: string }) 
     if (korean.includes('비가') && word === '와요') meaning = 'falls'
     if (korean.includes('비가') && word === '오면') meaning = 'if it falls'
     if (korean.includes('집에') && word === '있어요') meaning = 'stay'
+    if (korean === '크지 않아요.' && word === '않아요') meaning = 'isn’t'
     return { word, meaning }
   })
   if (!glosses.length || (glosses.length === 1 && glosses[0].meaning === english)) return null

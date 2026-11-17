@@ -201,6 +201,14 @@ describe('deployed study workflow', { concurrency: false }, () => {
     assert.equal(await nominals.locator('summary').evaluate(summary => summary === document.activeElement), true)
     assert.equal(await pronounsTab.getAttribute('aria-selected'), 'true')
 
+    const subtypesByTab = {
+      Pronouns: ['Personal', 'Demonstrative', 'Interrogative', 'Indefinite', 'Reflexive'],
+      Numerals: ['Native Korean cardinal', 'Sino-Korean cardinal', 'Ordinal', 'Before a counter'],
+      Verbs: ['Intransitive', 'Transitive', 'With a recipient', 'Auxiliary verb', 'Passive', 'Causative', 'Regular verb', 'Irregular verb'],
+      Adjectives: ['Physical quality', 'State', 'Evaluation', 'Auxiliary adjective', 'Regular adjective', 'Irregular adjective', 'Before a noun'],
+    }
+    const firstFocusByTab = { Pronouns: '저', Numerals: '하나', Verbs: '자요', Adjectives: '커요' }
+
     const grammarGroups = [
       ['Nominals', ['Nouns', 'Pronouns', 'Numerals']],
       ['Predicates', ['Verbs', 'Adjectives']],
@@ -216,6 +224,20 @@ describe('deployed study workflow', { concurrency: false }, () => {
         await category.waitFor({ state: 'visible' })
         const answers = await category.locator('.intro-application dd').allTextContents()
         assert.ok(answers.length >= 2 && answers.every(answer => answer === 'Yes' || answer === 'No'))
+        const labels = subtypesByTab[title]
+        if (!labels) continue
+        const table = category.getByRole('table')
+        assert.deepEqual(await table.getByRole('rowheader').allTextContents(), labels)
+        for (const label of labels) {
+          await table.getByRole('button', { name: label, exact: true }).click()
+          await nounHelp.getByRole('heading', { name: label, exact: true }).waitFor()
+          assert.equal(await nounHelp.locator('li > small em').count(), 3)
+          const focus = await nounHelp.locator('li > p b [lang="ko"]').allTextContents()
+          assert.equal(focus.length, 3)
+          if (label === labels[0]) assert.equal(focus[0], firstFocusByTab[title])
+          await page.keyboard.press('Escape')
+          await nounHelp.waitFor({ state: 'hidden' })
+        }
       }
     }
     await page.getByRole('table', { name: 'What conjugates', exact: true }).getByText('Copula 이다', { exact: true }).waitFor()
@@ -253,6 +275,7 @@ describe('deployed study workflow', { concurrency: false }, () => {
       'adjective', 'adverb', 'batchim', 'clauses', 'coda', 'determiners', 'modifier', 'modifiers', 'nominals',
       'noun', 'object', 'particles', 'predicate', 'pronoun', 'subject', 'topic', 'verb',
       ...nounExamples.map(([label]) => label.toLowerCase()),
+      ...Object.values(subtypesByTab).flat().map(label => label.toLowerCase()),
     ].sort())
 
     await page.setViewportSize({ width: 1280, height: 860 })

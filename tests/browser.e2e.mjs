@@ -139,6 +139,18 @@ describe('deployed study workflow', { concurrency: false }, () => {
       }
     }
     await page.getByRole('table', { name: 'What conjugates', exact: true }).getByText('Copula 이다', { exact: true }).waitFor()
+    await page.getByRole('tab', { name: 'Determiners + Adverbs', exact: true }).click()
+    const modifierTable = page.getByRole('table', { name: 'Determiner and adverb types' })
+    const manner = modifierTable.getByRole('row', { name: /Manner adverb/ })
+    await manner.getByText('빨리', { exact: true }).waitFor()
+    assert.deepEqual(await manner.locator('em').allTextContents(), ['I eat quickly.', 'quickly'])
+    await manner.getByText(/because it tells how the person eats/).waitFor()
+    await page.getByRole('button', { name: 'Determiners', exact: true }).click()
+    const determinerHelp = page.getByRole('complementary', { name: 'Grammar explanation' })
+    await determinerHelp.getByRole('heading', { name: 'Determiner', exact: true }).waitFor()
+    assert.equal(await determinerHelp.getByRole('listitem').count(), 3)
+    await determinerHelp.getByText(/because it points out which book/).waitFor()
+    await determinerHelp.getByRole('button', { name: 'Close explanation' }).click()
     await page.getByRole('tab', { name: 'Particles', exact: true }).click()
     await page.getByRole('table', { name: 'What takes particles', exact: true }).getByText('아직도', { exact: true }).waitFor()
     await page.getByText('커피 + 를 → 커피를', { exact: true }).waitFor()
@@ -153,7 +165,7 @@ describe('deployed study workflow', { concurrency: false }, () => {
     assert.deepEqual(await fullSentence.getByRole('button').allTextContents(), ['Topic', 'Modifier', 'Object', 'Predicate'])
     const glossaryLabels = new Set((await page.locator('.intro-grammar-label').allTextContents()).map(label => label.toLowerCase()))
     assert.deepEqual([...glossaryLabels].sort(), [
-      'adjective', 'adverb', 'batchim', 'clauses', 'coda', 'modifier', 'modifiers', 'nominals',
+      'adjective', 'adverb', 'batchim', 'clauses', 'coda', 'determiners', 'modifier', 'modifiers', 'nominals',
       'noun', 'object', 'particles', 'predicate', 'pronoun', 'subject', 'topic', 'verb',
     ])
 
@@ -163,8 +175,12 @@ describe('deployed study workflow', { concurrency: false }, () => {
     await topic.click()
     await explanation.getByRole('heading', { name: 'Topic', exact: true }).waitFor()
     const examples = explanation.getByRole('list', { name: 'Examples' })
-    assert.deepEqual(await examples.locator('[lang="ko"]').allTextContents(), [
+    assert.deepEqual(await examples.locator('li > strong [lang="ko"]').allTextContents(), [
       '저는 집에서 먹어요.', '오늘은 제가 요리해요.', '저는 커피가 좋아요.',
+    ])
+    await examples.getByText(/because 는 frames the sentence around the speaker/).waitFor()
+    assert.deepEqual(await examples.locator('li > small em').allTextContents(), [
+      'I eat at home.', 'Today I’m the one cooking.', 'I like coffee.',
     ])
     assert.equal(await topic.getAttribute('aria-expanded'), 'true')
     const articleBounds = await sentenceExamples.boundingBox()

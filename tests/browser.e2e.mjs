@@ -120,9 +120,21 @@ describe('deployed study workflow', { concurrency: false }, () => {
     assert.equal(await relatedConsonants.getByRole('button').count(), 3)
     await page.setViewportSize({ width: 320, height: 844 })
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true)
+    const vowelRow = name => vowels.getByRole('group', { name, exact: true }).getByRole('button').evaluateAll(buttons =>
+      buttons.map(button => {
+        const { x, y } = button.getBoundingClientRect()
+        return { x, y, letter: button.querySelector('[lang="ko"]').textContent }
+      }))
+    const baseVowels = await vowelRow('Base vowels')
+    const yVowels = await vowelRow('Y-vowels')
+    assert.deepEqual(baseVowels.map(({ letter }) => letter), [...'ㅏㅓㅗㅜㅐㅔ'])
+    assert.deepEqual(yVowels.map(({ letter }) => letter), [...'ㅑㅕㅛㅠㅒㅖ'])
+    assert.ok(yVowels.every(({ x, y }, index) => x === baseVowels[index].x && y > baseVowels[index].y))
+    assert.ok(yVowels.every(({ y }) => y === yVowels[0].y))
     await page.setViewportSize({ width: 390, height: 844 })
     for (const [group, label, syllable] of [
       [vowels, 'Play ㅓ, eo', '어'],
+      [vowels, 'Play ㅕ, yeo', '여'],
       [vowels, 'Play ㅐ, ae', '애'],
       [vowels, 'Play ㅔ, e', '에'],
       [relatedConsonants, 'Play ㄱ, g / k', '그'],
@@ -168,6 +180,8 @@ describe('deployed study workflow', { concurrency: false }, () => {
       await nounHelp.getByRole('heading', { name: label, exact: true }).waitFor()
       assert.deepEqual(await nounHelp.locator('li > strong [lang="ko"]').allTextContents(), korean)
       assert.equal(await nounHelp.locator('li > small em').count(), 3)
+      const nounType = label.split(' ')[0].toLowerCase() + ' noun'
+      assert.ok((await nounHelp.locator('li > p').allTextContents()).every(text => text.includes(nounType)))
       assert.equal(await button.getAttribute('aria-expanded'), 'true')
       await page.keyboard.press('Escape')
       await nounHelp.waitFor({ state: 'hidden' })
@@ -229,6 +243,10 @@ describe('deployed study workflow', { concurrency: false }, () => {
     })
     assert.deepEqual(await fullSentence.locator('dd [lang="ko"]').allTextContents(), ['오늘', '저는', '집에서', '매운', '음식을', '먹어요.'])
     assert.deepEqual(await fullSentence.locator('dd small').allTextContents(), ['today', 'I', 'at home', 'spicy', 'food', 'eat'])
+    assert.deepEqual(await fullSentence.locator('.intro-part-grammar').allTextContents(), [
+      'Time adverb', 'Pronoun + topic particle', 'Noun + place particle',
+      'Adjective', 'Noun + object particle', 'Verb',
+    ])
     assert.deepEqual(await fullSentence.getByRole('button').allTextContents(), ['Topic', 'Modifier', 'Object', 'Predicate'])
     const glossaryLabels = new Set((await page.locator('.intro-grammar-label').allTextContents()).map(label => label.toLowerCase()))
     assert.deepEqual([...glossaryLabels].sort(), [

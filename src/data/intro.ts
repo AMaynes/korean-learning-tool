@@ -24,41 +24,41 @@ const nounGlossary = {
   'Common (general entities)': {
     definition: 'A common noun names a general kind of person, place, or thing.',
     examples: [
-      ['음식', 'food', ['음식', 'food', 'names food in general.']],
-      ['선생님', 'teacher', ['선생님', 'teacher', 'can mean any teacher.']],
-      ['학교', 'school', ['학교', 'school', 'can mean any school.']],
+      ['음식', 'food', ['음식', 'food', 'is a common noun because it names food in general.']],
+      ['선생님', 'teacher', ['선생님', 'teacher', 'is a common noun because it can mean any teacher.']],
+      ['학교', 'school', ['학교', 'school', 'is a common noun because it can mean any school.']],
     ],
   },
   'Proper (specific names)': {
     definition: 'A proper noun is the name of a particular person, place, or thing.',
     examples: [
-      ['서울', 'Seoul', ['서울', 'Seoul', 'names a specific city.']],
-      ['부산', 'Busan', ['부산', 'Busan', 'names a specific city.']],
-      ['한강', 'Han River', ['한강', 'Han River', 'names a specific river.']],
+      ['서울', 'Seoul', ['서울', 'Seoul', 'is a proper noun because it names a specific city.']],
+      ['부산', 'Busan', ['부산', 'Busan', 'is a proper noun because it names a specific city.']],
+      ['한강', 'Han River', ['한강', 'Han River', 'is a proper noun because it names a specific river.']],
     ],
   },
   'Dependent (requires a modifier)': {
     definition: 'A dependent noun needs a word or phrase before it to complete its meaning.',
     examples: [
-      ['갈 수 있어요.', 'I can go.', ['수', 'way or ability', 'needs 갈 to show what you can do.']],
-      ['마실 것', 'something to drink', ['것', 'thing', 'needs 마실 to say what kind of thing.']],
-      ['본 적이 있어요.', 'I’ve seen it before.', ['적', 'past experience', 'needs 본 to say what you’ve done before.']],
+      ['갈 수 있어요.', 'I can go.', ['수', 'way or ability', 'is the dependent noun. 갈 tells you what you can do.']],
+      ['마실 것', 'something to drink', ['것', 'thing', 'is the dependent noun. 마실 tells you what kind of thing.']],
+      ['본 적이 있어요.', 'I’ve seen it before.', ['적', 'past experience', 'is the dependent noun. 본 tells you what you’ve done before.']],
     ],
   },
   'Concrete (physical entities)': {
     definition: 'A concrete noun names something physical.',
     examples: [
-      ['사과', 'apple', ['사과', 'apple', 'is something you can hold.']],
-      ['책', 'book', ['책', 'book', 'is something you can hold.']],
-      ['연필', 'pencil', ['연필', 'pencil', 'is something you can hold.']],
+      ['사과', 'apple', ['사과', 'apple', 'is a concrete noun because you can hold it.']],
+      ['책', 'book', ['책', 'book', 'is a concrete noun because you can hold it.']],
+      ['연필', 'pencil', ['연필', 'pencil', 'is a concrete noun because you can hold it.']],
     ],
   },
   'Abstract (concepts)': {
     definition: 'An abstract noun names a feeling, quality, or idea.',
     examples: [
-      ['기쁨', 'joy', ['기쁨', 'joy', 'is a feeling.']],
-      ['사랑', 'love', ['사랑', 'love', 'is a feeling.']],
-      ['자유', 'freedom', ['자유', 'freedom', 'is an idea.']],
+      ['기쁨', 'joy', ['기쁨', 'joy', 'is an abstract noun because it’s a feeling.']],
+      ['사랑', 'love', ['사랑', 'love', 'is an abstract noun because it’s a feeling.']],
+      ['자유', 'freedom', ['자유', 'freedom', 'is an abstract noun because it’s an idea.']],
     ],
   },
 } as const satisfies Record<string, GlossaryEntry>
@@ -70,7 +70,7 @@ export const introGlossary = {
     examples: [
       ['음식이 맛있어요.', 'The food is delicious.', ['음식', 'food', 'is a nominal because it names a thing.']],
       ['저는 먹어요.', 'I eat.', ['저', 'I', 'is a nominal because it stands for the speaker.']],
-      ['걷기가 좋아요.', 'I like walking.', ['걷기', 'walking', 'works like a noun because it names the action of walking.']],
+      ['걷기가 좋아요.', 'I like walking.', ['걷기', 'walking', 'is a nominal because it names the action of walking.']],
     ],
   },
   Predicate: {
@@ -84,9 +84,9 @@ export const introGlossary = {
   Modifier: {
     definition: 'A modifier adds detail to another word or phrase.',
     examples: [
-      ['매운 음식', 'spicy food', ['매운', 'spicy', 'modifies the food by describing its taste.']],
-      ['이 책', 'this book', ['이', 'this', 'modifies the noun by showing which book.']],
-      ['천천히 먹어요.', 'I eat slowly.', ['천천히', 'slowly', 'modifies the action by showing how I eat.']],
+      ['매운 음식', 'spicy food', ['매운', 'spicy', 'is the modifier because it describes the food’s taste.']],
+      ['이 책', 'this book', ['이', 'this', 'is the modifier because it shows which book.']],
+      ['천천히 먹어요.', 'I eat slowly.', ['천천히', 'slowly', 'is the modifier because it shows how I eat.']],
     ],
   },
   Clause: {
@@ -100,9 +100,9 @@ export const introGlossary = {
   Particles: {
     definition: 'Particles attach to a word or phrase to mark its role or add meaning. Some have two forms based on the preceding sound.',
     examples: [
-      ['책 + 을 → 책을', 'book, marked as the object', ['을', 'object marker', 'marks the book as the object.']],
-      ['집 + 에서 → 집에서', 'at home', ['에서', 'at, where an action happens', 'marks where the action happens.']],
-      ['저 + 도 → 저도', 'me too', ['도', 'also', 'adds the meaning “too”.']],
+      ['책 + 을 → 책을', 'book, marked as the object', ['을', 'object marker', 'is the particle that marks the book as the object.']],
+      ['집 + 에서 → 집에서', 'at home', ['에서', 'at, where an action happens', 'is the particle that marks where the action happens.']],
+      ['저 + 도 → 저도', 'me too', ['도', 'also', 'is the particle that means “too”.']],
     ],
   },
   Batchim: {
@@ -199,46 +199,46 @@ export const introGlossary = {
 export type IntroTerm = keyof typeof introGlossary
 
 /** A category within a subgenre, with a Korean form or phrase and its English meaning. */
-export type IntroType = readonly [type: string, korean: string, english: string, focus?: ExampleFocus]
+export type IntroType = readonly [type: string, korean: string, english: string, focus: ExampleFocus]
 
 export const nounTypes: readonly IntroType[] = Object.entries(nounGlossary).map(
   ([label, { examples: [[korean, english, focus]] }]) => [label, korean, english, focus],
 )
 
 export const pronounTypes: readonly IntroType[] = [
-  ['Personal', '저 / 너 / 우리', 'I (humble) / you (casual) / we', ['저 / 너 / 우리', 'I (humble) / you (casual) / we', 'stand for people.']],
-  ['Demonstrative', '이것 / 그것 / 저것', 'this thing / that thing / that thing over there', ['이것 / 그것 / 저것', 'this thing / that thing / that thing over there', 'point out which thing.']],
-  ['Interrogative', '누구 / 무엇', 'who / what', ['누구 / 무엇', 'who / what', 'ask who or what.']],
-  ['Indefinite', '누군가 / 무언가', 'someone / something', ['누군가 / 무언가', 'someone / something', 'stand for someone or something unspecified.']],
-  ['Reflexive', '자기', 'oneself', ['자기', 'oneself', 'refers back to someone already mentioned.']],
+  ['Personal', '저 / 너 / 우리', 'I (humble) / you (casual) / we', ['저 / 너 / 우리', 'I (humble) / you (casual) / we', 'are personal pronouns because they stand for people.']],
+  ['Demonstrative', '이것 / 그것 / 저것', 'this thing / that thing / that thing over there', ['이것 / 그것 / 저것', 'this thing / that thing / that thing over there', 'are demonstrative pronouns because they point to things.']],
+  ['Interrogative', '누구 / 무엇', 'who / what', ['누구 / 무엇', 'who / what', 'are interrogative pronouns because they ask who or what.']],
+  ['Indefinite', '누군가 / 무언가', 'someone / something', ['누군가 / 무언가', 'someone / something', 'are indefinite pronouns because they stand for someone or something unspecified.']],
+  ['Reflexive', '자기', 'oneself', ['자기', 'oneself', 'is a reflexive pronoun because it refers back to someone.']],
 ]
 
 export const numeralTypes: readonly IntroType[] = [
-  ['Native Korean cardinal', '하나 / 둘 / 셋', 'one / two / three', ['하나 / 둘 / 셋', 'one / two / three', 'count in native Korean.']],
-  ['Sino-Korean cardinal', '일 / 이 / 삼', 'one / two / three', ['일 / 이 / 삼', 'one / two / three', 'count in Sino-Korean.']],
-  ['Ordinal', '첫째 / 둘째 / 세 번째', 'first / second / third', ['첫째 / 둘째 / 세 번째', 'first / second / third', 'show position in an order.']],
-  ['Before a counter', '세 개', 'three items', ['세', 'three', 'is the form of 셋 used before 개.']],
+  ['Native Korean cardinal', '하나 / 둘 / 셋', 'one / two / three', ['하나 / 둘 / 셋', 'one / two / three', 'are native Korean numerals for counting.']],
+  ['Sino-Korean cardinal', '일 / 이 / 삼', 'one / two / three', ['일 / 이 / 삼', 'one / two / three', 'are Sino-Korean numerals for counting.']],
+  ['Ordinal', '첫째 / 둘째 / 세 번째', 'first / second / third', ['첫째 / 둘째 / 세 번째', 'first / second / third', 'are ordinal numerals because they show position.']],
+  ['Before a counter', '세 개', 'three items', ['세', 'three', 'is the numeral form of 셋 used before the counter 개.']],
 ]
 
 export const verbTypes: readonly IntroType[] = [
-  ['Intransitive', '아기가 자요.', 'The baby sleeps.', ['자요', 'sleeps', 'has no direct object.']],
-  ['Transitive', '음식을 먹어요.', 'I eat food.', ['먹어요', 'eat', 'has food as its direct object.']],
-  ['With a recipient', '친구에게 책을 줘요.', 'I give a book to a friend.', ['줘요', 'give', 'has a recipient because the friend gets the book.']],
-  ['Auxiliary', '먹어 봐요.', 'Try eating it.', ['봐요', 'try', 'adds the meaning “try”.']],
-  ['Passive', '문이 닫혀요.', 'The door closes.', ['닫혀요', 'closes', 'is passive because the door gets closed.']],
-  ['Causative', '아기에게 밥을 먹여요.', 'I feed the baby.', ['먹여요', 'feed', 'is causative because someone gets the baby to eat.']],
-  ['Regular', '먹다 → 먹어요', 'to eat → eat', ['먹', 'eat', 'is regular because the stem stays the same.']],
-  ['Irregular', '듣다 → 들어요', 'to listen → listen', ['듣', 'listen', 'is irregular because ㄷ changes to ㄹ.']],
+  ['Intransitive', '아기가 자요.', 'The baby sleeps.', ['자요', 'sleeps', 'is the intransitive verb because it has no direct object.']],
+  ['Transitive', '음식을 먹어요.', 'I eat food.', ['먹어요', 'eat', 'is the transitive verb because it has food as its direct object.']],
+  ['With a recipient', '친구에게 책을 줘요.', 'I give a book to a friend.', ['줘요', 'give', 'is the verb. The friend gets the book.']],
+  ['Auxiliary', '먹어 봐요.', 'Try eating it.', ['봐요', 'try', 'is the auxiliary verb that means “try”.']],
+  ['Passive', '문이 닫혀요.', 'The door closes.', ['닫혀요', 'closes', 'is the passive verb because the door gets closed.']],
+  ['Causative', '아기에게 밥을 먹여요.', 'I feed the baby.', ['먹여요', 'feed', 'is the causative verb because someone gets the baby to eat.']],
+  ['Regular', '먹다 → 먹어요', 'to eat → eat', ['먹', 'eat', 'is the regular verb stem because it stays the same.']],
+  ['Irregular', '듣다 → 들어요', 'to listen → listen', ['듣', 'listen', 'is the irregular verb stem because ㄷ changes to ㄹ.']],
 ]
 
 export const adjectiveTypes: readonly IntroType[] = [
-  ['Physical quality', '커요.', 'is big', ['커요', 'is big', 'describes size.']],
-  ['State', '바빠요.', 'is busy', ['바빠요', 'is busy', 'describes how someone is doing.']],
-  ['Evaluation', '좋아요.', 'is good or pleasing', ['좋아요', 'is good or pleasing', 'expresses an opinion.']],
-  ['Auxiliary', '먹고 싶어요.', 'I want to eat.', ['싶어요', 'want to', 'adds the meaning “want to”.']],
-  ['Regular', '작다 → 작아요', 'to be small → is small', ['작', 'small', 'is regular because the stem stays the same.']],
-  ['Irregular', '맵다 → 매워요', 'to be spicy → is spicy', ['맵', 'spicy', 'is irregular because ㅂ changes in 매워요.']],
-  ['Before a noun', '맵다 → 매운 음식', 'to be spicy → spicy food', ['매운', 'spicy', 'describes the noun 음식.']],
+  ['Physical quality', '커요.', 'is big', ['커요', 'is big', 'is the adjective because it describes size.']],
+  ['State', '바빠요.', 'is busy', ['바빠요', 'is busy', 'is the adjective because it describes someone’s state.']],
+  ['Evaluation', '좋아요.', 'is good or pleasing', ['좋아요', 'is good or pleasing', 'is the adjective because it gives an opinion.']],
+  ['Auxiliary', '먹고 싶어요.', 'I want to eat.', ['싶어요', 'want to', 'is the auxiliary adjective that means “want to”.']],
+  ['Regular', '작다 → 작아요', 'to be small → is small', ['작', 'small', 'is the regular adjective stem because it stays the same.']],
+  ['Irregular', '맵다 → 매워요', 'to be spicy → is spicy', ['맵', 'spicy', 'is the irregular adjective stem because ㅂ changes in 매워요.']],
+  ['Before a noun', '맵다 → 매운 음식', 'to be spicy → spicy food', ['매운', 'spicy', 'is the adjective form that describes 음식.']],
 ]
 
 export const modifierTypes: readonly IntroType[] = [
@@ -249,26 +249,26 @@ export const modifierTypes: readonly IntroType[] = [
   ['Manner adverb', '빨리 먹어요.', 'I eat quickly.', ['빨리', 'quickly', 'is an adverb because it tells how I eat.']],
   ['Degree adverb', '아주 매워요.', 'It’s very spicy.', ['아주', 'very', 'is an adverb because it tells how spicy the food is.']],
   ['Negative adverb', '안 먹어요.', 'I don’t eat it.', ['안', 'not', 'is an adverb because it makes the action negative.']],
-  ['Connecting adverb', '그래서 집에 가요.', 'So I’m going home.', ['그래서', 'so', 'links the result to what came before.']],
+  ['Connecting adverb', '그래서 집에 가요.', 'So I’m going home.', ['그래서', 'so', 'is the connecting adverb because it links this result to what came before.']],
 ]
 
 export const particleTypes: readonly IntroType[] = [
-  ['Topic or contrast', '저 + 는 → 저는', 'as for me', ['는', 'topic marker', 'marks me as the topic.']],
-  ['Subject', '친구 + 가 → 친구가', 'a friend, marked as the subject', ['가', 'subject marker', 'marks the friend as the subject.']],
-  ['Object', '커피 + 를 → 커피를', 'coffee, marked as the object', ['를', 'object marker', 'marks coffee as the object.']],
-  ['Other case roles', '집 + 에서 → 집에서', 'at home', ['에서', 'at, where an action happens', 'marks where the action happens.']],
-  ['Possession', '친구 + 의 → 친구의', 'a friend’s', ['의', '’s, of', 'links the friend to what they own.']],
-  ['Addition or restriction', '저도 / 저만', 'me too / only me', ['도 / 만', 'also / only', 'mean “also” and “only”.']],
-  ['Noun connector', '책과 연필', 'a book and a pencil', ['과', 'and', 'joins two nouns.']],
+  ['Topic or contrast', '저 + 는 → 저는', 'as for me', ['는', 'topic marker', 'is the particle that marks me as the topic.']],
+  ['Subject', '친구 + 가 → 친구가', 'a friend, marked as the subject', ['가', 'subject marker', 'is the particle that marks the friend as the subject.']],
+  ['Object', '커피 + 를 → 커피를', 'coffee, marked as the object', ['를', 'object marker', 'is the particle that marks coffee as the object.']],
+  ['Other case roles', '집 + 에서 → 집에서', 'at home', ['에서', 'at, where an action happens', 'is the particle that marks where the action happens.']],
+  ['Possession', '친구 + 의 → 친구의', 'a friend’s', ['의', '’s, of', 'is the particle that shows what the friend owns.']],
+  ['Addition or restriction', '저도 / 저만', 'me too / only me', ['도 / 만', 'also / only', 'are the particles that mean “also” and “only”.']],
+  ['Noun connector', '책과 연필', 'a book and a pencil', ['과', 'and', 'is the particle that joins two nouns.']],
 ]
 
 export const conjugationTypes: readonly IntroType[] = [
   ['Speech style', '먹어 / 먹어요 / 먹습니다', 'eat in three speech styles', ['-어 / -어요 / -습니다', 'casual / polite / formal polite endings', 'make the same verb casual or polite.']],
-  ['Tense', '먹어요 → 먹었어요', 'eat → ate', ['-었-', 'past marker', 'puts the action in the past.']],
-  ['Connect clauses', '먹고 쉬어요.', 'I eat and then rest.', ['-고', 'and then here', 'links eating and resting.']],
-  ['Modify a noun', '맵다 → 매운 음식', 'to be spicy → spicy food', ['매운', 'spicy', 'describes the noun 음식.']],
-  ['Make an action noun-like', '걷다 → 걷기', 'to walk → walking', ['-기', '-ing here', 'lets “walking” act like a noun.']],
-  ['Honorific', '오다 → 오세요', 'come, with respect toward the person coming', ['-시-', 'subject honorific', 'shows respect for the person coming.']],
+  ['Tense', '먹어요 → 먹었어요', 'eat → ate', ['-었-', 'past marker', 'is the past-tense marker.']],
+  ['Connect clauses', '먹고 쉬어요.', 'I eat and then rest.', ['-고', 'and then here', 'is the ending that connects eating and resting.']],
+  ['Modify a noun', '맵다 → 매운 음식', 'to be spicy → spicy food', ['매운', 'spicy', 'is the adjective form that describes 음식.']],
+  ['Make an action noun-like', '걷다 → 걷기', 'to walk → walking', ['-기', '-ing here', 'is the ending that lets “walking” act like a noun.']],
+  ['Honorific', '오다 → 오세요', 'come, with respect toward the person coming', ['-시-', 'subject honorific', 'is the honorific marker that shows respect for the person coming.']],
 ]
 
 /** Short English meanings for the Korean words used in the Intro examples. */
@@ -408,6 +408,7 @@ export const introWordMeanings: Readonly<Record<string, string>> = {
   저도: 'me too',
   저만: 'only me',
   적이: 'past experience',
+  제: 'I',
   제가: 'I',
   조용했어요: 'was quiet',
   좋아요: 'is good',

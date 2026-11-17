@@ -143,11 +143,11 @@ export function Intro() {
         </details>
 
         <LessonSection id="nominals" title="Nominals" initiallyOpen>
-          <p>Nouns, pronouns, and numerals can act as <GrammarLabel term="Nominal">nominals</GrammarLabel>. In the worked sentence, <Korean>저</Korean> means <em>“I”</em> and <Korean>음식</Korean> means <em>“food”</em>.</p>
+          <p>Nouns, pronouns, and numerals can act as <GrammarLabel term="Nominal">nominals</GrammarLabel>.</p>
           <LessonTabs sectionId="nominals" tabs={[
             { label: "Nouns", content: <>
               <p>A <GrammarLabel term="Noun">noun</GrammarLabel> can fit more than one type. <Korean>음식</Korean> is both common and concrete.</p>
-              <TypeTable title="Noun types" rows={nounTypes} />
+              <TypeTable title="Noun types" typeHeading="Noun Type" rows={nounTypes} />
               <ApplicationChecks unit="a noun" particles conjugates={false} note="음식 + 을 → 음식을 (food, marked as the object)." />
             </> },
             { label: "Pronouns", content: <>
@@ -432,9 +432,9 @@ function ExplainExample({ focus: [korean, english, reason] }: { focus: ExampleFo
 }
 
 /** Present each category or application rule beside a Korean example. */
-function TypeTable({ title, rows }: { title: string; rows: readonly IntroType[] }) {
+function TypeTable({ title, typeHeading = 'Type', rows }: { title: string; typeHeading?: string; rows: readonly IntroType[] }) {
   return <div className="table-wrap intro-table"><table aria-label={title}>
-    <thead><tr><th scope="col">Type</th><th scope="col">Example</th><th scope="col">English</th></tr></thead>
+    <thead><tr><th scope="col">{typeHeading}</th><th scope="col">Example</th><th scope="col">English</th></tr></thead>
     <tbody>{rows.map(([label, korean, english, focus]) => <tr key={label}>
       <th scope="row">{isIntroTerm(label) ? <GrammarLabel term={label} /> : label}</th>
       <td><Korean>{korean}</Korean></td>

@@ -46,11 +46,20 @@ export function Korean({ children, className }: { children: ReactNode; className
   return <span lang="ko" className={className}>{children}</span>
 }
 
+const finalTPronunciations = new Map([
+  ['무엇', '무얻'],
+  ['이것', '이걷'],
+  ['그것', '그걷'],
+  ['저것', '저걷'],
+])
+
 /** Explain the standalone pronunciation on the Korean side of a word. */
 export function StandalonePronunciationNote({ word }: { word: string }) {
-  if (word !== '무엇') return null
+  const pronunciation = finalTPronunciations.get(word)
+  if (!pronunciation) return null
+
   return <small className="inline-note pronunciation-note">
-    Said on its own, final <Korean>ㅅ</Korean> (S) sounds like a flat, unreleased T. <Korean>[무얻]</Korean>
+    Said on its own, final <Korean>ㅅ</Korean> (S) sounds like a flat, unreleased T. <Korean>[{pronunciation}]</Korean>
   </small>
 }
 

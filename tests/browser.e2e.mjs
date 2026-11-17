@@ -372,29 +372,41 @@ describe('deployed study workflow', { concurrency: false }, () => {
     await page.close()
   })
 
-  it('shows the final T note with 무엇 on the Korean side', async () => {
+  it('shows final T notes on the Korean side of recall cards and in the library', async () => {
     const page = await browser.newPage()
     await page.goto(projectPage)
     await heading(page, 'Vocabulary Recall')
     await select(page, 'Category', 'pronouns')
     const card = page.locator('.recall-face')
-    for (let index = 0; index < 9; index++) await page.getByRole('button', { name: 'Next', exact: true }).click()
-    await card.getByText('What', { exact: true }).waitFor()
-    assert.equal(await card.getByText(/unreleased T/).count(), 0)
-    await page.getByRole('button', { name: 'Flip card' }).click()
-    await card.getByText('무엇', { exact: true }).waitFor()
-    await card.getByText(/unreleased T/).waitFor()
-    await card.getByText('[무얻]', { exact: true }).waitFor()
-    await page.getByRole('button', { name: 'Show prompt' }).click()
-    await card.getByText(/unreleased T/).waitFor({ state: 'hidden' })
+    const words = [
+      { english: 'This thing', korean: '이것', pronunciation: '[이걷]', steps: 5 },
+      { english: 'That thing', korean: '그것', pronunciation: '[그걷]', steps: 1 },
+      { english: 'That thing over there', korean: '저것', pronunciation: '[저걷]', steps: 1 },
+      { english: 'What', korean: '무엇', pronunciation: '[무얻]', steps: 2 },
+    ]
+    const next = page.getByRole('button', { name: 'Next', exact: true })
+    for (const { english, korean, pronunciation, steps } of words) {
+      for (let index = 0; index < steps; index++) await next.click()
+      await card.getByText(english, { exact: true }).waitFor()
+      assert.equal(await card.getByText(/unreleased T/).count(), 0)
+      await page.getByRole('button', { name: 'Flip card' }).click()
+      await card.getByText(korean, { exact: true }).waitFor()
+      await card.getByText(/unreleased T/).waitFor()
+      await card.getByText(pronunciation, { exact: true }).waitFor()
+      await page.getByRole('button', { name: 'Show prompt' }).click()
+      await card.getByText(/unreleased T/).waitFor({ state: 'hidden' })
+    }
 
     await page.getByRole('link', { name: 'Vocabulary Library', exact: true }).click()
     await heading(page, 'Vocabulary Library')
     await select(page, 'Category', 'pronouns')
-    await page.getByRole('searchbox', { name: 'Search' }).fill('무엇')
     const table = page.getByRole('table', { name: 'Pronouns vocabulary' })
-    await table.getByRole('rowheader').getByText(/unreleased T/).waitFor()
-    assert.equal(await table.getByRole('cell', { name: 'What', exact: true }).textContent(), 'What')
+    for (const { english, korean, pronunciation } of words) {
+      await page.getByRole('searchbox', { name: 'Search' }).fill(korean)
+      await table.getByRole('rowheader').getByText(/unreleased T/).waitFor()
+      await table.getByRole('rowheader').getByText(pronunciation, { exact: true }).waitFor()
+      assert.equal(await table.getByRole('cell', { name: english, exact: true }).textContent(), english)
+    }
     await page.close()
   })
 

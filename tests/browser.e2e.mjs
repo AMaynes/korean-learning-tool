@@ -143,10 +143,25 @@ describe('deployed study workflow', { concurrency: false }, () => {
     await sections.getByRole('button', { name: 'Nominals', exact: true }).click()
     const nominals = page.locator('#nominals')
     const nouns = page.getByRole('table', { name: 'Noun types', exact: true })
-    assert.deepEqual(await nouns.getByRole('rowheader').allTextContents(), [
-      'Common (general entities)', 'Proper (specific names)', 'Dependent (requires a modifier)',
-      'Concrete (physical entities)', 'Abstract (concepts)',
-    ])
+    const nounExamples = [
+      ['Common (general entities)', ['음식', '선생님', '학교']],
+      ['Proper (specific names)', ['서울', '부산', '한강']],
+      ['Dependent (requires a modifier)', ['갈 수 있어요.', '마실 것', '본 적이 있어요.']],
+      ['Concrete (physical entities)', ['사과', '책', '연필']],
+      ['Abstract (concepts)', ['기쁨', '사랑', '자유']],
+    ]
+    assert.deepEqual(await nouns.getByRole('rowheader').allTextContents(), nounExamples.map(([label]) => label))
+    const nounHelp = page.getByRole('complementary', { name: 'Grammar explanation' })
+    for (const [label, korean] of nounExamples) {
+      const button = nouns.getByRole('button', { name: label, exact: true })
+      await button.click()
+      await nounHelp.getByRole('heading', { name: label, exact: true }).waitFor()
+      assert.deepEqual(await nounHelp.locator('li > strong [lang="ko"]').allTextContents(), korean)
+      assert.equal(await nounHelp.locator('li > small em').count(), 3)
+      assert.equal(await button.getAttribute('aria-expanded'), 'true')
+      await page.keyboard.press('Escape')
+      await nounHelp.waitFor({ state: 'hidden' })
+    }
     await nouns.getByRole('columnheader', { name: 'Noun Type', exact: true }).waitFor()
     const nounsTab = nominals.getByRole('tab', { name: 'Nouns', exact: true })
     const pronounsTab = nominals.getByRole('tab', { name: 'Pronouns', exact: true })
@@ -209,7 +224,8 @@ describe('deployed study workflow', { concurrency: false }, () => {
     assert.deepEqual([...glossaryLabels].sort(), [
       'adjective', 'adverb', 'batchim', 'clauses', 'coda', 'determiners', 'modifier', 'modifiers', 'nominals',
       'noun', 'object', 'particles', 'predicate', 'pronoun', 'subject', 'topic', 'verb',
-    ])
+      ...nounExamples.map(([label]) => label.toLowerCase()),
+    ].sort())
 
     await page.setViewportSize({ width: 1280, height: 860 })
     const topic = fullSentence.getByRole('button', { name: 'Topic', exact: true })

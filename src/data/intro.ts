@@ -15,7 +15,56 @@ export type ExampleFocus = readonly [korean: string, english: string, reason: st
 /** One Korean example and its English translation, with the relevant part identified. */
 type GlossaryExample = readonly [korean: string, english: string, focus: ExampleFocus]
 
+type GlossaryEntry = {
+  definition: string
+  examples: readonly [GlossaryExample, GlossaryExample, GlossaryExample]
+}
+
+const nounGlossary = {
+  'Common (general entities)': {
+    definition: 'A common noun names a general kind of person, place, or thing.',
+    examples: [
+      ['음식', 'food', ['음식', 'food', 'names food in general.']],
+      ['선생님', 'teacher', ['선생님', 'teacher', 'can mean any teacher.']],
+      ['학교', 'school', ['학교', 'school', 'can mean any school.']],
+    ],
+  },
+  'Proper (specific names)': {
+    definition: 'A proper noun is the name of a particular person, place, or thing.',
+    examples: [
+      ['서울', 'Seoul', ['서울', 'Seoul', 'names a specific city.']],
+      ['부산', 'Busan', ['부산', 'Busan', 'names a specific city.']],
+      ['한강', 'Han River', ['한강', 'Han River', 'names a specific river.']],
+    ],
+  },
+  'Dependent (requires a modifier)': {
+    definition: 'A dependent noun needs a word or phrase before it to complete its meaning.',
+    examples: [
+      ['갈 수 있어요.', 'I can go.', ['수', 'way or ability', 'needs 갈 to show what you can do.']],
+      ['마실 것', 'something to drink', ['것', 'thing', 'needs 마실 to say what kind of thing.']],
+      ['본 적이 있어요.', 'I’ve seen it before.', ['적', 'past experience', 'needs 본 to say what you’ve done before.']],
+    ],
+  },
+  'Concrete (physical entities)': {
+    definition: 'A concrete noun names something physical.',
+    examples: [
+      ['사과', 'apple', ['사과', 'apple', 'is something you can hold.']],
+      ['책', 'book', ['책', 'book', 'is something you can hold.']],
+      ['연필', 'pencil', ['연필', 'pencil', 'is something you can hold.']],
+    ],
+  },
+  'Abstract (concepts)': {
+    definition: 'An abstract noun names a feeling, quality, or idea.',
+    examples: [
+      ['기쁨', 'joy', ['기쁨', 'joy', 'is a feeling.']],
+      ['사랑', 'love', ['사랑', 'love', 'is a feeling.']],
+      ['자유', 'freedom', ['자유', 'freedom', 'is an idea.']],
+    ],
+  },
+} as const satisfies Record<string, GlossaryEntry>
+
 export const introGlossary = {
+  ...nounGlossary,
   Nominal: {
     definition: 'A nominal is a noun or something that works like one. It can fill a sentence role such as subject or object.',
     examples: [
@@ -144,10 +193,7 @@ export const introGlossary = {
       ['방이 조용했어요.', 'The room was quiet.', ['조용했어요', 'was quiet', 'is an adjective because it describes the room.']],
     ],
   },
-} as const satisfies Record<string, {
-  definition: string
-  examples: readonly [GlossaryExample, GlossaryExample, GlossaryExample]
-}>
+} as const satisfies Record<string, GlossaryEntry>
 
 /** The only terms that open the Intro's grammar panel. */
 export type IntroTerm = keyof typeof introGlossary
@@ -155,13 +201,9 @@ export type IntroTerm = keyof typeof introGlossary
 /** A category within a subgenre, with a Korean form or phrase and its English meaning. */
 export type IntroType = readonly [type: string, korean: string, english: string, focus?: ExampleFocus]
 
-export const nounTypes: readonly IntroType[] = [
-  ['Common (general entities)', '음식', 'food', ['음식', 'food', 'is common because it names a general kind of thing.']],
-  ['Proper (specific names)', '서울', 'Seoul', ['서울', 'Seoul', 'is proper because it names a specific city.']],
-  ['Dependent (requires a modifier)', '갈 수 있어요.', 'I can go.', ['수', 'way or possibility', 'is dependent because it needs a word before it, like 갈.']],
-  ['Concrete (physical entities)', '사과', 'apple', ['사과', 'apple', 'is concrete because you can touch it.']],
-  ['Abstract (concepts)', '기쁨', 'joy', ['기쁨', 'joy', 'is abstract because it’s a feeling.']],
-]
+export const nounTypes: readonly IntroType[] = Object.entries(nounGlossary).map(
+  ([label, { examples: [[korean, english, focus]] }]) => [label, korean, english, focus],
+)
 
 export const pronounTypes: readonly IntroType[] = [
   ['Personal', '저 / 너 / 우리', 'I (humble) / you (casual) / we', ['저 / 너 / 우리', 'I (humble) / you (casual) / we', 'stand for people.']],
@@ -238,6 +280,7 @@ export const introWordMeanings: Readonly<Record<string, string>> = {
   감: 'persimmon',
   값: 'price',
   같이: 'together',
+  것: 'thing',
   개: 'item counter',
   개를: 'items',
   거예요: 'will',
@@ -270,6 +313,7 @@ export const introWordMeanings: Readonly<Record<string, string>> = {
   들어요: 'listen',
   를: 'object marker',
   마셔요: 'drink',
+  마실: 'to drink',
   만나요: 'meet',
   맛있어요: 'is delicious',
   매운: 'spicy',
@@ -296,10 +340,13 @@ export const introWordMeanings: Readonly<Record<string, string>> = {
   밥을: 'rice',
   방이: 'the room',
   번째: 'in order',
+  본: 'seen',
+  부산: 'Busan',
   봐요: 'try',
   비가: 'rain',
   빨리: 'quickly',
   사과: 'apple',
+  사랑: 'love',
   사람: 'person',
   사람을: 'people',
   사람이: 'people',
@@ -308,6 +355,7 @@ export const introWordMeanings: Readonly<Record<string, string>> = {
   새: 'new',
   서울: 'Seoul',
   서울에: 'to Seoul',
+  선생님: 'teacher',
   선생님이: 'the teacher',
   세: 'three',
   셋: 'three',
@@ -348,6 +396,7 @@ export const introWordMeanings: Readonly<Record<string, string>> = {
   읽은: 'read, describing a noun',
   있어요: 'is there',
   자기: 'oneself',
+  자유: 'freedom',
   자요: 'sleeps',
   자주: 'often',
   작다: 'to be small',
@@ -358,6 +407,7 @@ export const introWordMeanings: Readonly<Record<string, string>> = {
   저는: 'as for me',
   저도: 'me too',
   저만: 'only me',
+  적이: 'past experience',
   제가: 'I',
   조용했어요: 'was quiet',
   좋아요: 'is good',
@@ -381,6 +431,8 @@ export const introWordMeanings: Readonly<Record<string, string>> = {
   커피가: 'coffee',
   커피를: 'coffee',
   하나: 'one',
+  학교: 'school',
   학생이다: 'to be a student',
   학생이에요: 'am a student',
+  한강: 'Han River',
 }

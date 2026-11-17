@@ -12,7 +12,7 @@
 import { createContext, useContext, useEffect, useId, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import {
-  adjectiveTypes, conjugationTypes, introGlossary, modifierTypes, nounTypes,
+  adjectiveTypes, conjugationTypes, introGlossary, introWordMeanings, modifierTypes, nounTypes,
   numeralTypes, particleTypes, pronounTypes, verbTypes,
 } from '../data/intro'
 import type { ExampleFocus, IntroTerm, IntroType } from '../data/intro'
@@ -121,15 +121,15 @@ export function Intro() {
               <tr><th scope="row"><Korean>ㅇ + ㅏ → 아</Korean></th><td>Initial <Korean>ㅇ</Korean> is silent. Final <Korean>ㅇ</Korean> sounds like “ng,” as in <Korean>공</Korean>.</td></tr>
               <tr><th scope="row"><Korean>ㄱ + ㅘ → 과</Korean></th><td><Korean>ㅘ</Korean> is one vowel that extends below and to the right.</td></tr>
               <tr>
-                <th scope="row"><Korean>값 → [갑]</Korean><small>Coda <Korean>ㅂ + ㅅ → ㅂ</Korean></small></th>
+                <th scope="row"><Korean>값 → [갑]</Korean><WordGlosses korean="값 → [갑]" /><small>Coda <Korean>ㅂ + ㅅ → ㅂ</Korean></small></th>
                 <td>Both letters share one coda. Said on its own, <Korean>값</Korean> has only the <Korean>ㅂ</Korean> sound at the end.</td>
               </tr>
               <tr>
-                <th scope="row"><Korean>밥을 → [바블]</Korean><small>Coda <Korean>ㅂ</Korean> in <Korean>밥</Korean></small></th>
+                <th scope="row"><Korean>밥을 → [바블]</Korean><WordGlosses korean="밥을 → [바블]" /><small>Coda <Korean>ㅂ</Korean> in <Korean>밥</Korean></small></th>
                 <td>The <Korean>ㅂ</Korean> sound moves to the start of the next syllable.</td>
               </tr>
               <tr>
-                <th scope="row"><Korean>사람 / 물</Korean><small>Coda <Korean>ㄹ</Korean> in <Korean>물</Korean></small></th>
+                <th scope="row"><Korean>사람 / 물</Korean><WordGlosses korean="사람 / 물" /><small>Coda <Korean>ㄹ</Korean> in <Korean>물</Korean></small></th>
                 <td><Korean>ㄹ</Korean> taps between vowels in <Korean>사람</Korean> and sounds closer to “l” at the end of <Korean>물</Korean>.</td>
               </tr>
               <tr>
@@ -148,16 +148,16 @@ export function Intro() {
             { label: "Nouns", content: <>
               <p>A <GrammarLabel term="Noun">noun</GrammarLabel> can fit more than one type. <Korean>음식</Korean> is both common and concrete.</p>
               <TypeTable title="Noun types" typeHeading="Noun Type" rows={nounTypes} />
-              <ApplicationChecks unit="a noun" particles conjugates={false} note="음식 + 을 → 음식을 (food, marked as the object)." />
+              <ApplicationChecks unit="a noun" particles conjugates={false} note="The particle goes after the noun." examples={["음식 + 을 → 음식을"]} />
             </> },
             { label: "Pronouns", content: <>
               <p>A <GrammarLabel term="Pronoun">pronoun</GrammarLabel> can stand for a person or thing already clear from context.</p>
               <TypeTable title="Pronoun types" rows={pronounTypes} />
-              <ApplicationChecks unit="a pronoun" particles conjugates={false} note="저 + 는 → 저는. With 가, 저 + 가 becomes 제가. This is the subject form of the pronoun." />
+              <ApplicationChecks unit="a pronoun" particles conjugates={false} note="저 takes 는 for the topic and changes to 제 before the subject particle 가." examples={["저 + 는 → 저는","저 + 가 → 제가"]} />
             </> },
             { label: "Numerals", content: <>
               <TypeTable title="Numeral types" rows={numeralTypes} />
-              <ApplicationChecks unit="a numeral" particles conjugates={false} note="A standalone number can take a particle, as in 둘이 (two people, as the subject). Before a counter, attach the particle to the counter phrase, as in 세 개를." />
+              <ApplicationChecks unit="a numeral" particles conjugates={false} note="A particle can follow a number on its own or the full phrase with a counter." examples={["둘이","세 개를"]} />
             </> },
           ]} />
         </LessonSection>
@@ -168,12 +168,12 @@ export function Intro() {
             { label: "Verbs", content: <>
               <p>A <GrammarLabel term="Verb">verb</GrammarLabel> can be described by the sentence parts it needs and how its stem changes.</p>
               <TypeTable title="Verb types" rows={verbTypes} />
-              <ApplicationChecks unit="a verb stem" particles={false} conjugates note="Particles can follow some derived verb forms, such as 걷기가 (walking, as the subject) and 먹지는 (with 는 after -지)." />
+              <ApplicationChecks unit="a verb stem" particles={false} conjugates note="Particles can follow some forms of the verb." examples={["걷기가","먹지는"]} />
             </> },
             { label: "Adjectives", content: <>
               <p>An <GrammarLabel term="Adjective">adjective</GrammarLabel> can be the predicate of a clause. It can also describe a noun in a form like <Korean>매운</Korean>.</p>
               <TypeTable title="Adjective types" rows={adjectiveTypes} />
-              <ApplicationChecks unit="an adjective stem" particles={false} conjugates note="A noun-like form can take a particle, as in 건강하기가 어렵다 (it is hard to be healthy). An ending can also take a particle, as in 맵지는 않아요 (it’s not spicy)." />
+              <ApplicationChecks unit="an adjective stem" particles={false} conjugates note="Particles can follow some forms of the adjective." examples={["건강하기가 어렵다","맵지는 않아요"]} />
             </> },
           ]} />
         </LessonSection>
@@ -184,8 +184,8 @@ export function Intro() {
             { label: "Determiners + Adverbs", content: <>
               <p><GrammarLabel term="Determiner">Determiners</GrammarLabel> go directly before nouns and tell which one, how many, or what kind. An <GrammarLabel term="Adverb">adverb</GrammarLabel> often tells when, how, or to what degree something happens.</p>
               <TypeTable title="Determiner and adverb types" rows={modifierTypes} />
-              <ApplicationChecks unit="a determiner" particles={false} conjugates={false} note="In 세 사람을, 을 comes after the full phrase “three people”." />
-              <ApplicationChecks unit="an adverb" particles conjugates={false} note="Some adverbs take particles that add emphasis, as in 아직도 (still)." />
+              <ApplicationChecks unit="a determiner" particles={false} conjugates={false} note="The particle follows the whole phrase." examples={["세 사람을"]} />
+              <ApplicationChecks unit="an adverb" particles conjugates={false} note="Some adverbs take a particle for emphasis." examples={["아직도"]} />
             </> },
             { label: "Particles", content: <>
               <TypeTable title="What takes particles" rows={[
@@ -196,7 +196,7 @@ export function Intro() {
                 ['Particles and connecting endings', '집에서는 / 먹지는', 'as for at home / as for eating', ['는', 'topic or contrast marker', 'can follow 에서 or -지.']],
               ]} />
               <TypeTable title="Particle types" rows={particleTypes} />
-              <ApplicationChecks unit="a particle" particles conjugates={false} note="Some particles stack, as in 집에서 + 는 → 집에서는. In traditional Korean grammar, the copula 이다 is the particle that conjugates, as in 학생이에요." />
+              <ApplicationChecks unit="a particle" particles conjugates={false} note="Some particles stack. In traditional Korean grammar, 이다 is the particle that conjugates." examples={["집에서 + 는 → 집에서는","학생이에요"]} />
             </> },
             { label: "Conjugation", content: <>
               <TypeTable title="What conjugates" rows={[
@@ -207,7 +207,7 @@ export function Intro() {
                 ['Other particles and endings', '을 / -어요', 'object marker / everyday polite ending', ['을 / -어요', 'object marker / everyday polite ending', 'attach to other forms.']],
               ]} />
               <TypeTable title="What endings do" rows={conjugationTypes} />
-              <ApplicationChecks unit="a verb ending" particles conjugates={false} note="A particle can follow certain connecting endings. In 먹지는 않아요, 는 follows -지. The verb stem is what conjugates." />
+              <ApplicationChecks unit="a verb ending" particles conjugates={false} note="A particle can follow certain connecting endings." examples={["먹지는 않아요"]} />
             </> },
           ]} />
           <a className="text-button" href="#grammar">Practice particles and conjugation <Icon name="arrow" size={15} /></a>
@@ -221,6 +221,7 @@ export function Intro() {
             ['Attention', '저기요!', 'Excuse me!'],
           ]} />
           <p><Korean>네, 오늘 집에서 먹어요.</Korean> (<em>“Yes, I’m eating at home today.”</em>) <Korean>네</Korean> is the response before the clause.</p>
+          <WordGlosses korean="네, 오늘 집에서 먹어요." />
         </LessonSection>
 
         <SentenceStructure />
@@ -237,6 +238,7 @@ export function Intro() {
             {introGlossary[explanation.term].examples.map(([korean, english, focus]) => <li className="intro-explanation-example" key={korean}>
               <strong><Korean>{korean}</Korean></strong>
               <small><em>{english}</em></small>
+              <WordGlosses korean={korean} english={english} />
               <p><ExplainExample focus={focus} /></p>
             </li>)}
           </ul>
@@ -306,16 +308,16 @@ function SentenceStructure() {
     <div className="table-wrap intro-table"><table aria-label="Ways to end a Korean sentence">
       <thead><tr><th scope="col">Use</th><th scope="col">Example</th><th scope="col">Meaning</th></tr></thead>
       <tbody>
-        <tr><th scope="row">Everyday polite</th><td><Korean>먹어요.</Korean></td><td><em>I eat it.</em></td></tr>
-        <tr><th scope="row">Casual</th><td><Korean>먹어.</Korean></td><td><em>I eat it.</em></td></tr>
-        <tr><th scope="row">Formal polite</th><td><Korean>먹습니다.</Korean></td><td><em>I eat it.</em></td></tr>
-        <tr><th scope="row">Past</th><td><Korean>먹었어요.</Korean></td><td><em>I ate it.</em></td></tr>
-        <tr><th scope="row">Future</th><td><Korean>먹을 거예요.</Korean></td><td><em>I’ll eat it.</em></td></tr>
-        <tr><th scope="row">Negation</th><td><Korean>안 먹어요.</Korean></td><td><em>I don’t eat it.</em></td></tr>
-        <tr><th scope="row">Yes/no question</th><td><Korean>먹어요?</Korean></td><td><em>Do you eat it?</em></td></tr>
-        <tr><th scope="row">Question word</th><td><Korean>뭘 먹어요?</Korean></td><td><em>What are you eating?</em></td></tr>
-        <tr><th scope="row">Polite request</th><td><Korean>먹어 주세요.</Korean></td><td><em>Please eat it.</em></td></tr>
-        <tr><th scope="row">Suggestion</th><td><Korean>같이 먹을까요?</Korean></td><td><em>Shall we eat together?</em></td></tr>
+        <tr><th scope="row">Everyday polite</th><td><Korean>먹어요.</Korean></td><td><em>I eat it.</em><WordGlosses korean="먹어요." english="I eat it." /></td></tr>
+        <tr><th scope="row">Casual</th><td><Korean>먹어.</Korean></td><td><em>I eat it.</em><WordGlosses korean="먹어." english="I eat it." /></td></tr>
+        <tr><th scope="row">Formal polite</th><td><Korean>먹습니다.</Korean></td><td><em>I eat it.</em><WordGlosses korean="먹습니다." english="I eat it." /></td></tr>
+        <tr><th scope="row">Past</th><td><Korean>먹었어요.</Korean></td><td><em>I ate it.</em><WordGlosses korean="먹었어요." english="I ate it." /></td></tr>
+        <tr><th scope="row">Future</th><td><Korean>먹을 거예요.</Korean></td><td><em>I’ll eat it.</em><WordGlosses korean="먹을 거예요." english="I’ll eat it." /></td></tr>
+        <tr><th scope="row">Negation</th><td><Korean>안 먹어요.</Korean></td><td><em>I don’t eat it.</em><WordGlosses korean="안 먹어요." english="I don’t eat it." /></td></tr>
+        <tr><th scope="row">Yes/no question</th><td><Korean>먹어요?</Korean></td><td><em>Do you eat it?</em><WordGlosses korean="먹어요?" english="Do you eat it?" /></td></tr>
+        <tr><th scope="row">Question word</th><td><Korean>뭘 먹어요?</Korean></td><td><em>What are you eating?</em><WordGlosses korean="뭘 먹어요?" english="What are you eating?" /></td></tr>
+        <tr><th scope="row">Polite request</th><td><Korean>먹어 주세요.</Korean></td><td><em>Please eat it.</em><WordGlosses korean="먹어 주세요." english="Please eat it." /></td></tr>
+        <tr><th scope="row">Suggestion</th><td><Korean>같이 먹을까요?</Korean></td><td><em>Shall we eat together?</em><WordGlosses korean="같이 먹을까요?" english="Shall we eat together?" /></td></tr>
       </tbody>
     </table></div>
     <p>Put <Korean>뭘</Korean> (<em>“what”</em>, the object) in the same place as <Korean>매운 음식을</Korean> in the original sentence.</p>
@@ -426,6 +428,26 @@ function LessonTabs({ sectionId, tabs }: {
   </div>
 }
 
+/** Give each written word its own English meaning. Brackets show pronunciation. */
+function WordGlosses({ korean, english }: { korean: string; english?: string }) {
+  const words = korean.replace(/\s*\[[^\]]+\]/g, '').match(/-?[가-힣]+-?/g) ?? []
+  const glosses = words.map(word => {
+    let meaning = introWordMeanings[word]
+    if (word === '이' && korean === '일 / 이 / 삼') meaning = 'two'
+    if (korean.includes('비가') && word === '와요') meaning = 'falls'
+    if (korean.includes('비가') && word === '오면') meaning = 'if it falls'
+    if (korean.includes('집에') && word === '있어요') meaning = 'stay'
+    return { word, meaning }
+  })
+  if (!glosses.length || (glosses.length === 1 && glosses[0].meaning === english)) return null
+
+  return <div className="intro-word-glosses">
+    {glosses.map(({ word, meaning }, index) => <span key={index}>
+      <Korean>{word}</Korean>{meaning && <> (<em>{meaning}</em>)</>}
+    </span>)}
+  </div>
+}
+
 /** Identify the Korean part, its English meaning, and the reason it fits the example. */
 function ExplainExample({ focus: [korean, english, reason] }: { focus: ExampleFocus }) {
   return <><b><Korean>{korean}</Korean></b> (<em>{english}</em>) {reason}</>
@@ -438,14 +460,14 @@ function TypeTable({ title, typeHeading = 'Type', rows }: { title: string; typeH
     <tbody>{rows.map(([label, korean, english, focus]) => <tr key={label}>
       <th scope="row">{isIntroTerm(label) ? <GrammarLabel term={label} /> : label}</th>
       <td><Korean>{korean}</Korean></td>
-      <td><em>{english}</em>{focus && <p><ExplainExample focus={focus} /></p>}</td>
+      <td><em>{english}</em><WordGlosses korean={korean} english={english} />{focus && <p><ExplainExample focus={focus} /></p>}</td>
     </tr>)}</tbody>
   </table></div>
 }
 
 /** Show the attachment and conjugation answers for the form named in the question. */
-function ApplicationChecks({ unit, particles, conjugates, note }: {
-  unit: string; particles: boolean; conjugates: boolean; note: string
+function ApplicationChecks({ unit, particles, conjugates, note, examples }: {
+  unit: string; particles: boolean; conjugates: boolean; note: string; examples: readonly string[]
 }) {
   return <div className="intro-application">
     <dl>
@@ -453,5 +475,6 @@ function ApplicationChecks({ unit, particles, conjugates, note }: {
       <div><dt>Does {unit} conjugate?</dt><dd>{conjugates ? 'Yes' : 'No'}</dd></div>
     </dl>
     <p>{note}</p>
+    {examples.map(korean => <WordGlosses key={korean} korean={korean} />)}
   </div>
 }

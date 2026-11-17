@@ -107,6 +107,7 @@ describe('deployed study workflow', { concurrency: false }, () => {
     const nouns = page.getByRole('table', { name: 'Noun types', exact: true })
     await nouns.getByRole('rowheader', { name: 'Dependent (bound)' }).waitFor()
     await nouns.getByRole('rowheader', { name: 'Abstract' }).waitFor()
+    await nouns.getByRole('columnheader', { name: 'Noun Type', exact: true }).waitFor()
     const nounsTab = nominals.getByRole('tab', { name: 'Nouns', exact: true })
     const pronounsTab = nominals.getByRole('tab', { name: 'Pronouns', exact: true })
     assert.equal(await nounsTab.getAttribute('aria-selected'), 'true')
@@ -142,8 +143,9 @@ describe('deployed study workflow', { concurrency: false }, () => {
     await page.getByRole('tab', { name: 'Determiners + Adverbs', exact: true }).click()
     const modifierTable = page.getByRole('table', { name: 'Determiner and adverb types' })
     const manner = modifierTable.getByRole('row', { name: /Manner adverb/ })
-    await manner.getByText('빨리', { exact: true }).waitFor()
-    assert.deepEqual(await manner.locator('em').allTextContents(), ['I eat quickly.', 'quickly'])
+    await manner.locator('.intro-word-glosses').getByText('빨리', { exact: true }).waitFor()
+    assert.deepEqual(await manner.locator('td > em').allTextContents(), ['I eat quickly.'])
+    assert.deepEqual(await manner.locator('.intro-word-glosses > span').allTextContents(), ['빨리 (quickly)', '먹어요 (eat)'])
     await manner.getByText(/because it tells how I eat/).waitFor()
     await page.getByRole('button', { name: 'Determiners', exact: true }).click()
     const determinerHelp = page.getByRole('complementary', { name: 'Grammar explanation' })
@@ -179,6 +181,9 @@ describe('deployed study workflow', { concurrency: false }, () => {
       '저는 집에서 먹어요.', '오늘은 제가 요리해요.', '저는 커피가 좋아요.',
     ])
     await examples.getByText(/because I’m talking about myself/).waitFor()
+    assert.deepEqual(await examples.getByRole('listitem').first().locator('.intro-word-glosses > span').allTextContents(), [
+      '저는 (as for me)', '집에서 (at home)', '먹어요 (eat)',
+    ])
     assert.deepEqual(await examples.locator('li > small em').allTextContents(), [
       'I eat at home.', 'Today I’m the one cooking.', 'I like coffee.',
     ])

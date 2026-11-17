@@ -443,8 +443,8 @@ function ApplicationChecks({ unit, particles, conjugates, note }: {
 }) {
   return <div className="intro-application">
     <dl>
-      <div><dt>Does {unit} take particles?</dt><dd>{particles ? 'Y (Yes)' : 'N (No)'}</dd></div>
-      <div><dt>Does {unit} conjugate?</dt><dd>{conjugates ? 'Y (Yes)' : 'N (No)'}</dd></div>
+      <div><dt>Does {unit} take particles?</dt><dd>{particles ? 'Yes' : 'No'}</dd></div>
+      <div><dt>Does {unit} conjugate?</dt><dd>{conjugates ? 'Yes' : 'No'}</dd></div>
     </dl>
     <p>{note}</p>
   </div>

@@ -135,7 +135,7 @@ describe('deployed study workflow', { concurrency: false }, () => {
         const category = page.getByRole('tabpanel', { name: title, exact: true })
         await category.waitFor({ state: 'visible' })
         const answers = await category.locator('.intro-application dd').allTextContents()
-        assert.ok(answers.length >= 2 && answers.every(answer => answer === 'Y (Yes)' || answer === 'N (No)'))
+        assert.ok(answers.length >= 2 && answers.every(answer => answer === 'Yes' || answer === 'No'))
       }
     }
     await page.getByRole('table', { name: 'What conjugates', exact: true }).getByText('Copula 이다', { exact: true }).waitFor()

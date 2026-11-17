@@ -112,7 +112,8 @@ describe('deployed study workflow', { concurrency: false }, () => {
 
     const categoryTitles = ['Nouns', 'Pronouns', 'Numerals', 'Verbs', 'Adjectives', 'Determiners + Adverbs', 'Particles', 'Conjugation']
     for (const title of categoryTitles) {
-      const category = page.locator('.intro-subgenre').filter({ has: page.getByText(title, { exact: true }) })
+      const summary = page.locator('summary').and(page.getByText(title, { exact: true }))
+      const category = page.locator('.intro-subgenre').filter({ has: summary })
       if (title !== 'Nouns') await category.locator('summary').click()
       const answers = await category.locator('.intro-application dd').allTextContents()
       assert.ok(answers.length >= 2 && answers.every(answer => answer === 'Y (Yes)' || answer === 'N (No)'))

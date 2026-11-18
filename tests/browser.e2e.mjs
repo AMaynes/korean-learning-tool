@@ -188,7 +188,7 @@ describe('deployed study workflow', { concurrency: false }, () => {
     }
     await nouns.getByRole('columnheader', { name: 'Noun Type', exact: true }).waitFor()
     await page.setViewportSize({ width: 320, height: 844 })
-    const nounEquations = nouns.locator('.particle-equation')
+    const nounEquations = nominals.getByRole('tabpanel', { name: 'Nouns', exact: true }).locator('.particle-equation')
     const equationRows = await nounEquations.evaluateAll(rows => rows.map(row => {
       const cells = [...row.children]
       return cells.map(cell => cell.querySelector('[lang="ko"]')?.textContent ?? cell.textContent)

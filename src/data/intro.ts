@@ -116,11 +116,11 @@ const numeralGlossary = {
     ],
   },
   'Sino-Korean cardinal': {
-    definition: 'Sino-Korean cardinal numbers are used for things like dates, prices, and phone numbers.',
+    definition: 'Use Sino-Korean numbers for dates, money, minutes, seconds, phone numbers, and measurements. Native Korean numbers are common for counting things and people, age with 살, and clock hours with 시.',
     examples: [
-      ['일', 'one', ['일', 'one', 'is the Sino-Korean number for one.']],
-      ['삼', 'three', ['삼', 'three', 'is the Sino-Korean number for three.']],
-      ['십', 'ten', ['십', 'ten', 'is the Sino-Korean number for ten.']],
+      ['삼 분', 'three minutes', ['삼', 'three', 'is Sino-Korean because minutes use this system. 분 means minutes.']],
+      ['삼천 원', '3,000 won', ['삼천', 'three thousand', 'is Sino-Korean because prices use this system. 원 is the currency unit.']],
+      ['삼월', 'March', ['삼', 'three', 'is Sino-Korean because calendar months use this system. 월 means month.']],
     ],
   },
   Ordinal: {
@@ -565,4 +565,8 @@ export const introWordMeanings: Readonly<Record<string, string>> = {
   한: 'one',
   한강: 'Han River',
   해요: 'do',
+  분: 'minutes',
+  삼천: 'three thousand',
+  삼월: 'March',
+  원: 'won',
 }

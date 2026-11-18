@@ -295,7 +295,7 @@ function AudioControls({ phrase }: { phrase: string }) {
       </div>
     </div>
     {voices.length > 1 && <label className="field">Korean voice
-      <select value={voices.some(voice => voice.voiceURI === preferred) ? preferred : ''} onChange={event => {
+      <select aria-label="Korean voice" value={voices.some(voice => voice.voiceURI === preferred) ? preferred : ''} onChange={event => {
         setPreferredVoiceURI(event.target.value)
         setPreferred(event.target.value)
       }}>

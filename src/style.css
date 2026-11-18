@@ -426,3 +426,7 @@ td [lang="ko"] { color: var(--accent); font-weight: 650; }
   .vocabulary-table th, .vocabulary-table td { padding: 7px 8px; }
   .vocabulary-table tbody th { font-size: 14px; }
 }
+
+@media (max-width: 640px) {
+  .section-heading .segmented[aria-label="Pronunciation practice"] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}

@@ -377,7 +377,7 @@ function HangulSyllables() {
         </tr>
       </tbody>
     </table></div>
-    <a className="text-button" href="#pronunciation">Practice Hangul and batchim <Icon name="arrow" size={15} /></a>
+    <a className="text-button" href="#pronunciation">Practice pronouncing Hangul <Icon name="arrow" size={15} /></a>
   </>
 }
 

@@ -22,7 +22,7 @@ const iVowel = vowels.indexOf('ㅣ')
 const isolatedFinals = [
   0, 1, 1, 1, 4, 4, 4, 7, 8, 1, 16, 8, 8, 8, 17, 8, 16, 17, 17, 7, 7, 21, 7, 7, 1, 7, 17, 7,
 ]
-const writtenFinalCount = isolatedFinals.length - 1
+const finalCount = isolatedFinals.length
 
 /** A visible symbol and the Hangul syllable to give to the Korean voice. */
 export interface PronunciationCard {
@@ -36,7 +36,7 @@ const consonantCards = initials.map((prompt, index) => ({
 }))
 const vowelCards = vowels.map((prompt, index) => ({ prompt, sound: composeHangul(silentInitial, index, 0) }))
 
-export const letterCards: readonly PronunciationCard[] = [...consonantCards, ...vowelCards]
+
 
 // Revised Romanization for the modern letters. Some consonants have a different spelling at the end.
 const consonantRomanization: Readonly<Record<string, string>> = {
@@ -54,18 +54,18 @@ const vowelRomanization: Readonly<Record<string, string>> = {
 export const hangulAlphabet = {
   vowels: vowelCards.map(card => ({ ...card, romanization: vowelRomanization[card.prompt] })),
   consonants: consonantCards.map(({ prompt, sound, silent }) => ({
-    prompt, sound: silent ? '응' : sound, romanization: consonantRomanization[prompt],
+    prompt, sound: silent ? '응' : sound, silent, romanization: consonantRomanization[prompt],
   })),
 }
 
-export const batchimCardCount = initials.length * vowels.length * writtenFinalCount
+export const syllableCardCount = initials.length * vowels.length * finalCount
 
 /** Decode a zero-based index in the syllable deck and normalize its pronunciation for playback in isolation. */
-export function batchimCard(index: number): PronunciationCard {
-  const stem = Math.floor(index / writtenFinalCount)
+export function syllableCard(index: number): PronunciationCard {
+  const stem = Math.floor(index / finalCount)
   const initial = Math.floor(stem / vowels.length)
   const vowel = stem % vowels.length
-  const ending = index % writtenFinalCount + 1
+  const ending = index % finalCount
   const spokenVowel = vowel === uiVowel && initial !== silentInitial ? iVowel : vowel
 
   return {

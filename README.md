@@ -21,7 +21,7 @@ The vocabulary registry resolves eight independent categories. Exercise engines 
 
 ## Study modules
 
-- **Pronunciation** presents all 40 modern Hangul letters and all 10,773 modern syllables with batchim. Listen with a Korean browser voice and mark your answer with **Y** or **N**. Batchim audio models syllables in isolation.
+- **Pronouncing Hangul** has separate flashcard decks for 21 vowels, 19 consonants, and all 11,172 modern syllable blocks. Try the sound, play it, then rate your answer. The published site includes synthetic Korean fallback clips for devices without working Korean speech. To include the clips in a local build, install eSpeak NG and run `python3 scripts/build-hangul-audio.py` before `npm run build`.
 - **Vocabulary Library** shows fixed lists in a compact searchable table, with examples for particles and endings.
 - **Vocabulary Recall** offers ungraded flashcards and spaced typing. Select **Image → Korean** to practice pictured nouns, verbs, and adjectives from the active list. Image typing tracks its own progress. Three clean recalls and a delayed fourth earn mastery. A single-card deck can practice and needs additional cards to meet the spacing rule.
 - **Grammar Trainer** covers particle practice, conjugation, sentence assembly, and sentence writing. Open-ended alternatives can be compared against sample answers and self-reviewed.

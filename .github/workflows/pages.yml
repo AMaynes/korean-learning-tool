@@ -31,6 +31,18 @@ jobs:
             grep '^npm error' install.log | head -8 | sed 's/^/::error::/' || true
             exit 1
           }
+      - name: Restore Korean pronunciation clips
+        id: hangul-audio
+        uses: actions/cache@v4
+        with:
+          path: public/assets/hangul-*.wav
+          key: hangul-audio-v1-${{ hashFiles('scripts/build-hangul-audio.py') }}
+      - name: Build Korean pronunciation clips
+        if: steps.hangul-audio.outputs.cache-hit != 'true'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y espeak-ng
+          python3 scripts/build-hangul-audio.py
       - run: npm run test
       - name: Build and test in Chrome
         run: |

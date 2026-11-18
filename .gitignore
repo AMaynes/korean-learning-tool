@@ -4,3 +4,5 @@ playwright-report/
 test-results/
 .DS_Store
 *.local
+
+/public/assets/hangul-*.wav

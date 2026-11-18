@@ -68,14 +68,15 @@ korean-learning-tool/
 | `src/engine/exercises.ts` | Generates study exercises from active decks and evaluates known alternatives. |
 | `src/engine/korean.ts` | Applies phonological variants and stems/endings to known word classes. |
 | `src/engine/mastery.ts` | Schedules recall with per-deck clocks and entry mastery states. |
-| `src/engine/pronunciation.ts` | Generates letter cards and all modern batchim syllables with isolated sound models. |
+| `scripts/build-hangul-audio.py` | Creates the deployable Korean audio clips for pronunciation fallback. |
+| `src/engine/pronunciation.ts` | Generates vowel, consonant, and full syllable cards with isolated sound models. |
 | `src/engine/registry.ts` | Resolves active decks from the bundled catalog and looks up grammar rules. |
 | `src/engine/storage.ts` | Saves browser study data atomically and validates full backups. |
 | `src/views/App.tsx` | Owns navigation, active selections, and study-state lifecycle. |
 | `src/views/Intro.tsx` | Guides learners through word categories and a worked sentence, with an interactive glossary. |
 | `src/views/Library.tsx` | Displays bundled vocabulary decks in a compact searchable table. |
 | `src/views/Practice.tsx` | Houses grammar, sentence, dictation, and conversation interactions. |
-| `src/views/Pronunciation.tsx` | Presents Hangul and batchim sound recall with playback and self-rating. |
+| `src/views/Pronunciation.tsx` | Presents the three Pronouncing Hangul decks with playback and self-rating. |
 | `src/views/Recall.tsx` | Houses flashcard review, typing, and spaced mastery. |
 | `src/views/Settings.tsx` | Houses list configuration, preferences, resets, and backups. |
 | `src/views/shared.tsx` | Provides reusable accessible study and file controls. |

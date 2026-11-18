@@ -25,11 +25,11 @@ import { Icon, Korean } from './shared'
 import type { Save, SelectList, View } from './shared'
 
 const studyNav = [
+  ['pronunciation', 'Pronouncing Hangul', 'letters'],
   ['library', 'Vocabulary Library', 'book'],
   ['recall', 'Vocabulary Recall', 'cards'],
   ['grammar', 'Grammar Trainer', 'grammar'],
   ['listening', 'Listening & Conversation', 'sound'],
-  ['pronunciation', 'Pronunciation', 'letters'],
 ] as const
 
 /** Keep static hosting compatible with direct links and default to the recall tool. */

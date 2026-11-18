@@ -355,24 +355,24 @@ function HangulSyllables() {
 
     <h3>Things to note</h3>
     <div className="table-wrap intro-table hangul-sounds"><table aria-label="Hangul spelling and sound examples">
-      <thead><tr><th scope="col">Example</th><th scope="col">What to notice</th></tr></thead>
+      <thead><tr><th scope="col">Korean</th><th scope="col">What to notice</th></tr></thead>
       <tbody>
-        <tr><th scope="row"><ExampleNumber /><Korean>ㅇ + ㅏ → 아</Korean></th><td>Initial <Korean>ㅇ</Korean> is silent. Final <Korean>ㅇ</Korean> sounds like “ng,” as in <Korean>공</Korean>.</td></tr>
-        <tr><th scope="row"><ExampleNumber /><Korean>ㄱ + ㅘ → 과</Korean></th><td><Korean>ㅘ</Korean> is one vowel that extends below and to the right.</td></tr>
+        <tr><th scope="row"><Korean>ㅇ + ㅏ → 아</Korean></th><td>Initial <Korean>ㅇ</Korean> is silent. Final <Korean>ㅇ</Korean> sounds like “ng,” as in <Korean>공</Korean>.</td></tr>
+        <tr><th scope="row"><Korean>ㄱ + ㅘ → 과</Korean></th><td><Korean>ㅘ</Korean> is one vowel that extends below and to the right.</td></tr>
         <tr>
-          <th scope="row"><ExampleNumber /><Korean>값 → [갑]</Korean><WordGlosses korean="값 → [갑]" /><small>Coda <Korean>ㅂ + ㅅ → ㅂ</Korean></small></th>
+          <th scope="row"><Korean>값 → [갑]</Korean><WordGlosses korean="값 → [갑]" /><small>Coda <Korean>ㅂ + ㅅ → ㅂ</Korean></small></th>
           <td>Both letters share one coda. Said on its own, <Korean>값</Korean> has only the <Korean>ㅂ</Korean> sound at the end.</td>
         </tr>
         <tr>
-          <th scope="row"><ExampleNumber /><Korean>밥을 → [바블]</Korean><WordGlosses korean="밥을 → [바블]" /><small>Coda <Korean>ㅂ</Korean> in <Korean>밥</Korean></small></th>
+          <th scope="row"><Korean>밥을 → [바블]</Korean><WordGlosses korean="밥을 → [바블]" /><small>Coda <Korean>ㅂ</Korean> in <Korean>밥</Korean></small></th>
           <td>The <Korean>ㅂ</Korean> sound moves to the start of the next syllable.</td>
         </tr>
         <tr>
-          <th scope="row"><ExampleNumber /><Korean>사람 / 물</Korean><WordGlosses korean="사람 / 물" /><small>Coda <Korean>ㄹ</Korean> in <Korean>물</Korean></small></th>
+          <th scope="row"><Korean>사람 / 물</Korean><WordGlosses korean="사람 / 물" /><small>Coda <Korean>ㄹ</Korean> in <Korean>물</Korean></small></th>
           <td><Korean>ㄹ</Korean> taps between vowels in <Korean>사람</Korean> and sounds closer to “l” at the end of <Korean>물</Korean>.</td>
         </tr>
         <tr>
-          <th scope="row"><ExampleNumber /><Korean>ㅁ + ㅓ + ㄱ → 먹</Korean><small><Korean>먹어요 → [머거요]</Korean></small></th>
+          <th scope="row"><Korean>ㅁ + ㅓ + ㄱ → 먹</Korean><small><Korean>먹어요 → [머거요]</Korean></small></th>
           <td>The <Korean>ㄱ</Korean> is the coda in <Korean>먹</Korean>. In <Korean>먹어요</Korean> (<em>“eat”</em>), it moves to the start of the next syllable in speech.</td>
         </tr>
       </tbody>
@@ -606,10 +606,10 @@ function ExplainExample({ focus: [korean, english, reason] }: { focus: ExampleFo
 /** Present each category or application rule beside a Korean example. */
 function TypeTable({ title, typeHeading = 'Type', rows }: { title: string; typeHeading?: string; rows: readonly IntroType[] }) {
   return <div className="table-wrap intro-table"><table aria-label={title}>
-    <thead><tr><th scope="col">{typeHeading}</th><th scope="col">Example</th><th scope="col">English</th></tr></thead>
+    <thead><tr><th scope="col">{typeHeading}</th><th scope="col">Korean</th><th scope="col">English</th></tr></thead>
     <tbody>{rows.map(([label, korean, english, focus]) => <tr key={label}>
       <th scope="row">{isIntroTerm(label) ? <GrammarLabel term={label} /> : label}</th>
-      <td><ExampleNumber /><Korean>{korean}</Korean></td>
+      <td><Korean>{korean}</Korean></td>
       <td><em>{english}</em><WordGlosses korean={korean} english={english} /><p><ExplainExample focus={focus} /></p></td>
     </tr>)}</tbody>
   </table></div>

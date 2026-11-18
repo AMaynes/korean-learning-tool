@@ -23,7 +23,7 @@ The vocabulary registry resolves eight independent categories. Exercise engines 
 
 - **Pronunciation** presents all 40 modern Hangul letters and all 10,773 modern syllables with batchim. Listen with a Korean browser voice and mark your answer with **Y** or **N**. Batchim audio models syllables in isolation.
 - **Vocabulary Library** shows fixed lists in a compact searchable table, with examples for particles and endings.
-- **Vocabulary Recall** offers ungraded flashcards and spaced typing. Three clean recalls and a delayed fourth earn mastery. A single-card deck can practice and needs additional cards to meet the spacing rule.
+- **Vocabulary Recall** offers ungraded flashcards and spaced typing. Select **Image → Korean** to practice pictured nouns, verbs, and adjectives from the active list. Image typing tracks its own progress. Three clean recalls and a delayed fourth earn mastery. A single-card deck can practice and needs additional cards to meet the spacing rule.
 - **Grammar Trainer** covers particle practice, conjugation, sentence assembly, and sentence writing. Open-ended alternatives can be compared against sample answers and self-reviewed.
 - **Listening & Conversation** uses the device’s Korean synthesis voice for dictation and conversation prompts. Listening can reveal a transcript when a voice is unavailable. Conversation is guided by study frames and example replies.
 
@@ -58,3 +58,7 @@ Study data belongs to the browser profile and site origin. Export a full backup 
 ## Dependencies
 
 Node.js 20.19+ or 22.12+, npm, React, TypeScript, Vite, Vitest, and Playwright. Audio requires a browser with a Korean system speech voice.
+
+## Picture credits
+
+Vocabulary illustrations are unmodified [Twemoji graphics by Twitter, Inc. and other contributors](https://github.com/twitter/twemoji/tree/v14.0.2), licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).

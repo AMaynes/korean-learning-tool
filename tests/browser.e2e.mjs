@@ -165,6 +165,8 @@ describe('deployed study workflow', { concurrency: false }, () => {
     await sections.getByRole('button', { name: 'Nominals', exact: true }).click()
     const nominals = page.locator('#nominals')
     const nouns = page.getByRole('table', { name: 'Noun types', exact: true })
+    await nouns.getByRole('columnheader', { name: 'Korean', exact: true }).waitFor()
+    assert.equal(await nouns.locator('.intro-example-number').count(), 0)
     const nounExamples = [
       ['Common (general entities)', ['음식', '선생님', '학교']],
       ['Proper (specific names)', ['서울', '부산', '한강']],
@@ -470,6 +472,33 @@ describe('deployed study workflow', { concurrency: false }, () => {
     await reading.click()
     await deckProgress.getByText('In practice', { exact: true }).waitFor()
     assert.match(await deckProgress.innerText(), /In practice\s+1/u)
+    await page.close()
+  })
+
+  it('uses a picture for mental and typed Korean recall', async () => {
+    const page = await browser.newPage()
+    await page.setViewportSize({ width: 320, height: 760 })
+    await page.goto(projectPage)
+    await page.getByRole('button', { name: 'Image → Korean' }).click()
+    const card = page.locator('.recall-face')
+    const picture = card.getByRole('img')
+    await picture.waitFor()
+    await picture.evaluate(image => image.decode())
+    assert.equal(await card.locator('[lang="ko"]').count(), 0)
+    assert.equal(await card.getByText('Person', { exact: true }).count(), 0)
+    await page.getByRole('button', { name: 'Flip card' }).click()
+    await card.getByText('사람', { exact: true }).waitFor()
+    await page.getByRole('button', { name: 'Typing Practice' }).click()
+    await picture.waitFor()
+    const answer = page.getByLabel('Your answer')
+    assert.equal(await answer.getAttribute('lang'), 'ko')
+    await answer.fill('사람')
+    await answer.press('Enter')
+    await page.getByText('Correct.', { exact: true }).waitFor()
+    await page.getByText('Clean recalls 1 / 4', { exact: true }).waitFor()
+    await page.getByRole('button', { name: 'English → Korean' }).click()
+    await page.getByText('Clean recalls 0 / 4', { exact: true }).waitFor()
+    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth))
     await page.close()
   })
 

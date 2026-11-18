@@ -19,9 +19,11 @@ korean-learning-tool/
 ├── src/
 │   ├── main.tsx
 │   ├── style.css
+│   ├── assets/pictures/
 │   ├── data/
 │   │   ├── grammar.ts
 │   │   ├── intro.ts
+│   │   ├── pictures.ts
 │   │   ├── model.ts
 │   │   └── words.ts
 │   ├── engine/
@@ -60,6 +62,7 @@ korean-learning-tool/
 | `src/main.tsx` / `src/style.css` | Mount the app and define the grayscale palette and responsive layout. |
 | `src/data/grammar.ts` | Owns the catalog of particle and conjugation rules, explanations, and examples. |
 | `src/data/intro.ts` | Holds the Intro’s glossary examples and word-category tables. |
+| `src/data/pictures.ts` / `src/assets/pictures/` | Maps pictured vocabulary to bundled illustrations and accessible descriptions. |
 | `src/data/model.ts` | Defines shared data contracts. |
 | `src/data/words.ts` | Owns starter lexical vocabulary and semantic tags. |
 | `src/engine/exercises.ts` | Generates study exercises from active decks and evaluates known alternatives. |

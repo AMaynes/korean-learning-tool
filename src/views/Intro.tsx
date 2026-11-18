@@ -106,20 +106,24 @@ export function Intro() {
             { label: "Nouns", content: <>
               <p>A <GrammarLabel term="Noun">noun</GrammarLabel> can fit more than one type. <Korean>음식</Korean> is both common and concrete.</p>
               <TypeTable title="Noun types" typeHeading="Noun Type" rows={nounTypes} />
-              <ApplicationChecks unit="a noun" showRulesHeading particles="Yes" conjugates={false} note="Put the particle after the noun. For an object, use 을 after a final consonant and 를 after a vowel."
+              <ApplicationChecks unit="a noun" showRulesHeading particles="Yes" conjugates={false} note="Nouns take many particles. Common ones include 은/는 (topic), 이/가 (subject), 을/를 (object), 의 (possession), 에/에서 (place), 에게 (recipient), and 도/만 (also/only). Choose by the noun’s role and meaning."
                 examples={[
                   ["음식 + 을 → 음식을", ["을", "object particle", "follows 음식 because it ends in ㄱ."]],
                   ["커피 + 를 → 커피를", ["를", "object particle", "follows 커피 because it ends in ㅣ."]],
+                  ["음식이", ["이", "subject particle", "marks the noun 음식 as the subject."]],
+                  ["집에서", ["에서", "place particle", "marks the noun 집 as the place where an action happens."]],
                 ]}
               />
             </> },
             { label: "Pronouns", content: <>
               <p>A <GrammarLabel term="Pronoun">pronoun</GrammarLabel> can stand for a person or thing already clear from context.</p>
               <TypeTable title="Pronoun types" typeHeading="Pronoun Type" rows={pronounTypes} />
-              <ApplicationChecks unit="a pronoun" showRulesHeading particles="Yes" conjugates={false} note="저 takes 는 for the topic and changes to 제 before the subject particle 가."
+              <ApplicationChecks unit="a pronoun" showRulesHeading particles="Yes" conjugates={false} note="Pronouns use many of the same particles as nouns, including 은/는 (topic), 이/가 (subject), 을/를 (object), 의 (possession), 에게 (recipient), and 도/만 (also/only). 저 changes to 제 before 가."
                 examples={[
                   ["저 + 는 → 저는", ["저", "I", "is the pronoun. 는 is the topic particle."]],
                   ["저 + 가 → 제가", ["제", "I", "is the pronoun form that goes before the subject particle 가."]],
+                  ["저를", ["를", "object particle", "marks the pronoun 저 as the object."]],
+                  ["저도", ["도", "also", "adds “too” to the pronoun 저, giving “me too.”"]],
                 ]}
               />
             </> },

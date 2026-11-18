@@ -527,6 +527,7 @@ export const introWordMeanings: Readonly<Record<string, string>> = {
   저는: 'as for me',
   저도: 'me too',
   저만: 'only me',
+  저를: 'me, marked as the object',
   적이: 'past experience',
   제: 'I',
   제가: 'I',

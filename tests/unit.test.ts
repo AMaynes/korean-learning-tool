@@ -14,7 +14,7 @@ import { conjugationRules, particleRules } from '../src/data/grammar'
 import type { WordClass } from '../src/data/model'
 import { generate, matchesAnswer, matchesEnglishAnswer, recallCard, toEnglishPractice } from '../src/engine/exercises'
 import { attach, batchim, conjugate } from '../src/engine/korean'
-import { emptyDeck, finishRecall, markRecallFailure, nextRecall } from '../src/engine/mastery'
+import { emptyDeck, recordRecall, nextRecall } from '../src/engine/mastery'
 import { hangulAlphabet } from '../src/engine/pronunciation'
 import { activeLists, builtInLists, defaultSelection, entryRule } from '../src/engine/registry'
 import { addScore, defaults, importBackup } from '../src/engine/storage'
@@ -206,40 +206,17 @@ describe('dynamic exercises', () => {
   })
 })
 
-describe('mastery and persistence', () => {
-  it('requires 2, 2, then 4 intervening cards before mastery', () => {
-    let deck = emptyDeck
-    const ids = ['a', 'b']
-    let last: string | undefined
-    for (let turn = 0; turn < 40 && deck.entries.a?.streak !== 4; turn++) {
-      const next = nextRecall(ids, deck, last)!
-      deck = finishRecall(deck, next.id, false, next.review, ids.length)
-      last = next.id
-    }
-    const clean = deck.entries.a.history.filter(entry => entry.outcome === 'clean').map(entry => entry.at)
-    expect(clean).toHaveLength(4)
-    expect(clean[1] - clean[0]).toBeGreaterThanOrEqual(3)
-    expect(clean[2] - clean[1]).toBeGreaterThanOrEqual(3)
-    expect(clean[3] - clean[2]).toBeGreaterThanOrEqual(5)
-    expect(deck.entries.a.streak).toBe(4)
-  })
-
-  it('requires correction and keeps reveal failures scoped to their own list', () => {
-    const deck = finishRecall(emptyDeck, 'a', false, false, 3)
-    const failed = markRecallFailure(deck, 'a')
-    const corrected = finishRecall(failed, 'a', true, false, 3)
-    expect(corrected.entries.a).toMatchObject({ streak: 0, failures: 1 })
-    const state = { ...defaults(), selected: { ...defaultSelection, nouns: 'nouns-3' }, recall: { 'nouns-1': corrected } }
-    const restored = importBackup(JSON.parse(JSON.stringify({ kind: 'korean-study-backup', state })))
-    expect(restored.selected.nouns).toBe('nouns-3')
-    expect(restored.recall['nouns-1'].entries.a.failures).toBe(1)
-  })
-
-  it('does not invent intervening cards in a single-entry deck', () => {
-    const first = finishRecall(emptyDeck, 'a', false, false, 1)
-    expect(nextRecall(['a'], first, 'a')).toEqual({ id: 'a', review: true })
-    expect(finishRecall(first, 'a', false, true, 1).clock).toBe(first.clock)
-    expect(nextRecall([], first)).toBeNull()
+describe('adaptive recall and persistence', () => {
+  it('favors recent misses, reduces correct cards, and avoids immediate repeats', () => {
+    const deck = recordRecall(recordRecall(emptyDeck, 'a', false), 'b', true)
+    const ids = ['a', 'b', 'c']
+    const draws = Array.from({ length: 100 }, (_, i) => nextRecall(ids, deck, undefined, () => i / 100))
+    const count = (id: string) => draws.filter(card => card === id).length
+    expect(count('a')).toBeGreaterThan(count('c'))
+    expect(count('c')).toBeGreaterThan(count('b'))
+    expect(nextRecall(ids, deck, 'a', () => 0)).toBe('b')
+    expect(nextRecall(['a'], deck, 'a')).toBe('a')
+    expect(nextRecall([], deck)).toBeNull()
   })
 
   it('restores legacy progress while discarding retired settings and custom lists', () => {
@@ -252,13 +229,13 @@ describe('mastery and persistence', () => {
         { id: 'custom-verbs', category: 'verbs', name: 'Custom verbs', entries: [] },
       ],
       selected: { ...defaultSelection, nouns: 'nouns-3', verbs: 'custom-verbs' },
-      recall: { 'nouns-1': finishRecall(emptyDeck, 'person', false, false, 10) },
+      recall: { 'nouns-1': { clock: 1, entries: { person: { streak: 1, failures: 0, due: 3, history: [{ at: 0, outcome: 'clean' }] } } } },
     }
     const restored = importBackup({ kind: 'korean-study-backup', state })
     expect(restored).not.toHaveProperty('customLists')
     expect(restored).not.toHaveProperty('difficulty')
     expect(restored.selected).toMatchObject({ nouns: 'nouns-3', verbs: 'verbs-1' })
-    expect(restored.recall['nouns-1'].entries.person.streak).toBe(1)
+    expect(restored.recall['nouns-1'].entries.person.history[0].outcome).toBe('clean')
     expect(restored).not.toHaveProperty('theme')
     expect(activeLists({ nouns: 'nouns-1' }).nouns.entries[0].korean).toBe('사람')
   })

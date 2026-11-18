@@ -430,3 +430,10 @@ td [lang="ko"] { color: var(--accent); font-weight: 650; }
 @media (max-width: 640px) {
   .section-heading .segmented[aria-label="Pronunciation practice"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+
+.recall-workspace { max-width: 58rem; }
+.recall-info { min-width: 44px; min-height: 44px; justify-content: center; }
+.recall-panel[data-grade="correct"] { --grade-color: #83df9d; --grade-bg: #203429; }
+.recall-panel[data-grade="wrong"] { --grade-color: #ff9999; --grade-bg: #3b2628; }
+.recall-panel[data-grade] .answer-form input { color: var(--grade-color); background: var(--grade-bg); border-color: var(--grade-color); opacity: 1; }
+.recall-panel[data-grade] .feedback :is(.success, .retry) { color: var(--grade-color); }

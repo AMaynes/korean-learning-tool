@@ -23,7 +23,7 @@ The vocabulary registry resolves eight independent categories. Exercise engines 
 
 - **Pronouncing Hangul** includes 21 vowel and 19 consonant flashcards. Play or reveal the sound, rate yourself, or choose Next to skip without affecting your score.
 - **Vocabulary Library** shows fixed lists in a compact searchable table, with examples for particles and endings.
-- **Vocabulary Recall** offers ungraded flashcards and spaced typing. Select **Image → Korean** to practice pictured nouns, verbs, and adjectives from the active list. Image typing tracks its own progress. Three clean recalls and a delayed fourth earn mastery. A single-card deck can practice and needs additional cards to meet the spacing rule.
+- **Vocabulary Recall** offers mental and typed practice, including **Image → Korean** for pictured vocabulary. Typed practice draws recently missed cards more often and recently correct cards less often. Tap the card’s info button for instructions.
 - **Grammar Trainer** covers particle practice, conjugation, sentence assembly, and sentence writing. Open-ended alternatives can be compared against sample answers and self-reviewed.
 - **Listening & Conversation** uses the same bundled Korean female neural voice as the pronunciation cards and alphabet chart. Normal and Slow adjust playback speed. GitHub Actions renders the clips once per curriculum change using [Supertonic-3](https://k2-fsa.github.io/sherpa/onnx/tts/supertonic.html) in Korean with voice F1. For a local build with audio, follow the List spoken prompts and Render Korean voice clips steps in the Pages workflow.
 

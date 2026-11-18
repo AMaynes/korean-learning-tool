@@ -67,7 +67,7 @@ korean-learning-tool/
 | `src/data/words.ts` | Owns starter lexical vocabulary and semantic tags. |
 | `src/engine/exercises.ts` | Generates study exercises from active decks and evaluates known alternatives. |
 | `src/engine/korean.ts` | Applies phonological variants and stems/endings to known word classes. |
-| `src/engine/mastery.ts` | Schedules recall with per-deck clocks and entry mastery states. |
+| `src/engine/mastery.ts` | Weights vocabulary cards using recent typed answers. |
 | `scripts/build-hangul-audio.py` | Renders Korean audio for the alphabet and all listening prompts listed by scripts/korean-prompts.mjs. |
 | `src/engine/pronunciation.ts` | Defines the vowel and consonant decks and their pronunciation cues. |
 | `src/engine/registry.ts` | Resolves active decks from the bundled catalog and looks up grammar rules. |
@@ -77,7 +77,7 @@ korean-learning-tool/
 | `src/views/Library.tsx` | Displays bundled vocabulary decks in a compact searchable table. |
 | `src/views/Practice.tsx` | Houses grammar, sentence, dictation, and conversation interactions. |
 | `src/views/Pronunciation.tsx` | Presents the two Pronouncing Hangul decks with playback and self-rating. |
-| `src/views/Recall.tsx` | Houses flashcard review, typing, and spaced mastery. |
+| `src/views/Recall.tsx` | Houses mental flashcards and adaptive typing practice. |
 | `src/views/Settings.tsx` | Houses list configuration, preferences, resets, and backups. |
 | `src/views/shared.tsx` | Provides reusable accessible study and file controls. |
 | `tests/browser.e2e.mjs` | Covers the published-bundle workflow in a real browser. |

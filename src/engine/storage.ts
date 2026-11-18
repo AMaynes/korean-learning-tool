@@ -140,7 +140,6 @@ function natural(value: unknown): value is number {
 function validDeck(value: unknown): boolean {
   if (!record(value) || !natural(value.clock) || !record(value.entries)) return false
   return Object.entries(value.entries).every(([id, progress]) => validId(id) && record(progress) &&
-    natural(progress.streak) && progress.streak <= 4 && natural(progress.due) && natural(progress.failures) &&
     Array.isArray(progress.history) && progress.history.length <= 100 && progress.history.every(entry =>
       record(entry) && natural(entry.at) && ['clean', 'corrected', 'review'].includes(entry.outcome as string)))
 }

@@ -51,7 +51,7 @@ function SoundPractice({ mode }: { mode: Mode }) {
   /** Enable self-rating after the voice finishes; leave the current card available on errors. */
   function play(sound: string) {
     setAudioError('')
-    const started = speakKorean(sound, 0.85, () => {
+    const started = speakKorean(sound, 1, () => {
       setPlaying(false)
       setHeard(true)
     }, () => {

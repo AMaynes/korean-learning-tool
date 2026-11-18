@@ -270,7 +270,7 @@ function HangulAlphabet() {
 
   function play(sound: string) {
     setAudioError('')
-    const started = speakKorean(sound, 0.85, () => {}, () => setAudioError('Sound couldn’t play. Try again.'))
+    const started = speakKorean(sound, 1, () => {}, () => setAudioError('Sound couldn’t play. Try again.'))
     if (!started) setAudioError('Enable a Korean voice in your device settings to play the sounds.')
   }
 

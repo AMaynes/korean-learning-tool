@@ -25,7 +25,7 @@ The vocabulary registry resolves eight independent categories. Exercise engines 
 - **Vocabulary Library** shows fixed lists in a compact searchable table, with examples for particles and endings.
 - **Vocabulary Recall** offers ungraded flashcards and spaced typing. Select **Image → Korean** to practice pictured nouns, verbs, and adjectives from the active list. Image typing tracks its own progress. Three clean recalls and a delayed fourth earn mastery. A single-card deck can practice and needs additional cards to meet the spacing rule.
 - **Grammar Trainer** covers particle practice, conjugation, sentence assembly, and sentence writing. Open-ended alternatives can be compared against sample answers and self-reviewed.
-- **Listening & Conversation** uses the device’s Korean synthesis voice for dictation and conversation prompts. Listening can reveal a transcript when a voice is unavailable. Conversation is guided by study frames and example replies.
+- **Listening & Conversation** prefers natural, neural, premium, or enhanced Korean voices available in your browser. When several are available, choose one next to the playback controls. That choice also applies to Hangul and batchim practice on this device. Listening can reveal a transcript when a voice is unavailable. Conversation is guided by study frames and example replies.
 
 ## Adding vocabulary
 

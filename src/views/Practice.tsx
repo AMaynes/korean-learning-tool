@@ -15,7 +15,7 @@ import { generate, matchesAnswer, matchesEnglishAnswer, shuffle, toEnglishPracti
 import type { Exercise, RecallDirection } from '../engine/exercises'
 import { addScore } from '../engine/storage'
 import type { PracticeMode, StudyState } from '../engine/storage'
-import { ActiveConfig, AnswerForm, DirectionSwitch, Empty, Icon, Korean, koreanVoice, speakKorean, StandalonePronunciationNote, Transform } from './shared'
+import { ActiveConfig, AnswerForm, DirectionSwitch, Empty, Icon, Korean, koreanVoices, preferredVoiceURI, setPreferredVoiceURI, speakKorean, StandalonePronunciationNote, Transform } from './shared'
 import type { Save, SelectList } from './shared'
 
 const grammarModes = ['particles', 'conjugations', 'assembly', 'writing'] as const
@@ -264,11 +264,12 @@ function ExerciseCard({ mode, reading, exercise, number, total, save, advance }:
 function AudioControls({ phrase }: { phrase: string }) {
   const [rate, setRate] = useState(1)
   const [playing, setPlaying] = useState(false)
-  const [hasKorean, setHasKorean] = useState(false)
+  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([])
+  const [preferred, setPreferred] = useState(preferredVoiceURI)
   const [audioError, setAudioError] = useState('')
   useEffect(() => {
     if (!('speechSynthesis' in window)) return
-    function refresh() { setHasKorean(Boolean(koreanVoice())) }
+    function refresh() { setVoices(koreanVoices()) }
     refresh()
     speechSynthesis.addEventListener('voiceschanged', refresh)
     return () => { speechSynthesis.removeEventListener('voiceschanged', refresh); speechSynthesis.cancel() }
@@ -290,9 +291,18 @@ function AudioControls({ phrase }: { phrase: string }) {
       <button className="button primary" onClick={speak}><Icon name="sound" /> {playing ? 'Replay audio' : 'Play audio'}</button>
       <div className="segmented" aria-label="Playback speed">
         <button aria-pressed={rate === 1} onClick={() => setRate(1)}>Normal</button>
-        <button aria-pressed={rate < 1} onClick={() => setRate(.7)}>Slow</button>
+        <button aria-pressed={rate < 1} onClick={() => setRate(.85)}>Slow</button>
       </div>
     </div>
-    {(audioError || !hasKorean) && <p className="inline-note" role="status">{audioError || 'No Korean voice detected. Install one in your device settings to hear this exercise.'}</p>}
+    {voices.length > 1 && <label className="field">Korean voice
+      <select value={voices.some(voice => voice.voiceURI === preferred) ? preferred : ''} onChange={event => {
+        setPreferredVoiceURI(event.target.value)
+        setPreferred(event.target.value)
+      }}>
+        <option value="">Automatic · {voices[0].name}</option>
+        {voices.map(voice => <option key={voice.voiceURI} value={voice.voiceURI}>{voice.name}</option>)}
+      </select>
+    </label>}
+    {(audioError || !voices.length) && <p className="inline-note" role="status">{audioError || 'No Korean voice detected. Install one in your device settings to hear this exercise.'}</p>}
   </div>
 }

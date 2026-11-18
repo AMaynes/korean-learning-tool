@@ -74,9 +74,14 @@ async function mockKoreanAudio(page) {
       value: class { constructor(text) { this.text = text } },
     })
     Object.defineProperties(window.speechSynthesis, {
-      getVoices: { value: () => [{ lang: 'ko-KR' }] },
+      getVoices: { value: () => [
+        { lang: 'ko-KR', name: 'Compact Korean', voiceURI: 'ko-compact' },
+        { lang: 'en-US', name: 'English Natural', voiceURI: 'en-natural' },
+        { lang: 'ko-KR', name: 'Korean Natural', voiceURI: 'ko-natural' },
+      ] },
       speak: { value: utterance => {
         window.lastPronunciation = utterance.text
+        window.lastVoice = utterance.voice.voiceURI
         queueMicrotask(() => utterance.onend())
       } },
       cancel: { value: () => {} },
@@ -615,6 +620,24 @@ describe('deployed study workflow', { concurrency: false }, () => {
     await page.getByText('0 / 1 correct', { exact: true }).waitFor()
     assert.notEqual(await block.textContent(), written)
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true)
+    await page.close()
+  })
+
+  it('prefers natural Korean speech and remembers a selected alternative', async () => {
+    const page = await browser.newPage()
+    await mockKoreanAudio(page)
+    await page.goto(projectPage + '#listening')
+    const voice = page.getByLabel('Korean voice', { exact: true })
+    await voice.waitFor()
+    const play = page.getByRole('button', { name: 'Play audio' })
+    await play.click()
+    assert.equal(await page.evaluate(() => window.lastVoice), 'ko-natural')
+    await voice.selectOption('ko-compact')
+    await page.reload()
+    assert.equal(await voice.inputValue(), 'ko-compact')
+    await play.click()
+    assert.equal(await page.evaluate(() => window.lastVoice), 'ko-compact')
+    await voice.selectOption('')
     await page.close()
   })
 

@@ -64,9 +64,41 @@ export function StandalonePronunciationNote({ word }: { word: string }) {
   </small>
 }
 
-/** Resolve a voice at playback time because browsers may load voices asynchronously. */
+const voicePreferenceKey = 'korean-learning-tool.voice'
+let sessionVoice = ''
+
+/** Remember a device-specific choice even when persistent storage is unavailable. */
+export function preferredVoiceURI() {
+  try { return localStorage.getItem(voicePreferenceKey) ?? sessionVoice } catch { return sessionVoice }
+}
+
+export function setPreferredVoiceURI(uri: string) {
+  sessionVoice = uri
+  try { localStorage.setItem(voicePreferenceKey, uri) } catch { /* Keep the in-session choice. */ }
+}
+
+/** Browsers expose names and identifiers rather than a standardized quality rating. */
+function voiceRank(voice: SpeechSynthesisVoice) {
+  const label = `${voice.name} ${voice.voiceURI}`
+  let quality = 2
+  if (/neural|natural|premium|프리미엄|자연스러운/i.test(label)) quality = 5
+  else if (/enhanced|고품질|향상된|wavenet/i.test(label)) quality = 4
+  else if (/espeak|compact|eloquence/i.test(label)) quality = 0
+  else if (voice.localService === false) quality = 3
+  return quality * 4 + Number(/^ko[-_]KR$/i.test(voice.lang)) * 2 + Number(Boolean(voice.default))
+}
+
+export function koreanVoices() {
+  return (window.speechSynthesis?.getVoices() ?? [])
+    .filter(voice => /^ko(?:[-_]|$)/i.test(voice.lang))
+    .sort((left, right) => voiceRank(right) - voiceRank(left))
+}
+
+/** Recheck available voices at playback because the device can load them asynchronously. */
 export function koreanVoice() {
-  return window.speechSynthesis?.getVoices().find(voice => /^ko(?:[-_]|$)/i.test(voice.lang))
+  const voices = koreanVoices()
+  const preferred = preferredVoiceURI()
+  return voices.find(voice => voice.voiceURI === preferred) ?? voices[0]
 }
 
 /** Speak with a Korean voice and report whether playback could start. */
@@ -75,7 +107,7 @@ export function speakKorean(text: string, rate: number, onEnd: () => void, onErr
   if (!voice || !('SpeechSynthesisUtterance' in window)) return false
   window.speechSynthesis.cancel()
   const utterance = new SpeechSynthesisUtterance(text)
-  utterance.lang = 'ko-KR'
+  utterance.lang = voice.lang
   utterance.voice = voice
   utterance.rate = rate
   utterance.onend = onEnd

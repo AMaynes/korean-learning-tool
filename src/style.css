@@ -222,6 +222,20 @@ details p { font-size: 13px; margin-bottom: 7px; }
 .intro-application h3 { margin: 10px 0 4px; }
 .intro-application p { font-size: 13px; }
 .intro-check-example + .intro-check-example { margin-top: 6px; }
+.particle-equation {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: start;
+  gap: 4px;
+  max-width: 21rem;
+  margin: 10px 0 4px;
+  font-size: 18px;
+  line-height: 1.4;
+  text-align: center;
+}
+.equation-term { display: grid; gap: 2px; }
+.equation-term [lang="ko"] { font-weight: 650; }
+.equation-term em { color: var(--muted); font-size: 12px; }
 .intro-grammar-label {
   min-height: 24px;
   padding: 0;

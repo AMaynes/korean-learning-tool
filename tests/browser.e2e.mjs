@@ -187,6 +187,27 @@ describe('deployed study workflow', { concurrency: false }, () => {
       await nounHelp.waitFor({ state: 'hidden' })
     }
     await nouns.getByRole('columnheader', { name: 'Noun Type', exact: true }).waitFor()
+    await page.setViewportSize({ width: 320, height: 844 })
+    const nounEquations = nouns.locator('.particle-equation')
+    const equationRows = await nounEquations.evaluateAll(rows => rows.map(row => {
+      const cells = [...row.children]
+      return cells.map(cell => cell.querySelector('[lang="ko"]')?.textContent ?? cell.textContent)
+    }))
+    assert.deepEqual(equationRows, [
+      ['음식', '+', '을', '=', '음식을'],
+      ['커피', '+', '를', '=', '커피를'],
+      ['음식', '+', '이', '=', '음식이'],
+      ['집', '+', '에서', '=', '집에서'],
+    ])
+    assert.deepEqual(await nounEquations.nth(2).locator('em').allTextContents(), ['food', 'subject marker', 'food as the subject'])
+    assert.ok(await nounEquations.evaluateAll(rows => rows.every(row => {
+      const cells = [...row.children].map(cell => cell.getBoundingClientRect())
+      return cells.every((cell, index) => cell.top === cells[0].top && (index === 0 || cell.left >= cells[index - 1].right))
+        && cells[0].left >= 0 && cells[4].right <= innerWidth
+        && [...row.querySelectorAll('.equation-term')].every(term =>
+          term.lastElementChild.getBoundingClientRect().top >= term.firstElementChild.getBoundingClientRect().bottom)
+    })))
+    await page.setViewportSize({ width: 390, height: 844 })
     const nounsTab = nominals.getByRole('tab', { name: 'Nouns', exact: true })
     const pronounsTab = nominals.getByRole('tab', { name: 'Pronouns', exact: true })
     assert.equal(await nounsTab.getAttribute('aria-selected'), 'true')

@@ -108,10 +108,10 @@ export function Intro() {
               <TypeTable title="Noun types" typeHeading="Noun Type" rows={nounTypes} />
               <ApplicationChecks unit="a noun" showRulesHeading particles="Yes" conjugates={false} note="Nouns take many particles. Common ones include 은/는 (topic), 이/가 (subject), 을/를 (object), 의 (possession), 에/에서 (place), 에게 (recipient), and 도/만 (also/only). Choose by the noun’s role and meaning."
                 examples={[
-                  ["음식 + 을 → 음식을", ["을", "object particle", "follows 음식 because it ends in ㄱ."]],
-                  ["커피 + 를 → 커피를", ["를", "object particle", "follows 커피 because it ends in ㅣ."]],
-                  ["음식이", ["이", "subject particle", "marks the noun 음식 as the subject."]],
-                  ["집에서", ["에서", "place particle", "marks the noun 집 as the place where an action happens."]],
+                  [[["음식", "food"], ["을", "object marker"], ["음식을", "food as the object"]], ["을", "object particle", "follows 음식 because it ends in ㄱ."]],
+                  [[["커피", "coffee"], ["를", "object marker"], ["커피를", "coffee as the object"]], ["를", "object particle", "follows 커피 because it ends in ㅣ."]],
+                  [[["음식", "food"], ["이", "subject marker"], ["음식이", "food as the subject"]], ["이", "subject particle", "marks the noun 음식 as the subject."]],
+                  [[["집", "home"], ["에서", "at (place of action)"], ["집에서", "at home"]], ["에서", "place particle", "marks the noun 집 as the place where an action happens."]],
                 ]}
               />
             </> },
@@ -120,10 +120,10 @@ export function Intro() {
               <TypeTable title="Pronoun types" typeHeading="Pronoun Type" rows={pronounTypes} />
               <ApplicationChecks unit="a pronoun" showRulesHeading particles="Yes" conjugates={false} note="Pronouns use many of the same particles as nouns, including 은/는 (topic), 이/가 (subject), 을/를 (object), 의 (possession), 에게 (recipient), and 도/만 (also/only). 저 changes to 제 before 가."
                 examples={[
-                  ["저 + 는 → 저는", ["저", "I", "is the pronoun. 는 is the topic particle."]],
-                  ["저 + 가 → 제가", ["제", "I", "is the pronoun form that goes before the subject particle 가."]],
-                  ["저를", ["를", "object particle", "marks the pronoun 저 as the object."]],
-                  ["저도", ["도", "also", "adds “too” to the pronoun 저, giving “me too.”"]],
+                  [[["저", "I"], ["는", "topic marker"], ["저는", "as for me"]], ["저", "I", "is the pronoun. 는 is the topic particle."]],
+                  [[["저", "I"], ["가", "subject marker"], ["제가", "I as the subject"]], ["제", "I", "is the pronoun form that goes before the subject particle 가."]],
+                  [[["저", "I"], ["를", "object marker"], ["저를", "me as the object"]], ["를", "object particle", "marks the pronoun 저 as the object."]],
+                  [[["저", "I"], ["도", "too"], ["저도", "me too"]], ["도", "also", "adds “too” to the pronoun 저, giving “me too.”"]],
                 ]}
               />
             </> },
@@ -203,7 +203,7 @@ export function Intro() {
               <TypeTable title="Particle types" rows={particleTypes} />
               <ApplicationChecks unit="a particle" particles="Yes" conjugates={false} note="Some particles stack. In traditional Korean grammar, 이다 is the particle that conjugates."
                 examples={[
-                  ["집에서 + 는 → 집에서는", ["에서 + 는", "at + as for", "are the place and topic particles."]],
+                  [[["집에서", "at home"], ["는", "topic marker"], ["집에서는", "as for at home"]], ["에서 + 는", "at + as for", "are the place and topic particles."]],
                   ["학생이에요", ["이에요", "is", "is the polite form of 이다, attached to 학생."]],
                 ]}
               />
@@ -607,10 +607,23 @@ function TypeTable({ title, typeHeading = 'Type', rows }: { title: string; typeH
   </table></div>
 }
 
+type GlossedPart = readonly [korean: string, english: string]
+type ParticleEquationParts = readonly [base: GlossedPart, particle: GlossedPart, result: GlossedPart]
+
+/** Keep each English gloss beneath its Korean form as the equation narrows. */
+function ParticleEquation({ parts: [base, particle, result] }: { parts: ParticleEquationParts }) {
+  function term([korean, english]: GlossedPart) {
+    return <span className="equation-term"><Korean>{korean}</Korean><em>{english}</em></span>
+  }
+  return <div className="particle-equation">
+    {term(base)}<span>+</span>{term(particle)}<span>=</span>{term(result)}
+  </div>
+}
+
 /** Show the attachment and conjugation answers for the form named in the question. */
 function ApplicationChecks({ unit, particles, conjugates, note, examples, showRulesHeading = false }: {
   unit: string; particles: 'Yes' | 'No' | 'Sometimes'; conjugates: boolean; note: string
-  examples: readonly (readonly [korean: string, focus: ExampleFocus])[]
+  examples: readonly (readonly [form: string | ParticleEquationParts, focus: ExampleFocus])[]
   showRulesHeading?: boolean
 }) {
   return <div className="intro-application">
@@ -620,8 +633,8 @@ function ApplicationChecks({ unit, particles, conjugates, note, examples, showRu
     </dl>
     {showRulesHeading && <h3>Particle rules</h3>}
     <p>{note}</p>
-    {examples.map(([korean, focus]) => <div key={korean} className="intro-check-example">
-      <WordGlosses korean={korean} />
+    {examples.map(([form, focus]) => <div key={typeof form === 'string' ? form : form[2][0]} className="intro-check-example">
+      {typeof form === 'string' ? <WordGlosses korean={form} /> : <ParticleEquation parts={form} />}
       <p><ExplainExample focus={focus} /></p>
     </div>)}
   </div>

@@ -1,5 +1,6 @@
 /** Weighted vocabulary recall. Existing backup history remains usable across upgrades. */
 export interface RecallProgress {
+  everClean?: boolean
   history: { at: number; outcome: 'clean' | 'corrected' | 'review' }[]
 }
 
@@ -10,11 +11,17 @@ export interface DeckProgress {
 
 export const emptyDeck: DeckProgress = { clock: 0, entries: {} }
 
+function recalledCleanly(entry?: RecallProgress): boolean {
+  return entry?.everClean === true || entry?.history.some(event => event.outcome === 'clean') === true
+}
+
 /** Recent misses carry more weight. As other cards are answered, the effect fades. */
 export function nextRecall(ids: string[], progress: DeckProgress, lastId?: string, random = Math.random): string | null {
   if (!ids.length) return null
-  if (!lastId && !progress.clock) return ids[0]
-  const pool = ids.filter(id => ids.length === 1 || id !== lastId)
+  const learning = ids.find(id => !recalledCleanly(progress.entries[id]))
+  if (learning && !progress.entries[learning]?.history.length) return learning
+  const available = learning ? ids.filter(id => id === learning || recalledCleanly(progress.entries[id])) : ids
+  const pool = available.filter(id => available.length === 1 || id !== lastId)
   const weights = pool.map(id => {
     const latest = progress.entries[id]?.history.filter(event => event.outcome !== 'review').at(-1)
     if (!latest) return 1
@@ -34,6 +41,7 @@ export function recordRecall(progress: DeckProgress, id: string, correct: boolea
   const history = progress.entries[id]?.history ?? []
   const outcome = correct ? 'clean' : 'corrected'
   return { clock: progress.clock + 1, entries: { ...progress.entries, [id]: {
+    everClean: correct || recalledCleanly(progress.entries[id]),
     history: [...history, { at: progress.clock, outcome } as const].slice(-100),
   } } }
 }

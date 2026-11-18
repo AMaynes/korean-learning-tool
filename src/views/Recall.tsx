@@ -164,7 +164,7 @@ function TypingRecall({ deck, direction, progressKey, progress, save }: {
   }
 
   return <div className="panel recall-panel" data-grade={correct ? 'correct' : wrong ? 'wrong' : undefined}>
-    <CardHeader category={deck.category} help="Type your answer and check it. Words you miss come back more often." />
+    <CardHeader category={deck.category} help="Recall each new word on your first try to unlock the next. After the whole list is unlocked, missed words come back more often." />
     <div className="recall-face typing-face">
       <span className="eyebrow">{direction === 'image-to-ko' ? 'Picture prompt' : reading || card.transformation ? card.cue : 'English prompt'}</span>
       {direction === 'image-to-ko' ? <PicturePrompt word={entry.korean} /> :

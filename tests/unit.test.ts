@@ -207,8 +207,25 @@ describe('dynamic exercises', () => {
 })
 
 describe('adaptive recall and persistence', () => {
+  it('opens one new word per distinct clean recall and keeps learned words unlocked', () => {
+    const ids = ['a', 'b', 'c']
+    let deck = recordRecall(emptyDeck, 'a', false)
+    expect(nextRecall(ids, deck, 'a')).toBe('a')
+    deck = recordRecall(deck, 'a', true)
+    expect(nextRecall(ids, deck, 'a')).toBe('b')
+    deck = recordRecall(deck, 'b', false)
+    expect(nextRecall(ids, deck, 'b')).toBe('a')
+    deck = recordRecall(deck, 'a', true)
+    expect(nextRecall(ids, deck, 'a')).toBe('b')
+    deck = recordRecall(deck, 'b', true)
+    for (let i = 0; i < 101; i++) deck = recordRecall(deck, 'a', false)
+    expect(nextRecall(ids, deck)).toBe('c')
+  })
+
   it('favors recent misses, reduces correct cards, and avoids immediate repeats', () => {
-    const deck = recordRecall(recordRecall(emptyDeck, 'a', false), 'b', true)
+    let deck = recordRecall(emptyDeck, 'c', true)
+    deck = recordRecall(deck, 'a', true)
+    deck = recordRecall(recordRecall(deck, 'a', false), 'b', true)
     const ids = ['a', 'b', 'c']
     const draws = Array.from({ length: 100 }, (_, i) => nextRecall(ids, deck, undefined, () => i / 100))
     const count = (id: string) => draws.filter(card => card === id).length

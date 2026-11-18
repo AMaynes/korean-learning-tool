@@ -17,7 +17,7 @@ import {
 } from '../data/intro'
 import type { ExampleFocus, GlossaryExample, IntroTerm, IntroType } from '../data/intro'
 import { hangulAlphabet } from '../engine/pronunciation'
-import { Icon, Korean, speakKorean } from './shared'
+import { Icon, Korean, speakKorean, stopKoreanAudio } from './shared'
 
 const sections = [
   ['hangul', 'Hangul + Pronunciation'],
@@ -266,12 +266,11 @@ const relatedConsonants = ['ㄱㄲㅋ', 'ㄷㄸㅌ', 'ㅂㅃㅍ', 'ㅅㅆ', 'ㅈ
 /** Display the modern alphabet and play its sounds on demand. */
 function HangulAlphabet() {
   const [audioError, setAudioError] = useState('')
-  useEffect(() => () => window.speechSynthesis?.cancel(), [])
+  useEffect(() => stopKoreanAudio, [])
 
   function play(sound: string) {
     setAudioError('')
-    const started = speakKorean(sound, 1, () => {}, () => setAudioError('Sound couldn’t play. Try again.'))
-    if (!started) setAudioError('Enable a Korean voice in your device settings to play the sounds.')
+    speakKorean(sound, 1, () => {}, () => setAudioError('Sound couldn’t play. Try again.'))
   }
 
   return <>

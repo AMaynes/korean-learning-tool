@@ -428,5 +428,5 @@ td [lang="ko"] { color: var(--accent); font-weight: 650; }
 }
 
 @media (max-width: 640px) {
-  .section-heading .segmented[aria-label="Pronunciation practice"] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .section-heading .segmented[aria-label="Pronunciation practice"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }

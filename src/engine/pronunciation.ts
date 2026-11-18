@@ -15,15 +15,6 @@ const initials = [...'ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ'
 const vowels = [...'ㅏㅐㅑㅒㅓㅔㅕㅖㅗㅘㅙㅚㅛㅜㅝㅞㅟㅠㅡㅢㅣ']
 const silentInitial = initials.indexOf('ㅇ')
 const carrierVowel = vowels.indexOf('ㅡ')
-const uiVowel = vowels.indexOf('ㅢ')
-const iVowel = vowels.indexOf('ㅣ')
-
-// Unicode trailing order, mapped to the seven representative final sounds.
-const isolatedFinals = [
-  0, 1, 1, 1, 4, 4, 4, 7, 8, 1, 16, 8, 8, 8, 17, 8, 16, 17, 17, 7, 7, 21, 7, 7, 1, 7, 17, 7,
-]
-const finalCount = isolatedFinals.length
-
 /** A visible symbol and the Hangul syllable to give to the Korean voice. */
 export interface PronunciationCard {
   prompt: string
@@ -56,20 +47,4 @@ export const hangulAlphabet = {
   consonants: consonantCards.map(({ prompt, sound, silent }) => ({
     prompt, sound: silent ? '응' : sound, silent, romanization: consonantRomanization[prompt],
   })),
-}
-
-export const syllableCardCount = initials.length * vowels.length * finalCount
-
-/** Decode a zero-based index in the syllable deck and normalize its pronunciation for playback in isolation. */
-export function syllableCard(index: number): PronunciationCard {
-  const stem = Math.floor(index / finalCount)
-  const initial = Math.floor(stem / vowels.length)
-  const vowel = stem % vowels.length
-  const ending = index % finalCount
-  const spokenVowel = vowel === uiVowel && initial !== silentInitial ? iVowel : vowel
-
-  return {
-    prompt: composeHangul(initial, vowel, ending),
-    sound: composeHangul(initial, spokenVowel, isolatedFinals[ending]),
-  }
 }

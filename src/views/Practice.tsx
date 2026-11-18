@@ -3,7 +3,7 @@
  *
  * Architectural Relationships: Uses active-deck generation, answer validation, and mode scores.
  *
- * External Resources: Web Speech API and device-installed Korean voices.
+ * External Resources: Bundled Korean audio clips.
  *
  * Notes: Unknown open-ended translations receive self-review feedback.
  */
@@ -15,7 +15,7 @@ import { generate, matchesAnswer, matchesEnglishAnswer, shuffle, toEnglishPracti
 import type { Exercise, RecallDirection } from '../engine/exercises'
 import { addScore } from '../engine/storage'
 import type { PracticeMode, StudyState } from '../engine/storage'
-import { ActiveConfig, AnswerForm, DirectionSwitch, Empty, Icon, Korean, koreanVoices, preferredVoiceURI, setPreferredVoiceURI, speakKorean, StandalonePronunciationNote, Transform } from './shared'
+import { ActiveConfig, AnswerForm, DirectionSwitch, Empty, Icon, Korean, speakKorean, stopKoreanAudio, StandalonePronunciationNote, Transform } from './shared'
 import type { Save, SelectList } from './shared'
 
 const grammarModes = ['particles', 'conjugations', 'assembly', 'writing'] as const
@@ -213,7 +213,7 @@ function ExerciseCard({ mode, reading, exercise, number, total, save, advance }:
       {assembly && <p>{reading ? 'Put the English words in order.' : 'Find the polite predicate first. It usually goes at the end.'}</p>}
       {dictation && <p>Use Slow to hear each part, then replay at normal speed.</p>}
       {mode === 'writing' && !reading && <p>Use a polite ending. You can leave out an obvious subject.</p>}
-      {audio && exercise.audio && <AudioControls phrase={exercise.audio} />}
+      {audio && exercise.audio && <AudioControls key={exercise.audio} phrase={exercise.audio} />}
       {conversation && !reading && <button className="text-button" onClick={() => setShowTranslation(value => !value)}>{showTranslation ? 'Hide English' : 'Show English'}</button>}
       {conversation && !reading && showTranslation && <p>{exercise.translation}</p>}
       {conversation && !reading && <p>Reply with a short polite sentence. You can say your answer aloud before comparing it.</p>}
@@ -264,26 +264,16 @@ function ExerciseCard({ mode, reading, exercise, number, total, save, advance }:
 function AudioControls({ phrase }: { phrase: string }) {
   const [rate, setRate] = useState(1)
   const [playing, setPlaying] = useState(false)
-  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([])
-  const [preferred, setPreferred] = useState(preferredVoiceURI)
   const [audioError, setAudioError] = useState('')
-  useEffect(() => {
-    if (!('speechSynthesis' in window)) return
-    function refresh() { setVoices(koreanVoices()) }
-    refresh()
-    speechSynthesis.addEventListener('voiceschanged', refresh)
-    return () => { speechSynthesis.removeEventListener('voiceschanged', refresh); speechSynthesis.cancel() }
-  }, [])
+  useEffect(() => stopKoreanAudio, [])
 
-  /** Choose a Korean voice at playback time because devices can load voices asynchronously. */
   function speak() {
+    setPlaying(true)
     setAudioError('')
-    const started = speakKorean(phrase, rate, () => setPlaying(false), () => {
+    speakKorean(phrase, rate, () => setPlaying(false), () => {
       setPlaying(false)
       setAudioError('Playback failed. Try again or use the transcript.')
     })
-    setPlaying(started)
-    if (!started) setAudioError('Install a Korean system voice or reveal the transcript to continue.')
   }
 
   return <div className="audio-controls">
@@ -294,15 +284,6 @@ function AudioControls({ phrase }: { phrase: string }) {
         <button aria-pressed={rate < 1} onClick={() => setRate(.85)}>Slow</button>
       </div>
     </div>
-    {voices.length > 1 && <label className="field">Korean voice
-      <select aria-label="Korean voice" value={voices.some(voice => voice.voiceURI === preferred) ? preferred : ''} onChange={event => {
-        setPreferredVoiceURI(event.target.value)
-        setPreferred(event.target.value)
-      }}>
-        <option value="">Automatic · {voices[0].name}</option>
-        {voices.map(voice => <option key={voice.voiceURI} value={voice.voiceURI}>{voice.name}</option>)}
-      </select>
-    </label>}
-    {(audioError || !voices.length) && <p className="inline-note" role="status">{audioError || 'No Korean voice detected. Install one in your device settings to hear this exercise.'}</p>}
+    {audioError && <p className="inline-note" role="status">{audioError}</p>}
   </div>
 }

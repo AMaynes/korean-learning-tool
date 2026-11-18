@@ -70,22 +70,13 @@ async function select(page, label, value) {
 
 async function mockKoreanAudio(page) {
   await page.addInitScript(() => {
-    Object.defineProperty(window, 'SpeechSynthesisUtterance', {
-      value: class { constructor(text) { this.text = text } },
-    })
-    Object.defineProperties(window.speechSynthesis, {
-      getVoices: { value: () => [
-        { lang: 'ko-KR', name: 'Compact Korean', voiceURI: 'ko-compact' },
-        { lang: 'en-US', name: 'English Natural', voiceURI: 'en-natural' },
-        { lang: 'ko-KR', name: 'Korean Natural', voiceURI: 'ko-natural' },
-      ] },
-      speak: { value: utterance => {
-        window.lastPronunciation = utterance.text
-        window.lastVoice = utterance.voice.voiceURI
-        queueMicrotask(() => utterance.onend())
-      } },
-      cancel: { value: () => {} },
-    })
+    HTMLMediaElement.prototype.play = function () {
+      const filename = new URL(this.src).pathname.split('/').pop()
+      window.lastPronunciation = String.fromCodePoint(...filename.slice(6, -4).split('-').map(hex => parseInt(hex, 16)))
+      queueMicrotask(() => this.onended?.(new Event('ended')))
+      return Promise.resolve()
+    }
+
   })
 }
 
@@ -607,18 +598,16 @@ describe('deployed study workflow', { concurrency: false }, () => {
     await page.getByText('1 / 1 correct', { exact: true }).waitFor()
     assert.notEqual(await letter.textContent(), letterPrompt)
 
-    await page.getByRole('button', { name: 'Syllables', exact: true }).click()
-    await page.getByText('Syllables · 1 / 11,172', { exact: true }).waitFor()
-    const block = page.getByRole('region', { name: 'Syllables practice' }).getByRole('heading')
-    const written = await block.textContent()
-    assert.match(written, /^[가-힣]$/u)
-    await page.getByRole('button', { name: 'Play sound' }).click()
-    await page.getByText('Did you get it correct?').waitFor()
-    const spoken = await page.evaluate(() => window.lastPronunciation)
-    assert.ok([0, 1, 4, 7, 8, 16, 17, 21].includes((spoken.charCodeAt(0) - 0xac00) % 28))
-    await page.getByRole('button', { name: 'No', exact: true }).click()
-    await page.getByText('0 / 1 correct', { exact: true }).waitFor()
-    assert.notEqual(await block.textContent(), written)
+    assert.equal(await page.getByRole('button', { name: 'Syllables', exact: true }).count(), 0)
+    for (const name of ['Vowels', 'Consonants']) {
+      await page.getByRole('button', { name, exact: true }).click()
+      const region = page.getByRole('region', { name: name + ' practice' })
+      const before = await region.getByRole('heading').innerText()
+      const score = await region.getByText(/correct$/).innerText()
+      await region.getByRole('button', { name: 'Next', exact: true }).click()
+      assert.notEqual(await region.getByRole('heading').innerText(), before)
+      await region.getByText(score, { exact: true }).waitFor()
+    }
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true)
     await page.close()
   })
@@ -635,33 +624,13 @@ describe('deployed study workflow', { concurrency: false }, () => {
     await page.close()
   })
 
-  it('prefers natural Korean speech and remembers a selected alternative', async () => {
-    const page = await browser.newPage()
-    await mockKoreanAudio(page)
-    await page.goto(projectPage + '#listening')
-    const voice = page.getByLabel('Korean voice', { exact: true })
-    await voice.waitFor()
-    const play = page.getByRole('button', { name: 'Play audio' })
-    await play.click()
-    assert.equal(await page.evaluate(() => window.lastVoice), 'ko-natural')
-    await voice.selectOption('ko-compact')
-    await page.reload()
-    assert.equal(await voice.inputValue(), 'ko-compact')
-    await play.click()
-    assert.equal(await page.evaluate(() => window.lastVoice), 'ko-compact')
-    await voice.selectOption('')
-    await page.close()
-  })
-
   it('keeps dictation hidden, handles unavailable audio, and offers guided answers', async () => {
     const page = await browser.newPage()
-    await page.addInitScript(() => {
-      Object.defineProperty(window.speechSynthesis, 'getVoices', { value: () => [] })
-    })
+    await page.route('**/ko-f1-*.mp3', route => route.abort())
     await page.goto(projectPage + '#listening')
     await heading(page, 'Listening & Conversation')
     await page.getByRole('button', { name: 'Play audio' }).click()
-    await page.getByText(/Install a Korean system voice or reveal the transcript/).waitFor()
+    await page.getByText(/Playback failed/).waitFor()
     assert.equal(await page.locator('.model-answer').count(), 0)
     await page.getByRole('button', { name: 'Reveal transcript' }).click()
     await page.getByText('Example answer', { exact: true }).waitFor()

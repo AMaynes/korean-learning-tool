@@ -15,7 +15,7 @@ import type { WordClass } from '../src/data/model'
 import { generate, matchesAnswer, matchesEnglishAnswer, recallCard, toEnglishPractice } from '../src/engine/exercises'
 import { attach, batchim, conjugate } from '../src/engine/korean'
 import { emptyDeck, finishRecall, markRecallFailure, nextRecall } from '../src/engine/mastery'
-import { hangulAlphabet, syllableCard, syllableCardCount } from '../src/engine/pronunciation'
+import { hangulAlphabet } from '../src/engine/pronunciation'
 import { activeLists, builtInLists, defaultSelection, entryRule } from '../src/engine/registry'
 import { addScore, defaults, importBackup } from '../src/engine/storage'
 
@@ -126,16 +126,7 @@ describe('pronunciation decks', () => {
     expect(letterCards).toContainEqual(expect.objectContaining({ prompt: 'ㅘ', sound: '와' }))
   })
 
-  it('includes every modern written syllable exactly once', () => {
-    const cards = Array.from({ length: syllableCardCount }, (_, index) => syllableCard(index))
-    expect(new Set(cards.map(card => card.prompt)).size).toBe(11_172)
-    expect(new Set(cards.map(card => batchim(card.prompt))).size).toBe(28)
-    expect(new Set(cards.map(card => batchim(card.sound)))).toEqual(new Set([0, 1, 4, 7, 8, 16, 17, 21]))
-    const sounds = Object.fromEntries(cards.map(card => [card.prompt, card.sound]))
-    expect(sounds).toMatchObject({
-      값: '갑', 몫: '목', 닭: '닥', 삶: '삼', 넓: '널', 싫: '실', 갔: '갇', 흰: '힌',
-    })
-  })
+
 })
 
 describe('particles', () => {

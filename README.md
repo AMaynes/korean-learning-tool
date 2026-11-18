@@ -21,11 +21,11 @@ The vocabulary registry resolves eight independent categories. Exercise engines 
 
 ## Study modules
 
-- **Pronouncing Hangul** has separate flashcard decks for 21 vowels, 19 consonants, and all 11,172 modern syllable blocks. Try the sound, play it, then rate your answer. The published site includes synthetic Korean fallback clips for devices without working Korean speech. To include the clips in a local build, install eSpeak NG and run `python3 scripts/build-hangul-audio.py` before `npm run build`.
+- **Pronouncing Hangul** includes 21 vowel and 19 consonant flashcards. Play or reveal the sound, rate yourself, or choose Next to skip without affecting your score.
 - **Vocabulary Library** shows fixed lists in a compact searchable table, with examples for particles and endings.
 - **Vocabulary Recall** offers ungraded flashcards and spaced typing. Select **Image → Korean** to practice pictured nouns, verbs, and adjectives from the active list. Image typing tracks its own progress. Three clean recalls and a delayed fourth earn mastery. A single-card deck can practice and needs additional cards to meet the spacing rule.
 - **Grammar Trainer** covers particle practice, conjugation, sentence assembly, and sentence writing. Open-ended alternatives can be compared against sample answers and self-reviewed.
-- **Listening & Conversation** prefers natural, neural, premium, or enhanced Korean voices available in your browser. When several are available, choose one next to the playback controls. That choice also applies to Hangul and batchim practice on this device. Listening can reveal a transcript when a voice is unavailable. Conversation is guided by study frames and example replies.
+- **Listening & Conversation** uses the same bundled Korean female neural voice as the pronunciation cards and alphabet chart. Normal and Slow adjust playback speed. GitHub Actions renders the clips once per curriculum change using [Supertonic-3](https://k2-fsa.github.io/sherpa/onnx/tts/supertonic.html) in Korean with voice F1. For a local build with audio, follow the List spoken prompts and Render Korean voice clips steps in the Pages workflow.
 
 ## Adding vocabulary
 

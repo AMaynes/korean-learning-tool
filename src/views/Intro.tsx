@@ -410,6 +410,7 @@ function SentenceStructure() {
           ['Object', '밥을', 'rice', '밥 + 을 (object marker)'],
           ['Predicate', '먹어요.', 'eat', 'Verb'],
         ]} meaning="I eat rice." />
+        <p>Here, <Korean>저</Korean> (<em>I</em>) is both the topic and the subject. <Korean>는</Korean> marks the topic, and the speaker is the one eating. In other sentences, the topic and subject can differ.</p>
         <p>When it’s clear who’s eating, you can leave out <Korean>저는</Korean> (<em>I</em>) and say <Korean>밥을 먹어요</Korean> (<em>I eat rice</em>).</p>
       </> },
       { label: 'Questions', content: <>

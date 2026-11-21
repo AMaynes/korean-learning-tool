@@ -19,6 +19,7 @@ import type { DeckProgress } from '../engine/mastery'
 import { AnswerForm, DirectionSwitch, Empty, Icon, Korean, ListSelect, StandalonePronunciationNote, Transform } from './shared'
 import type { Save, SelectList } from './shared'
 
+import { GrammarList } from './GrammarList'
 import { conjugationHints } from '../data/conjugationHints'
 import { particleHints } from '../data/particleHints'
 import { pictureCategories, pictureClues } from '../data/pictures'
@@ -74,6 +75,7 @@ function CardHeader({ category, help, counter }: { category: Category; help: str
   return <>
     <div className="card-meta"><span>{categories[category]}</span>
       <div className="button-row">{counter}
+        {(category === 'particles' || category === 'conjugations') && <GrammarList category={category} />}
         <button className="text-button recall-info" aria-label="How to practice" aria-expanded={open} aria-controls={id}
           onClick={() => setOpen(value => !value)}><Icon name="info" /></button>
       </div>

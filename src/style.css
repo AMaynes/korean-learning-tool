@@ -437,3 +437,14 @@ td [lang="ko"] { color: var(--accent); font-weight: 650; }
 .recall-panel[data-grade="wrong"] { --grade-color: #ff9999; --grade-bg: #3b2628; }
 .recall-panel[data-grade] .answer-form input { color: var(--grade-color); background: var(--grade-bg); border-color: var(--grade-color); opacity: 1; }
 .recall-panel[data-grade] .feedback :is(.success, .retry) { color: var(--grade-color); }
+
+.grammar-list {
+  margin: auto; padding: 10px; width: max-content; max-width: calc(100vw - 16px);
+  border: 1px solid var(--control-line); border-radius: 10px;
+  background: var(--panel); color: var(--ink); box-shadow: 0 8px 32px #0006;
+}
+.grammar-list-controls { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+.grammar-list-scroll { max-height: min(52dvh, 330px); overflow: auto; }
+.grammar-list table { width: max-content; min-width: 100%; border-collapse: collapse; }
+.grammar-list th, .grammar-list td { padding: 3px 7px; font-size: 13px; white-space: nowrap; text-align: left; line-height: 1.45; }
+.grammar-list thead th { position: sticky; top: 0; background: var(--subtle); }

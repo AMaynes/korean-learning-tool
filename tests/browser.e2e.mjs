@@ -485,6 +485,29 @@ describe('deployed study workflow', { concurrency: false }, () => {
     await page.close()
   })
 
+  it('opens the full grammar list from a recall card in either mode', async () => {
+    const page = await browser.newPage()
+    await page.setViewportSize({ width: 320, height: 760 })
+    await page.goto(projectPage + '#recall')
+    for (const [mode, category, label, count] of [
+      ['Mental Recall', 'particles', 'Particles', 27],
+      ['Typing Practice', 'conjugations', 'Conjugations', 26],
+    ]) {
+      await page.getByRole('button', { name: mode, exact: true }).click()
+      await select(page, 'Category', category)
+      const trigger = page.locator('.recall-panel').getByRole('button', { name: 'List', exact: true })
+      await trigger.click()
+      const popup = page.getByRole('dialog', { name: 'Grammar list' })
+      assert.equal(await popup.getByRole('tab', { name: label }).getAttribute('aria-selected'), 'true')
+      assert.equal(await popup.locator('tbody tr').count(), count)
+      await popup.getByRole('tab', { name: label === 'Particles' ? 'Conjugations' : 'Particles' }).click()
+      assert.equal(await popup.locator('tbody tr').count(), 53 - count)
+      await page.keyboard.press('Escape')
+      await popup.waitFor({ state: 'hidden' })
+    }
+    await page.close()
+  })
+
   it('uses a picture for mental and typed Korean recall', async () => {
     const page = await browser.newPage()
     await page.setViewportSize({ width: 320, height: 760 })

@@ -19,6 +19,7 @@ import type { DeckProgress } from '../engine/mastery'
 import { AnswerForm, DirectionSwitch, Empty, Icon, Korean, ListSelect, StandalonePronunciationNote, Transform } from './shared'
 import type { Save, SelectList } from './shared'
 
+import { conjugationHints } from '../data/conjugationHints'
 import { particleHints } from '../data/particleHints'
 import { pictureCategories, pictureClues } from '../data/pictures'
 
@@ -81,18 +82,18 @@ function CardHeader({ category, help, counter }: { category: Category; help: str
   </>
 }
 
-function ParticleHints({ rule, meaning }: { rule: string; meaning: string }) {
+function GrammarHints({ category, rule, meaning }: { category: Category; rule: string; meaning: string }) {
   const [open, setOpen] = useState(false)
   const id = useId()
-  const hints = particleHints[rule]
+  const hints = category === 'particles' ? particleHints[rule] : category === 'conjugations' ? conjugationHints[rule] : undefined
   if (!hints) return null
   return <div>
     <button className="button quiet" aria-expanded={open} aria-controls={id} onClick={() => setOpen(!open)}>Hints</button>
     <div id={id} hidden={!open}>
       <strong>{meaning}</strong>
       <ol>{hints.map(([sentence, translation]) => {
-        const [before, particle, after] = sentence.split(/[\[\]]/u)
-        return <li key={sentence}><Korean>{before}<u>{particle}</u>{after}</Korean><br /><em>{translation}</em></li>
+        const [before, target, after] = sentence.split(/[\[\]]/u)
+        return <li key={sentence}><Korean>{before}<u>{target}</u>{after}</Korean><br /><em>{translation}</em></li>
       })}</ol>
     </div>
   </div>
@@ -127,7 +128,7 @@ function MentalRecall({ deck, direction }: { deck: WordList; direction: RecallPr
       {koreanFace && <StandalonePronunciationNote word={word} />}
       {caption && <p>{caption}</p>}
     </div>
-    {deck.category === 'particles' && <ParticleHints key={entry.id} rule={entry.rule ?? entry.id} meaning={entry.english} />}
+    <GrammarHints category={deck.category} key={entry.id} rule={entry.rule ?? entry.id} meaning={entry.english} />
     {flipped && card.transformation && <Transform example={card.transformation} />}
     {flipped && card.explanation && <p className="inline-note">{card.explanation}</p>}
     <div className="card-actions">
@@ -190,7 +191,7 @@ function TypingRecall({ deck, direction, progressKey, progress, save }: {
         <div className="recall-word">{reading || card.transformation ? <Korean>{card.prompt}</Korean> : card.prompt}</div>}
       {reading && <StandalonePronunciationNote word={card.prompt} />}
     </div>
-    {deck.category === 'particles' && <ParticleHints key={entry.id} rule={entry.rule ?? entry.id} meaning={entry.english} />}
+    <GrammarHints category={deck.category} key={entry.id} rule={entry.rule ?? entry.id} meaning={entry.english} />
     <AnswerForm value={input} onChange={value => { setInput(value); setWrong(false) }} submit={() => void check()} disabled={correct || busy} language={reading ? 'en' : 'ko'} />
     <div className="feedback" aria-live="polite">
       {correct && <p className="success"><Icon name="check" /> {failed ? 'Correction complete.' : 'Correct.'}</p>}

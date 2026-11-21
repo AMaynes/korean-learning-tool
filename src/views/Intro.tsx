@@ -215,7 +215,7 @@ export function Intro() {
                 ['Copula 이다', '학생이다 → 학생이에요', 'to be a student → am a student', ['이다', 'to be', 'is the conjugating particle in traditional Korean grammar.']],
               ]} />
               <h3>HOW TO CONJUGATE</h3>
-              <p>Choose an ending. For a verb or adjective, remove <Korean>다</Korean> to get the stem. Then follow the rule for that ending.</p>
+              <p>Start with a dictionary form like <Korean>먹다</Korean> (<em>to eat</em>). Drop <Korean>다</Korean> to get the stem <Korean>먹</Korean> (<em>eat</em>). Choose an ending for what you want to say, then attach it using its own rule. A hyphen marks the attachment point and disappears when you write the word.</p>
               {conjugationRules.map(([rule, description, examples]) => <section key={rule}>
                 <h4>{rule}</h4>
                 <p>{description}</p>

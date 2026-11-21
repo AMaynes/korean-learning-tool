@@ -338,15 +338,18 @@ export const modifierTypes: readonly IntroType[] = [
   ['Connecting adverb', '그래서 집에 가요.', 'So I’m going home.', ['그래서', 'so', 'is the connecting adverb because it links this result to what came before.']],
 ]
 
-export const particleTypes: readonly IntroType[] = [
-  ['Topic or contrast', '저 + 는 → 저는', 'as for me', ['는', 'topic marker', 'is the particle that marks me as the topic.']],
-  ['Subject', '친구 + 가 → 친구가', 'a friend, marked as the subject', ['가', 'subject marker', 'is the particle that marks the friend as the subject.']],
-  ['Object', '커피 + 를 → 커피를', 'coffee, marked as the object', ['를', 'object marker', 'is the particle that marks coffee as the object.']],
-  ['Other case roles', '집 + 에서 → 집에서', 'at home', ['에서', 'at, where an action happens', 'is the particle that marks where the action happens.']],
-  ['Possession', '친구 + 의 → 친구의', 'a friend’s', ['의', '’s, of', 'is the particle that shows what the friend owns.']],
-  ['Addition or restriction', '저도 / 저만', 'me too / only me', ['도 / 만', 'also / only', 'are the particles that mean “also” and “only”.']],
-  ['Noun connector', '책과 연필', 'a book and a pencil', ['과', 'and', 'is the particle that joins two nouns.']],
-]
+/** Common particle uses, with a noun phrase that can be read on its own. */
+export const particleTypes = [
+  ['Topic or contrast', '은 / 는', 'What are we talking about?', [['저', 'I'], ['는', 'topic'], ['저는', 'as for me']]],
+  ['Subject', '이 / 가', 'Who or what does something or has a quality?', [['친구', 'friend'], ['가', 'subject'], ['친구가', 'a friend as the subject']]],
+  ['Object', '을 / 를', 'What does the action affect?', [['밥', 'rice'], ['을', 'object'], ['밥을', 'rice as the object']]],
+  ['Possession', '의', 'Whose is it?', [['친구', 'friend'], ['의', 'possession'], ['친구의', 'a friend’s']]],
+  ['Place or time', '에 / 에서', 'Use 에 for a destination or time. Use 에서 for the place of an action.', [['집', 'home'], ['에서', 'at the place of an action'], ['집에서', 'at home']]],
+  ['Recipient', '에게 / 한테', 'Who receives something?', [['친구', 'friend'], ['한테', 'to someone'], ['친구한테', 'to a friend']]],
+  ['Means or direction', '으로 / 로', 'How do you get there, or which way do you go?', [['버스', 'bus'], ['로', 'by means of'], ['버스로', 'by bus']]],
+  ['Addition or restriction', '도 / 만', 'Use 도 for “also” and 만 for “only”.', [['저', 'I'], ['도', 'also'], ['저도', 'me too']]],
+  ['Noun connector', '과 / 와 / 하고', 'Which things go together?', [['책', 'book'], ['과', 'and'], ['책과', 'a book and…']]],
+] as const
 
 export const conjugationRules = [
   ['Say that you do one thing and then another', 'Use -고 (and, or and then) on the first action. Attach 고 directly to its stem, then say the second action.', [

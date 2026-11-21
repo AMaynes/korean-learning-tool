@@ -296,7 +296,8 @@ describe('deployed study workflow', { concurrency: false }, () => {
     await determinerHelp.getByRole('button', { name: 'Close explanation' }).click()
     await page.getByRole('tab', { name: 'Particles', exact: true }).click()
     await page.getByRole('table', { name: 'What takes particles', exact: true }).getByText('아직도', { exact: true }).waitFor()
-    await page.getByText('커피 + 를 → 커피를', { exact: true }).waitFor()
+    await page.getByRole('heading', { name: 'HOW TO USE PARTICLES', exact: true }).waitFor()
+    await page.getByText('밥을 먹습니다.', { exact: true }).waitFor()
 
     await sections.getByRole('button', { name: 'Sentence Structures', exact: true }).click()
     const sentenceExamples = page.locator('#sentence')

@@ -196,17 +196,32 @@ export function Intro() {
               <TypeTable title="What takes particles" rows={[
                 ['Nouns, pronouns, numerals', '음식을 / 저는 / 둘이', 'food / I / two people', ['을 / 는 / 이', 'object / topic / subject markers', 'are the particles attached to the noun, pronoun, and numeral.']],
                 ['Verbs and adjectives', '걷기가 / 맵지는', 'walking, as the subject / as for being spicy', ['-기 / -지', 'noun-forming / connecting endings', 'are endings that make forms that can take a particle.']],
-                ['Determiners', '이 책을', 'this book, as the object', ['을', 'object marker', 'is the particle that comes after the full phrase 이 책.']],
+                ['Phrases with a determiner', '이 책을', 'this book, as the object', ['을', 'object marker', 'is the particle that comes after the full phrase 이 책.']],
                 ['Adverbs', '아직도', 'still', ['도', 'also, with emphasis here', 'is the particle that adds emphasis to the adverb 아직.']],
                 ['Particles and connecting endings', '집에서는 / 먹지는', 'as for at home / as for eating', ['는', 'topic or contrast marker', 'is the particle that can follow 에서 or -지.']],
               ]} />
-              <TypeTable title="Particle types" rows={particleTypes} />
-              <ApplicationChecks unit="a particle" particles="Yes" conjugates={false} note="Some particles stack. In traditional Korean grammar, 이다 is the particle that conjugates."
-                examples={[
-                  [[["집에서", "at home"], ["는", "topic marker"], ["집에서는", "as for at home"]], ["에서 + 는", "at + as for", "are the place and topic particles."]],
-                  [[["학생", "student"], ["이에요", "am, is, or are"], ["학생이에요", "am a student"]], ["이에요", "is", "is the polite form of 이다, attached to 학생."]],
-                ]}
-              />
+              <h3>Common particle types</h3>
+              <div className="table-wrap intro-table"><table aria-label="Common particle types">
+                <thead><tr><th scope="col">Use</th><th scope="col">Particles</th><th scope="col">When to use them</th></tr></thead>
+                <tbody>{particleTypes.map(([use, forms, meaning]) => <tr key={use}>
+                  <th scope="row">{use}</th><td><Korean>{forms}</Korean></td><td>{meaning}</td>
+                </tr>)}</tbody>
+              </table></div>
+              <h3>HOW TO USE PARTICLES</h3>
+              <ol>
+                <li>Choose the job. To mark what you eat, use the object particle <Korean>을/를</Korean>.</li>
+                <li>Choose the form. After a final consonant, use <Korean>은, 이, 을, 과</Korean>. After a vowel, use <Korean>는, 가, 를, 와</Korean>, respectively. For <Korean>으로/로</Korean>, use <Korean>로</Korean> after a vowel or final <Korean>ㄹ</Korean>.</li>
+                <li>Write the particle directly after the word, with no space. Some particles always look the same, like <Korean>도</Korean> (<em>also</em>).</li>
+              </ol>
+              <h4>Particle examples without conjugation</h4>
+              {particleTypes.map(([use, , , parts]) => <div className="intro-check-example" key={use}>
+                <strong>{use}</strong><ParticleEquation parts={parts} />
+              </div>)}
+              <h4>One example with conjugation</h4>
+              <p><Korean>밥<b>을</b> 먹습니다.</Korean> <em>I eat rice.</em></p>
+              <p><Korean>밥 + 을 = 밥을</Korean> (<em>rice as the object</em>). <Korean>을</Korean> is the particle.</p>
+              <p><Korean>먹 + 습니다 = 먹습니다</Korean> (<em>I eat</em>). <Korean>먹</Korean> means <em>eat</em> and <Korean>-습니다</Korean> is the formal polite ending.</p>
+              <p>Special case: <Korean>이다</Korean> (<em>to be</em>) is the particle that conjugates.</p>
             </> },
             { label: "Conjugation", content: <>
               <TypeTable title="What conjugates" rows={[

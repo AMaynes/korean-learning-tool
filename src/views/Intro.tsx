@@ -213,8 +213,6 @@ export function Intro() {
                 ['Verbs', '먹다 → 먹어요', 'to eat → eat', ['-어요', 'everyday polite ending', 'is the polite ending that attaches to the verb stem 먹.']],
                 ['Adjectives', '맵다 → 매워요', 'to be spicy → is spicy', ['맵 → 매워요', 'spicy → is spicy', 'shows how the adjective stem changes.']],
                 ['Copula 이다', '학생이다 → 학생이에요', 'to be a student → am a student', ['이다', 'to be', 'is the conjugating particle in traditional Korean grammar.']],
-                ['Nouns, pronouns, numerals, determiners, adverbs', '음식 / 저 / 둘 / 이 / 빨리', 'food / I / two / this / quickly', ['음식 / 저 / 둘 / 이 / 빨리', 'food / I / two / this / quickly', 'keep their base forms under conjugation.']],
-                ['Other particles and endings', '을 / -어요', 'object marker / everyday polite ending', ['을 / -어요', 'object marker / everyday polite ending', 'are the object particle and the polite ending. Both attach to other forms.']],
               ]} />
               <TypeTable title="What endings do" rows={conjugationTypes} />
               <ApplicationChecks unit="a verb ending" particles="Yes" conjugates={false} note="A particle can follow certain connecting endings."

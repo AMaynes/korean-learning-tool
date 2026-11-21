@@ -240,8 +240,13 @@ describe('deployed study workflow', { concurrency: false }, () => {
         await tablist.getByRole('tab', { name: title, exact: true }).click()
         const category = page.getByRole('tabpanel', { name: title, exact: true })
         await category.waitFor({ state: 'visible' })
-        const answers = await category.locator('.intro-application dd').allTextContents()
-        assert.ok(answers.length >= 2 && answers.every(answer => ['Yes', 'No', 'Sometimes'].includes(answer)))
+        if (title === 'Particles' || title === 'Conjugation') {
+          const guide = title === 'Particles' ? 'HOW TO USE PARTICLES' : 'HOW TO CONJUGATE'
+          await category.getByRole('heading', { name: guide, exact: true }).waitFor()
+        } else {
+          const answers = await category.locator('.intro-application dd').allTextContents()
+          assert.ok(answers.length >= 2 && answers.every(answer => ['Yes', 'No', 'Sometimes'].includes(answer)))
+        }
         if (group === 'Nominals' || group === 'Predicates') {
           const particleRules = category.getByRole('heading', { name: 'Particle rules', exact: true })
           assert.equal(await particleRules.evaluate(heading => heading.previousElementSibling?.tagName), 'DL')

@@ -74,7 +74,7 @@ const coreParticles = ([
 ] satisfies ParticleSeed[]).map(particle)
 
 const extraParticles = ([
-  ['choice', '(이)나', 'Or / an available choice', '이나 after a final consonant, 나 after a vowel. Can connect alternatives or suggest an available option.', [food, ['커피', 'Coffee']]],
+  ['choice', '(이)나', 'Or / an available choice', '이나 after a final consonant, 나 after a vowel. Use 이나 after a final consonant and 나 after a vowel to connect alternatives or suggest an available choice.', [food, ['커피', 'Coffee']]],
   ['onlyNegative', '밖에', 'Only / nothing except', 'Pair 밖에 with a negative predicate. 물밖에 없어요 means “There’s only water.”', [['물', 'Water'], food]],
   ['fromPerson', '한테서', 'From someone (spoken)', 'Marks the source person in conversation.', [friend, teacher], 'person'],
   ['even', '조차', 'Even', 'Marks a surprising or extreme case, often in a negative situation.', [friend, ['이름', 'Name']]],
@@ -84,15 +84,15 @@ const extraParticles = ([
 ] satisfies ParticleSeed[]).map(particle)
 
 const coreEndings = ([
-  ['present', '-아/어요', 'Present polite', 'Sentence ending', 'Select 아 or 어, then apply contractions and add 요. 하다 becomes 해요.', '먹다', 'Eat', 'Eat (polite)'],
-  ['past', '-았/었어요', 'Past polite', 'Sentence ending', 'Use the 아/어 base with past ㅆ, then add 어요.', '먹다', 'Eat', 'Ate (polite)'],
-  ['future', '-(으)ㄹ 거예요', 'Future / intention', 'Sentence ending', 'Attach ㄹ/을 to the stem before 거예요. With adjectives this often expresses a prediction.', '가다', 'Go', 'Will go'],
-  ['casual', '-아/어', 'Casual present', 'Sentence ending', 'Use the 아/어 base in an appropriate informal relationship.', '보다', 'See', 'See (casual)'],
+  ['present', '-아/어요', 'Present polite', 'Sentence ending', 'Drop 다. Use 아요 when the last stem vowel is ㅏ or ㅗ, and 어요 otherwise. Adjacent vowels may contract. 하다 becomes 해요.', '먹다', 'Eat', 'Eat (polite)'],
+  ['past', '-았/었어요', 'Past polite', 'Sentence ending', 'Drop 다. Use 았어요 after a stem whose last vowel is ㅏ or ㅗ, and 었어요 otherwise. 하다 becomes 했어요.', '먹다', 'Eat', 'Ate (polite)'],
+  ['future', '-(으)ㄹ 거예요', 'Future / intention', 'Sentence ending', 'Drop 다. Add ㄹ after a vowel, keep an existing final ㄹ, or add 을 after other regular final consonants. Follow with 거예요. With adjectives this often expresses a prediction.', '가다', 'Go', 'Will go'],
+  ['casual', '-아/어', 'Casual present', 'Sentence ending', 'Drop 다. Use 아 if the last stem vowel is ㅏ or ㅗ, and 어 otherwise. 하다 becomes 해. Use this style with close friends.', '보다', 'See', 'See (casual)'],
   ['formal', '-ㅂ니다/습니다', 'Formal statement', 'Sentence ending', 'Use ㅂ니다 after a vowel and 습니다 after most consonants. Final ㄹ drops before ㅂ니다.', '알다', 'Know', 'Know (formal)'],
   ['request', '-(으)세요', 'Polite request / command', 'Sentence ending', 'Use 세요 after a vowel or after dropping final ㄹ, 으세요 after most other consonants. Some verbs have dedicated honorific forms.', '읽다', 'Read', 'Please read'],
   ['wish', '-고 싶다', 'Want to', 'Auxiliary', 'Add 고 to an action verb and put 싶어요 after it. Typically expresses the speaker’s desire in a statement or asks about the listener’s desire.', '먹다', 'Eat', 'Want to eat'],
   ['ongoing', '-고 있다', 'Ongoing action', 'Auxiliary', 'Add 고 to the action stem, then 있어요 for the polite progressive.', '읽다', 'Read', 'Am reading'],
-  ['ability', '-(으)ㄹ 수 있다', 'Ability / can', 'Auxiliary construction', 'Use the ㄹ/을 modifier before 수 있어요.', '가다', 'Go', 'Can go'],
+  ['ability', '-(으)ㄹ 수 있다', 'Ability / can', 'Auxiliary construction', 'Add ㄹ after a vowel, keep final ㄹ, or add 을 after other regular final consonants. Follow with 수 있어요.', '가다', 'Go', 'Can go'],
   ['must', '-아/어야 하다', 'Must / have to', 'Auxiliary', 'Use the 아/어 base followed by 야 해요.', '하다', 'Do', 'Have to do'],
   ['negative', '-지 않다', 'Negation', 'Auxiliary', 'Add 지 to the stem and put 않아요 after it.', '가다', 'Go', 'Do not go'],
   ['and', '-고', 'And / then', 'Connective', 'Attach 고 to link actions or descriptions. Follow it with the next clause.', '먹다', 'Eat', 'Eat and …'],
@@ -102,7 +102,7 @@ const coreEndings = ([
   ['while', '-(으)면서', 'While doing', 'Connective', 'Use 면서 after a vowel or final ㄹ, and 으면서 after most other consonants. The two actions usually share a subject.', '먹다', 'Eat', 'While eating …'],
   ['presentModifier', '-는', 'Present verb noun modifier', 'Noun modifier', 'Place the modified predicate before its noun. Final ㄹ drops before 는.', '살다', 'Live', '… who lives …'],
   ['nModifier', '-(으)ㄴ', 'Past verb / adjective noun modifier', 'Noun modifier', 'For action verbs, usually completed action. For descriptive predicates, usually a current property.', '예쁘다', 'Pretty', 'Pretty (before a noun)', 'adjective'],
-  ['futureModifier', '-(으)ㄹ', 'Future noun modifier', 'Noun modifier', 'Place the ㄹ/을 form before the noun to indicate a prospective action or description.', '먹다', 'Eat', '… to eat'],
+  ['futureModifier', '-(으)ㄹ', 'Future noun modifier', 'Noun modifier', 'Add ㄹ after a vowel, keep final ㄹ, or add 을 after other regular final consonants. Place this form before the noun.', '먹다', 'Eat', '… to eat'],
   ['nominal', '-기', 'Action nominalization', 'Nominalizer', 'Attach 기 to make a predicate function like a noun.', '읽다', 'Read', 'Reading / the act of reading'],
 ] satisfies ConjugationSeed[]).map(ending)
 

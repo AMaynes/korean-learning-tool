@@ -1,5 +1,6 @@
-import { useId, useState } from 'react'
+import { Fragment, useId, useState } from 'react'
 import { conjugationRules, particleRules } from '../data/grammar'
+import { moreExamples, type GlossedEquation } from '../data/grammarListExamples'
 import { Korean } from './shared'
 
 const lists = { particles: particleRules, conjugations: conjugationRules }
@@ -16,21 +17,54 @@ const exampleEndings: Record<string, string> = {
   before: '기 전', after: 'ㄴ 후', seems: 'ㄹ 것 같아요', background: '은데',
 }
 
+// Read each particle in the context of the first worked example.
+const particleGlosses: Record<string, [string, string]> = {
+  topic: ['as for', 'as for home'], subject: ['subject', 'home (subject)'],
+  object: ['object', 'food (object)'], possession: ['’s', 'a friend’s'],
+  also: ['too', 'a friend too'], only: ['only', 'only water'],
+  destination: ['to', 'to school'], actionPlace: ['at', 'at school'],
+  direction: ['toward', 'toward home'], start: ['from', 'from today'],
+  until: ['as far as', 'as far as school'], recipient: ['to', 'to a friend'],
+  colloquialRecipient: ['to', 'to a friend'], honorificRecipient: ['to (respectful)', 'to the teacher'],
+  with: ['with', 'with a friend'], colloquialWith: ['and', 'a house and …'],
+  writtenWith: ['and', 'a house and …'], comparison: ['than', 'than a friend'],
+  like: ['like', 'like a friend'], each: ['every', 'every day'],
+  choice: ['or', 'food or …'], onlyNegative: ['except', 'except water'],
+  fromPerson: ['from', 'from a friend'], even: ['even', 'even a friend'],
+  approx: ['around', 'around three o’clock'], honorificSubject: ['subject (respectful)', 'the teacher (subject)'],
+  allInGroup: ['among', 'among friends'],
+}
+
+function Gloss({ form, meaning }: { form: string, meaning: string }) {
+  return <span className="grammar-gloss"><Korean>{form}</Korean><small lang="en">{meaning}</small></span>
+}
+
+function Equation({ parts }: { parts: GlossedEquation }) {
+  return <div className="grammar-equation">{parts.map(([form, meaning], i) =>
+    <Fragment key={i}>{i > 0 && <span>{i === 1 ? '+' : '='}</span>}<Gloss form={form} meaning={meaning} /></Fragment>
+  )}</div>
+}
+
 export function GrammarList({ category }: { category: ListCategory }) {
   const id = useId()
   const [selected, setSelected] = useState(category)
+  const [expanded, setExpanded] = useState<string | null>(null)
+  function select(tab: ListCategory) {
+    setSelected(tab)
+    setExpanded(null)
+  }
   return <>
-    <button className="button quiet" popoverTarget={id} onClick={() => setSelected(category)}>List</button>
+    <button className="button quiet" popoverTarget={id} onClick={() => select(category)}>Hints</button>
     <div popover="auto" id={id} role="dialog" aria-label="Grammar list" className="grammar-list">
       <div className="grammar-list-controls">
         <div className="segmented" role="tablist" aria-label="Grammar category">
           {tabs.map(tab => <button key={tab} role="tab" id={id + tab} aria-selected={selected === tab}
-            tabIndex={selected === tab ? 0 : -1} aria-controls={id + '-panel'} onClick={() => setSelected(tab)}
+            tabIndex={selected === tab ? 0 : -1} aria-controls={id + '-panel'} onClick={() => select(tab)}
             onKeyDown={event => {
               if (!['ArrowRight', 'ArrowLeft', 'Home', 'End'].includes(event.key)) return
               event.preventDefault()
               const next = event.key === 'Home' ? 'particles' : event.key === 'End' ? 'conjugations' : tabs.find(option => option !== tab)!
-              setSelected(next)
+              select(next)
               document.getElementById(id + next)?.focus()
             }}>{tab === 'particles' ? 'Particles' : 'Conjugations'}</button>)}
         </div>
@@ -41,10 +75,21 @@ export function GrammarList({ category }: { category: ListCategory }) {
           <tbody>{Object.values(lists[selected]).map(rule => {
             const example = rule.examples[0]
             const ending = selected === 'particles' ? example.applied : exampleEndings[rule.id]
-            return <tr key={rule.id}>
-              <th scope="row"><Korean>{rule.korean}</Korean></th><td>{rule.english}</td>
-              <td><Korean>{example.stem ?? example.original} + {ending} = {example.result}</Korean></td>
-            </tr>
+            const [endingMeaning, resultMeaning] = selected === 'particles'
+              ? particleGlosses[rule.id]
+              : [rule.english, example.meaning]
+            const open = expanded === rule.id
+            return <Fragment key={rule.id}><tr onClick={() => setExpanded(open ? null : rule.id)}>
+              <th scope="row"><button className="grammar-disclosure" aria-expanded={open}>
+                {open ? '▾' : '▸'} <Korean>{rule.korean}</Korean>
+              </button></th><td>{rule.english}</td>
+              <td><Equation parts={[[example.stem ?? example.original, example.originalMeaning],
+                [ending, endingMeaning], [example.result, resultMeaning]]} /></td>
+            </tr>{open && <tr><td colSpan={3} className="grammar-detail">
+              <p>{rule.note} {selected === 'particles' && !rule.korean.includes('/') && !rule.korean.includes('(')
+                && 'Use the same form after a vowel or a consonant.'}</p>
+              <ol>{moreExamples(rule).map(parts => <li key={parts[0][0]}><Equation parts={parts} /></li>)}</ol>
+            </td></tr>}</Fragment>
           })}</tbody>
         </table>
       </div>

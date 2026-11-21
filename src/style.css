@@ -98,7 +98,7 @@ p { color: var(--muted); line-height: 1.55; }
 .segmented button[aria-pressed="true"] { background: var(--accent-bg); border-color: var(--control-line); color: var(--accent); }
 .recall-panel, .exercise-panel { padding: 17px; display: grid; gap: 15px; }
 .card-meta { display: flex; align-items: center; justify-content: space-between; gap: 12px; color: var(--muted); font-size: 12px; font-weight: 650; }
-.card-meta span:first-child { color: var(--accent); background: var(--accent-bg); border-radius: 6px; padding: 4px 7px; }
+.card-meta > span:first-child { color: var(--accent); background: var(--accent-bg); border-radius: 6px; padding: 4px 7px; }
 .recall-face { min-height: 270px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 11px; padding: 25px 16px; text-align: center; background: var(--subtle); border: 1px solid var(--line); border-radius: 11px; }
 .eyebrow { font-size: 11px; font-weight: 750; letter-spacing: .105em; text-transform: uppercase; color: var(--accent); }
 .recall-word { max-width: 100%; font-size: clamp(29px, 4vw, 56px); font-weight: 760; letter-spacing: -.055em; overflow-wrap: anywhere; line-height: 1.18; }
@@ -448,3 +448,13 @@ td [lang="ko"] { color: var(--accent); font-weight: 650; }
 .grammar-list table { width: max-content; min-width: 100%; border-collapse: collapse; }
 .grammar-list th, .grammar-list td { padding: 3px 7px; font-size: 13px; white-space: nowrap; text-align: left; line-height: 1.45; }
 .grammar-list thead th { position: sticky; top: 0; background: var(--subtle); }
+.grammar-list .segmented button[aria-selected="true"] { color: var(--accent-fg); background: var(--accent); border-color: currentColor; }
+.grammar-equation { display: flex; align-items: flex-start; gap: 5px; padding-block: 2px; }
+.grammar-gloss { display: grid; gap: 1px; }
+.grammar-gloss small { max-width: 15ch; white-space: normal; font-size: 11px; line-height: 1.2; color: var(--muted); }
+
+.grammar-disclosure { background: transparent; border: 0; color: inherit; font: inherit; font-weight: 650; padding: 4px 0; }
+.grammar-list tr:has(.grammar-disclosure) { cursor: pointer; }
+.grammar-list td.grammar-detail { white-space: normal; background: var(--subtle); }
+.grammar-detail p { max-width: min(52ch, 75vw); margin: 6px 0; }
+.grammar-detail ol { padding-left: 22px; margin: 4px 0; }

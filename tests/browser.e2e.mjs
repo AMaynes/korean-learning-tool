@@ -495,12 +495,26 @@ describe('deployed study workflow', { concurrency: false }, () => {
     ]) {
       await page.getByRole('button', { name: mode, exact: true }).click()
       await select(page, 'Category', category)
-      const trigger = page.locator('.recall-panel').getByRole('button', { name: 'List', exact: true })
+      const trigger = page.locator('.recall-panel').getByRole('button', { name: 'Hints', exact: true })
       await trigger.click()
       const popup = page.getByRole('dialog', { name: 'Grammar list' })
       assert.equal(await popup.getByRole('tab', { name: label }).getAttribute('aria-selected'), 'true')
+      const selectedFill = () => popup.getByRole('tab', { selected: true }).evaluate(el => getComputedStyle(el).backgroundColor)
+      const fill = await selectedFill()
+      assert.notEqual(fill, await popup.getByRole('tab', { selected: false }).evaluate(el => getComputedStyle(el).backgroundColor))
+      const glosses = popup.locator('tbody tr:first-child .grammar-gloss small')
+      assert.deepEqual(await glosses.allTextContents(), category === 'particles'
+        ? ['Home', 'as for', 'as for home'] : ['Eat', 'Present polite', 'Eat (polite)'])
       assert.equal(await popup.locator('tbody tr').count(), count)
+      const rows = popup.locator('.grammar-disclosure')
+      for (const row of await rows.all()) {
+        await row.click()
+        assert.equal(await popup.locator('.grammar-detail li').count(), 5)
+        assert.equal(await popup.locator('.grammar-detail li small').count(), 15)
+        await row.click()
+      }
       await popup.getByRole('tab', { name: label === 'Particles' ? 'Conjugations' : 'Particles' }).click()
+      assert.equal(await selectedFill(), fill)
       assert.equal(await popup.locator('tbody tr').count(), 53 - count)
       await page.keyboard.press('Escape')
       await popup.waitFor({ state: 'hidden' })

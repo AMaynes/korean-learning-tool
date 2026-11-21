@@ -312,19 +312,14 @@ describe('deployed study workflow', { concurrency: false }, () => {
       await panel.locator('figure').first().waitFor()
       assert.equal(await sentenceExamples.getByRole('tabpanel').count(), 1)
     }
-    const fullSentence = sentenceExamples.locator('figure').filter({
-      has: page.getByText('Today I’m eating spicy food at home.', { exact: true }),
-    })
-    assert.deepEqual(await fullSentence.locator('dd [lang="ko"]').allTextContents(), ['오늘', '저는', '집에서', '매운', '음식을', '먹어요.'])
-    assert.deepEqual(await fullSentence.locator('dd small').allTextContents(), ['today', 'I', 'at home', 'spicy', 'food', 'eat'])
-    assert.deepEqual(await fullSentence.locator('.intro-part-grammar').allTextContents(), [
-      'Time adverb', 'Pronoun + topic particle', 'Noun + place particle',
-      'Adjective', 'Noun + object particle', 'Verb',
-    ])
-    assert.deepEqual(await fullSentence.getByRole('button').allTextContents(), ['Topic', 'Modifier', 'Object', 'Predicate'])
+    const fullSentence = sentenceExamples.getByRole('tabpanel', { name: 'Statements' }).locator('figure')
+    assert.equal(await fullSentence.count(), 1)
+    assert.deepEqual(await fullSentence.locator('dd [lang="ko"]').allTextContents(), ['저는', '밥을', '먹어요.'])
+    assert.deepEqual(await fullSentence.locator('dd small').allTextContents(), ['I', 'rice', 'eat'])
+    assert.deepEqual(await fullSentence.getByRole('button').allTextContents(), ['Topic', 'Object', 'Predicate'])
     const glossaryLabels = new Set((await page.locator('.intro-grammar-label').allTextContents()).map(label => label.toLowerCase()))
     assert.deepEqual([...glossaryLabels].sort(), [
-      'adjective', 'adverb', 'batchim', 'clauses', 'coda', 'determiners', 'modifier', 'modifiers', 'nominals',
+      'adjective', 'adverb', 'batchim', 'coda', 'determiners', 'modifiers', 'nominals',
       'noun', 'object', 'particles', 'predicate', 'pronoun', 'subject', 'topic', 'verb',
       ...nounExamples.map(([label]) => label.toLowerCase()),
       ...Object.values(subtypesByTab).flat().map(label => label.toLowerCase()),

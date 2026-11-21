@@ -348,14 +348,32 @@ export const particleTypes: readonly IntroType[] = [
   ['Noun connector', '책과 연필', 'a book and a pencil', ['과', 'and', 'is the particle that joins two nouns.']],
 ]
 
-export const conjugationTypes: readonly IntroType[] = [
-  ['Speech style', '먹어 / 먹어요 / 먹습니다', 'eat in three speech styles', ['-어 / -어요 / -습니다', 'casual / polite / formal polite endings', 'make the same verb casual or polite.']],
-  ['Tense', '먹어요 → 먹었어요', 'eat → ate', ['-었-', 'past marker', 'is the past-tense marker.']],
-  ['Connect clauses', '먹고 쉬어요.', 'I eat and then rest.', ['-고', 'and then here', 'is the ending that connects eating and resting.']],
-  ['Modify a noun', '맵다 → 매운 음식', 'to be spicy → spicy food', ['매운', 'spicy', 'is the adjective form that describes 음식.']],
-  ['Make an action noun-like', '걷다 → 걷기', 'to walk → walking', ['-기', '-ing here', 'is the ending that lets “walking” act like a noun.']],
-  ['Honorific', '오다 → 오세요', 'come, with respect toward the person coming', ['-시-', 'subject honorific', 'is the honorific marker that shows respect for the person coming.']],
-]
+export const conjugationRules = [
+  ['Attach directly', 'Add -고 to the stem to link two actions.', [
+    [['먹', 'eat'], ['고', 'and then'], ['먹고', 'eat and then…']],
+  ]],
+  ['Choose 아 or 어', 'For the everyday polite ending, use -아요 after ㅏ or ㅗ and -어요 after other regular stem vowels. Matching vowels can merge. Words ending in 하다 use 해요.', [
+    [['가', 'go'], ['아요', 'polite ending'], ['가요', 'I go']],
+    [['먹', 'eat'], ['어요', 'polite ending'], ['먹어요', 'I eat']],
+    [['하', 'do'], ['여요', 'polite ending'], ['해요', 'I do']],
+  ]],
+  ['Check the final sound', 'For -(으)면, add 면 after a vowel or final ㄹ. Add 으면 after other regular final consonants.', [
+    [['살', 'live'], ['면', 'if'], ['살면', 'if I live']],
+    [['먹', 'eat'], ['으면', 'if'], ['먹으면', 'if I eat']],
+  ]],
+  ['Check for a stem change', 'The stem of 듣다 changes from 듣 to 들 before a vowel ending. It keeps ㄷ before -고.', [
+    [['듣', 'listen'], ['어요', 'polite ending'], ['들어요', 'I listen']],
+    [['듣', 'listen'], ['고', 'and then'], ['듣고', 'listen and then…']],
+  ]],
+  ['Check the specific ending', 'For a formal polite statement, add ㅂ니다 after a vowel or 습니다 after a consonant. A final ㄹ drops before ㅂ니다.', [
+    [['살', 'live'], ['ㅂ니다', 'formal polite ending'], ['삽니다', 'I live']],
+    [['먹', 'eat'], ['습니다', 'formal polite ending'], ['먹습니다', 'I eat']],
+  ]],
+  ['Use 이다 with a noun', 'For the polite present, add 이에요 after a final consonant or 예요 after a vowel.', [
+    [['학생', 'student'], ['이에요', 'am / is / are'], ['학생이에요', 'I’m a student']],
+    [['의사', 'doctor'], ['예요', 'am / is / are'], ['의사예요', 'I’m a doctor']],
+  ]],
+] as const
 
 /** Short English meanings for the Korean words used in the Intro examples. */
 export const introWordMeanings: Readonly<Record<string, string>> = {

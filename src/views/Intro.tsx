@@ -12,7 +12,7 @@
 import { createContext, useContext, useEffect, useId, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import {
-  conjugationTypes, introGlossary, introWordMeanings, modifierTypes, nounTypes,
+  conjugationRules, introGlossary, introWordMeanings, modifierTypes, nounTypes,
   numeralTypes, particleTypes, pronounTypes, verbTypes,
 } from '../data/intro'
 import type { ExampleFocus, GlossaryExample, IntroTerm, IntroType } from '../data/intro'
@@ -214,7 +214,13 @@ export function Intro() {
                 ['Adjectives', '맵다 → 매워요', 'to be spicy → is spicy', ['맵 → 매워요', 'spicy → is spicy', 'shows how the adjective stem changes.']],
                 ['Copula 이다', '학생이다 → 학생이에요', 'to be a student → am a student', ['이다', 'to be', 'is the conjugating particle in traditional Korean grammar.']],
               ]} />
-              <TypeTable title="What endings do" rows={conjugationTypes} />
+              <h3>HOW TO CONJUGATE</h3>
+              <p>Choose an ending. For a verb or adjective, remove <Korean>다</Korean> to get the stem. Then follow the rule for that ending.</p>
+              {conjugationRules.map(([rule, description, examples]) => <section key={rule}>
+                <h4>{rule}</h4>
+                <p>{description}</p>
+                {examples.map(parts => <ParticleEquation key={parts[2][0]} parts={parts} />)}
+              </section>)}
               <ApplicationChecks unit="a verb ending" particles="Yes" conjugates={false} note="A particle can follow certain connecting endings."
                 examples={[
                   [[["먹지", "eat (with -지)"], ["는", "contrast marker"], ["먹지는", "as for eating"]], ["-지", "connecting ending", "attaches to 먹 and is followed by the contrast particle 는."], ["먹지는 않아요", "I don’t eat it."]],

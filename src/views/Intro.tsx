@@ -402,72 +402,93 @@ function HangulSyllables() {
 /** Show how to assemble a clause, change what it says, and combine it with other clauses. */
 function SentenceStructure() {
   return <LessonSection id="sentence" title="Sentence Structures">
-    <p>Start with the <GrammarLabel term="Predicate">predicate</GrammarLabel>. It tells you what happens, what something is like, or what it is. In the basic sentence pattern it comes last, after the people, things, time, and place.</p>
-    <ExampleParts parts={[['Topic', '저는', 'I', 'Pronoun + topic particle'], ['Object', '음식을', 'food', 'Noun + object particle'], ['Predicate', '먹어요.', 'eat', 'Verb']]} meaning="I eat food." />
-    <h3>Build the full sentence</h3>
-    <ExampleParts
-      parts={[
-        ['Time', '오늘', 'today', 'Time adverb'],
-        ['Topic', '저는', 'I', 'Pronoun + topic particle'],
-        ['Place · 에서', '집에서', 'at home', 'Noun + place particle'],
-        ['Modifier', '매운', 'spicy', 'Adjective'],
-        ['Object', '음식을', 'food', 'Noun + object particle'],
-        ['Predicate', '먹어요.', 'eat', 'Verb'],
-      ]}
-      meaning="Today I’m eating spicy food at home."
-    />
-    <p><Korean>음식</Korean> (<em>food</em>) is a <GrammarLabel term="Noun">noun</GrammarLabel> because it’s a thing. <Korean>매운</Korean> (<em>spicy</em>) describes it.</p>
+    <LessonTabs sectionId="sentence" tabs={[
+      { label: 'Statements', content: <>
+        <p>Start with the <GrammarLabel term="Predicate">predicate</GrammarLabel>. It tells you what happens, what something is like, or what it is. In the basic sentence pattern it comes last, after the people, things, time, and place.</p>
+        <ExampleParts parts={[['Topic', '저는', 'I', 'Pronoun + topic particle'], ['Object', '음식을', 'food', 'Noun + object particle'], ['Predicate', '먹어요.', 'eat', 'Verb']]} meaning="I eat food." />
+        <h3>Build the full sentence</h3>
+        <ExampleParts
+          parts={[
+            ['Time', '오늘', 'today', 'Time adverb'],
+            ['Topic', '저는', 'I', 'Pronoun + topic particle'],
+            ['Place · 에서', '집에서', 'at home', 'Noun + place particle'],
+            ['Modifier', '매운', 'spicy', 'Adjective'],
+            ['Object', '음식을', 'food', 'Noun + object particle'],
+            ['Predicate', '먹어요.', 'eat', 'Verb'],
+          ]}
+          meaning="Today I’m eating spicy food at home."
+        />
+        <p><Korean>음식</Korean> (<em>food</em>) is a <GrammarLabel term="Noun">noun</GrammarLabel> because it’s a thing. <Korean>매운</Korean> (<em>spicy</em>) describes it.</p>
 
-    <h3>What the predicate needs</h3>
-    <div className="intro-pairs">
-      <ExampleParts parts={[['Subject', '아기가', 'the baby', 'Noun + subject particle'], ['Action', '자요.', 'sleeps', 'Verb']]} meaning="The baby sleeps." note="This action takes no object." />
-      <ExampleParts parts={[['Subject', '음식이', 'the food', 'Noun + subject particle'], ['Description', '맛있어요.', 'is delicious', 'Adjective']]} meaning="The food is delicious." />
-      <ExampleParts parts={[['Topic', '민수는', 'Minsu', 'Proper noun + topic particle'], ['Identity', '학생이에요.', 'is a student', 'Noun + copula']]} meaning="Minsu is a student." />
-      <ExampleParts parts={[['Location', '집에', 'at home', 'Noun + place particle'], ['Subject', '고양이가', 'a cat', 'Noun + subject particle'], ['Existence', '있어요.', 'is there', 'Existence predicate']]} meaning="There’s a cat at home." />
-      <ExampleParts parts={[['Recipient', '친구에게', 'to a friend', 'Noun + recipient particle'], ['Object', '책을', 'a book', 'Noun + object particle'], ['Action', '줘요.', 'give', 'Verb']]} meaning="I give a friend a book." note="The recipient gets the object." />
-      <ExampleParts parts={[['Subject', '친구가', 'my friend', 'Noun + subject particle'], ['Complement', '선생님이', 'a teacher', 'Noun + complement particle'], ['Change', '됐어요.', 'became', 'Verb']]} meaning="My friend became a teacher." note="The complement says what the subject became." />
-    </div>
+        <h3>What the predicate needs</h3>
+        <div className="intro-pairs">
+          <ExampleParts parts={[['Subject', '아기가', 'the baby', 'Noun + subject particle'], ['Action', '자요.', 'sleeps', 'Verb']]} meaning="The baby sleeps." note="This action takes no object." />
+          <ExampleParts parts={[['Subject', '음식이', 'the food', 'Noun + subject particle'], ['Description', '맛있어요.', 'is delicious', 'Adjective']]} meaning="The food is delicious." />
+          <ExampleParts parts={[['Topic', '민수는', 'Minsu', 'Proper noun + topic particle'], ['Identity', '학생이에요.', 'is a student', 'Noun + copula']]} meaning="Minsu is a student." />
+          <ExampleParts parts={[['Location', '집에', 'at home', 'Noun + place particle'], ['Subject', '고양이가', 'a cat', 'Noun + subject particle'], ['Existence', '있어요.', 'is there', 'Existence predicate']]} meaning="There’s a cat at home." />
+          <ExampleParts parts={[['Recipient', '친구에게', 'to a friend', 'Noun + recipient particle'], ['Object', '책을', 'a book', 'Noun + object particle'], ['Action', '줘요.', 'give', 'Verb']]} meaning="I give a friend a book." note="The recipient gets the object." />
+          <ExampleParts parts={[['Subject', '친구가', 'my friend', 'Noun + subject particle'], ['Complement', '선생님이', 'a teacher', 'Noun + complement particle'], ['Change', '됐어요.', 'became', 'Verb']]} meaning="My friend became a teacher." note="The complement says what the subject became." />
+        </div>
 
-    <h3><GrammarLabel term="Topic" /> and <GrammarLabel term="Subject">subject</GrammarLabel></h3>
-    <p><Korean>은/는</Korean> sets the topic or adds contrast. <Korean>이/가</Korean> marks the subject, and <Korean>을/를</Korean> marks the object. In <Korean>저는 음식을 먹어요</Korean>, the topic is also the person eating. A topic and a separate subject can appear together.</p>
-    <ExampleParts parts={[['Topic', '저는', 'as for me', 'Pronoun + topic particle'], ['Subject', '커피가', 'coffee', 'Noun + subject particle'], ['Description', '좋아요.', 'is pleasing', 'Adjective']]} meaning="I like coffee." note={<>Literally, <em>“As for me, coffee is pleasing.”</em></>} />
-    <h3>Moving and leaving out parts</h3>
-    <p>Time and other phrases can move. Leave out a subject or object when the listener can supply it from context.</p>
-    <ExampleParts parts={[['Topic', '저는', 'I', 'Pronoun + topic particle'], ['Time', '오늘', 'today', 'Time adverb'], ['Place', '집에서', 'at home', 'Noun + place particle'], ['Modifier', '매운', 'spicy', 'Adjective'], ['Object', '음식을', 'food', 'Noun + object particle'], ['Action', '먹어요.', 'eat', 'Verb']]} meaning="“Today I’m eating spicy food at home.”" note="This time, the topic comes first." />
-    <div className="intro-pairs">
-      <ExampleParts parts={[['Object', '음식을', 'food', 'Noun + object particle'], ['Action', '먹어요.', 'eat', 'Verb']]} meaning="I eat food." note="The speaker is understood." />
-      <ExampleParts parts={[['Action', '먹어요.', 'eat', 'Verb']]} meaning="I’m eating it." note="The listener supplies who is eating and what they’re eating." />
-    </div>
-    <ExampleParts parts={[['Companion · (이)랑', '친구랑', 'with a friend', 'Noun + companion particle'], ['Means · (으)로', '지하철로', 'by subway', 'Noun + means particle'], ['Destination · 에', '학교에', 'to school', 'Noun + destination particle'], ['Action', '가요.', 'go', 'Verb']]} meaning="I go to school by subway with a friend." note="Each particle shows how that phrase relates to the action." />
+        <h3><GrammarLabel term="Topic" /> and <GrammarLabel term="Subject">subject</GrammarLabel></h3>
+        <p><Korean>은/는</Korean> sets the topic or adds contrast. <Korean>이/가</Korean> marks the subject, and <Korean>을/를</Korean> marks the object. In <Korean>저는 음식을 먹어요</Korean>, the topic is also the person eating. A topic and a separate subject can appear together.</p>
+        <ExampleParts parts={[['Topic', '저는', 'as for me', 'Pronoun + topic particle'], ['Subject', '커피가', 'coffee', 'Noun + subject particle'], ['Description', '좋아요.', 'is pleasing', 'Adjective']]} meaning="I like coffee." note={<>Literally, <em>“As for me, coffee is pleasing.”</em></>} />
+        <h3>Moving and leaving out parts</h3>
+        <p>Time and other phrases can move. Leave out a subject or object when the listener can supply it from context.</p>
+        <ExampleParts parts={[['Topic', '저는', 'I', 'Pronoun + topic particle'], ['Time', '오늘', 'today', 'Time adverb'], ['Place', '집에서', 'at home', 'Noun + place particle'], ['Modifier', '매운', 'spicy', 'Adjective'], ['Object', '음식을', 'food', 'Noun + object particle'], ['Action', '먹어요.', 'eat', 'Verb']]} meaning="“Today I’m eating spicy food at home.”" note="This time, the topic comes first." />
+        <div className="intro-pairs">
+          <ExampleParts parts={[['Object', '음식을', 'food', 'Noun + object particle'], ['Action', '먹어요.', 'eat', 'Verb']]} meaning="I eat food." note="The speaker is understood." />
+          <ExampleParts parts={[['Action', '먹어요.', 'eat', 'Verb']]} meaning="I’m eating it." note="The listener supplies who is eating and what they’re eating." />
+        </div>
+        <ExampleParts parts={[['Companion · (이)랑', '친구랑', 'with a friend', 'Noun + companion particle'], ['Means · (으)로', '지하철로', 'by subway', 'Noun + means particle'], ['Destination · 에', '학교에', 'to school', 'Noun + destination particle'], ['Action', '가요.', 'go', 'Verb']]} meaning="I go to school by subway with a friend." note="Each particle shows how that phrase relates to the action." />
 
-    <h3><GrammarLabel term="Modifier">Modifiers</GrammarLabel> and <GrammarLabel term="Clause">clauses</GrammarLabel></h3>
-    <div className="intro-pairs">
-      <ExampleParts parts={[['Modifier', '매운', 'spicy', 'Adjective'], ['Object', '음식을', 'food', 'Noun + object particle'], ['Action', '먹어요.', 'eat', 'Verb']]} meaning="I eat spicy food." note="The modifier stays with the noun when the rest of the sentence gets shorter." />
-      <ExampleParts parts={[['Object', '책을', 'a book', 'Noun + object particle'], ['Manner', '천천히', 'slowly', 'Adverb'], ['Action', '읽어요.', 'read', 'Verb']]} meaning="I read a book slowly." note="The adverb tells how I read." />
-    </div>
-    <ExampleParts parts={[['Who read it', '제가', 'I', 'Pronoun + subject particle'], ['Noun-modifying verb', '읽은', 'read', 'Verb'], ['Main subject', '책이', 'the book', 'Noun + subject particle'], ['Main predicate', '재미있어요.', 'is interesting', 'Adjective']]} meaning="The book I read is interesting." note={<>The whole clause <Korean>제가 읽은</Korean> goes before <Korean>책</Korean>.</>} />
-    <div className="intro-pairs">
-      <ExampleParts parts={[['Modifier', '매운', 'spicy', 'Adjective'], ['First object', '음식을', 'food', 'Noun + object particle'], ['First action · -고', '먹고', 'eat and then', 'Verb + connecting ending'], ['Final action', '쉬어요.', 'rest', 'Verb']]} meaning="I eat spicy food and then rest." note="The last action keeps the polite ending." />
-      <ExampleParts parts={[['Reason subject', '비가', 'rain', 'Noun + subject particle'], ['Reason · -아서/어서', '와서', 'because it’s falling', 'Verb + reason ending'], ['Location', '집에', 'at home', 'Noun + place particle'], ['Main predicate', '있어요.', 'stay', 'Verb']]} meaning="I’m staying home because it’s raining." />
-      <ExampleParts parts={[['Condition subject', '비가', 'rain', 'Noun + subject particle'], ['Condition · -(으)면', '오면', 'if it falls', 'Verb + condition ending'], ['Location', '집에', 'at home', 'Noun + place particle'], ['Main predicate', '있어요.', 'stay', 'Verb']]} meaning="If it rains, I’ll stay home." />
-      <ExampleParts parts={[['Speaker', '민수가', 'Minsu', 'Proper noun + subject particle'], ['Quoted subject', '비가', 'rain', 'Noun + subject particle'], ['Quoted predicate · -다고', '온다고', 'that it’s falling', 'Verb + quotation ending'], ['Main action', '했어요.', 'said', 'Verb']]} meaning="Minsu said it was raining." />
-    </div>
+        <h3><GrammarLabel term="Modifier">Modifiers</GrammarLabel> and <GrammarLabel term="Clause">clauses</GrammarLabel></h3>
+        <div className="intro-pairs">
+          <ExampleParts parts={[['Modifier', '매운', 'spicy', 'Adjective'], ['Object', '음식을', 'food', 'Noun + object particle'], ['Action', '먹어요.', 'eat', 'Verb']]} meaning="I eat spicy food." note="The modifier stays with the noun when the rest of the sentence gets shorter." />
+          <ExampleParts parts={[['Object', '책을', 'a book', 'Noun + object particle'], ['Manner', '천천히', 'slowly', 'Adverb'], ['Action', '읽어요.', 'read', 'Verb']]} meaning="I read a book slowly." note="The adverb tells how I read." />
+        </div>
+        <ExampleParts parts={[['Who read it', '제가', 'I', 'Pronoun + subject particle'], ['Noun-modifying verb', '읽은', 'read', 'Verb'], ['Main subject', '책이', 'the book', 'Noun + subject particle'], ['Main predicate', '재미있어요.', 'is interesting', 'Adjective']]} meaning="The book I read is interesting." note={<>The whole clause <Korean>제가 읽은</Korean> goes before <Korean>책</Korean>.</>} />
+        <div className="intro-pairs">
+          <ExampleParts parts={[['Modifier', '매운', 'spicy', 'Adjective'], ['First object', '음식을', 'food', 'Noun + object particle'], ['First action · -고', '먹고', 'eat and then', 'Verb + connecting ending'], ['Final action', '쉬어요.', 'rest', 'Verb']]} meaning="I eat spicy food and then rest." note="The last action keeps the polite ending." />
+          <ExampleParts parts={[['Reason subject', '비가', 'rain', 'Noun + subject particle'], ['Reason · -아서/어서', '와서', 'because it’s falling', 'Verb + reason ending'], ['Location', '집에', 'at home', 'Noun + place particle'], ['Main predicate', '있어요.', 'stay', 'Verb']]} meaning="I’m staying home because it’s raining." />
+          <ExampleParts parts={[['Condition subject', '비가', 'rain', 'Noun + subject particle'], ['Condition · -(으)면', '오면', 'if it falls', 'Verb + condition ending'], ['Location', '집에', 'at home', 'Noun + place particle'], ['Main predicate', '있어요.', 'stay', 'Verb']]} meaning="If it rains, I’ll stay home." />
+          <ExampleParts parts={[['Speaker', '민수가', 'Minsu', 'Proper noun + subject particle'], ['Quoted subject', '비가', 'rain', 'Noun + subject particle'], ['Quoted predicate · -다고', '온다고', 'that it’s falling', 'Verb + quotation ending'], ['Main action', '했어요.', 'said', 'Verb']]} meaning="Minsu said it was raining." />
+        </div>
 
-    <h3>How the sentence ends</h3>
-    <p>Keep the same action and change the predicate to set the tense or speech style, ask a question, make a request, or suggest doing something together.</p>
-    <TypeTable title="Ways to end a Korean sentence" typeHeading="Use" rows={[
-      ['Everyday polite', '먹어요.', 'I eat it.', ['-어요', 'everyday polite ending', 'makes the verb polite.']],
-      ['Casual', '먹어.', 'I eat it.', ['-어', 'casual ending', 'makes the verb casual.']],
-      ['Formal polite', '먹습니다.', 'I eat it.', ['-습니다', 'formal polite ending', 'makes the verb formal and polite.']],
-      ['Past', '먹었어요.', 'I ate it.', ['-었-', 'past marker', 'places the action in the past.']],
-      ['Future', '먹을 거예요.', 'I’ll eat it.', ['-(으)ㄹ 거예요', 'will', 'is the future construction.']],
-      ['Negation', '안 먹어요.', 'I don’t eat it.', ['안', 'not', 'is the adverb that negates the verb 먹어요.']],
-      ['Yes/no question', '먹어요?', 'Do you eat it?', ['먹어요', 'eat', 'is the verb. A rising tone makes it a question here.']],
-      ['Question word', '뭘 먹어요?', 'What are you eating?', ['뭘', 'what', 'is the question word and serves as the object.']],
-      ['Polite request', '먹어 주세요.', 'Please eat it.', ['주세요', 'please do', 'is the auxiliary verb that makes this a polite request.']],
-      ['Suggestion', '같이 먹을까요?', 'Shall we eat together?', ['-(으)ㄹ까요', 'shall we', 'is the ending that makes this a suggestion.']],
+        <h3>Statement endings</h3>
+        <TypeTable title="Statement endings" typeHeading="Use" rows={[
+          ['Everyday polite', '먹어요.', 'I eat it.', ['-어요', 'everyday polite ending', 'makes the verb polite.']],
+          ['Casual', '먹어.', 'I eat it.', ['-어', 'casual ending', 'makes the verb casual.']],
+          ['Formal polite', '먹습니다.', 'I eat it.', ['-습니다', 'formal polite ending', 'makes the verb formal and polite.']],
+          ['Past', '먹었어요.', 'I ate it.', ['-었-', 'past marker', 'places the action in the past.']],
+          ['Future', '먹을 거예요.', 'I’ll eat it.', ['-(으)ㄹ 거예요', 'will', 'is the future construction.']],
+          ['Negation', '안 먹어요.', 'I don’t eat it.', ['안', 'not', 'is the adverb that negates the verb 먹어요.']],
+        ]} />
+      </> },
+      { label: 'Questions', content: <>
+        <h3>Ask for information</h3>
+        <p>For a yes/no question in everyday polite speech, keep the statement’s words and raise your voice at the end. To ask for a detail, put a question word where the answer belongs.</p>
+        <ExampleParts parts={[['Object', '밥을', 'rice', 'Noun + object particle'], ['Question', '먹어요?', 'do you eat?', 'Verb']]} meaning="Do you eat rice?" />
+        <ExampleParts parts={[['Object', '뭘', 'what', 'Short for 무엇을'], ['Question', '먹어요?', 'are you eating?', 'Verb']]} meaning="What are you eating?" />
+      </> },
+      { label: 'Commands & requests', content: <>
+        <h3>Ask someone to do something</h3>
+        <p>Put the requested action last. Use <Korean>-(으)세요</Korean> for a polite instruction or <Korean>-아/어 주세요</Korean> to ask someone to do you a favor.</p>
+        <ExampleParts parts={[['Object', '책을', 'the book', 'Noun + object particle'], ['Instruction', '읽으세요.', 'please read', 'Verb + polite instruction ending']]} meaning="Please read the book." />
+        <ExampleParts parts={[['Object', '책을', 'the book', 'Noun + object particle'], ['Action', '읽어', 'read', 'Verb'], ['Request', '주세요.', 'please do it for me', 'Auxiliary verb']]} meaning="Please read the book for me." />
+      </> },
+      { label: 'Suggestions', content: <>
+        <h3>Suggest doing something together</h3>
+        <p>Use <Korean>-자</Korean> for a casual suggestion or <Korean>-(으)ㄹ까요?</Korean> to ask what the other person thinks.</p>
+        <ExampleParts parts={[['Together', '같이', 'together', 'Adverb'], ['Suggestion', '먹자.', 'let’s eat', 'Verb + suggestion ending']]} meaning="Let’s eat together." />
+        <ExampleParts parts={[['Together', '같이', 'together', 'Adverb'], ['Suggestion', '먹을까요?', 'shall we eat?', 'Verb + question ending']]} meaning="Shall we eat together?" />
+      </> },
+      { label: 'Exclamations', content: <>
+        <h3>React to something you notice</h3>
+        <p>Use <Korean>-네요</Korean> when something strikes you in the moment, such as tasting food for the first time.</p>
+        <ExampleParts parts={[['Subject', '음식이', 'the food', 'Noun + subject particle'], ['Reaction', '맵네요!', 'is spicy!', 'Adjective + reaction ending']]} meaning="Wow, the food is spicy!" />
+      </> },
     ]} />
-    <p>Put <Korean>뭘</Korean> (<em>“what”</em>, the object) in the same place as <Korean>매운 음식을</Korean> in the original sentence.</p>
     <a className="text-button" href="#grammar">Practice sentence structure <Icon name="arrow" size={15} /></a>
   </LessonSection>
 }

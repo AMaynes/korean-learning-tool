@@ -306,6 +306,12 @@ describe('deployed study workflow', { concurrency: false }, () => {
 
     await sections.getByRole('button', { name: 'Sentence Structures', exact: true }).click()
     const sentenceExamples = page.locator('#sentence')
+    for (const title of ['Questions', 'Commands & requests', 'Suggestions', 'Exclamations', 'Statements']) {
+      await sentenceExamples.getByRole('tab', { name: title, exact: true }).click()
+      const panel = sentenceExamples.getByRole('tabpanel', { name: title, exact: true })
+      await panel.locator('figure').first().waitFor()
+      assert.equal(await sentenceExamples.getByRole('tabpanel').count(), 1)
+    }
     const fullSentence = sentenceExamples.locator('figure').filter({
       has: page.getByText('Today I’m eating spicy food at home.', { exact: true }),
     })

@@ -216,16 +216,16 @@ export function Intro() {
               ]} />
               <h3>HOW TO CONJUGATE</h3>
               <p>Start with a dictionary form like <Korean>먹다</Korean> (<em>to eat</em>). Drop <Korean>다</Korean> to get the stem <Korean>먹</Korean> (<em>eat</em>). Choose an ending for what you want to say, then attach it using its own rule. A hyphen marks the attachment point and disappears when you write the word.</p>
+              <h4>Examples without particles</h4>
               {conjugationRules.map(([rule, description, examples]) => <section key={rule}>
                 <h4>{rule}</h4>
                 <p>{description}</p>
                 {examples.map(parts => <ParticleEquation key={parts[2][0]} parts={parts} />)}
               </section>)}
-              <ApplicationChecks unit="a verb ending" particles="Yes" conjugates={false} note="A particle can follow certain connecting endings."
-                examples={[
-                  [[["먹지", "eat (with -지)"], ["는", "contrast marker"], ["먹지는", "as for eating"]], ["-지", "connecting ending", "attaches to 먹 and is followed by the contrast particle 는."], ["먹지는 않아요", "I don’t eat it."]],
-                ]}
-              />
+              <h4>One example with a particle</h4>
+              <p><Korean>밥<b>을</b> 먹고 쉰다.</Korean> <em>I eat rice and then rest.</em></p>
+              <ParticleEquation parts={[['밥', 'rice'], ['을', 'object particle'], ['밥을', 'rice as the object']]} />
+              <p><Korean>먹고</Korean> (<em>eat and then</em>) uses the ending <Korean>-고</Korean>. <Korean>쉰다</Korean> means <em>rest</em>. Adding <Korean>밥을</Korean> tells you what gets eaten.</p>
             </> },
           ]} />
           <a className="text-button" href="#grammar">Practice particles and conjugation <Icon name="arrow" size={15} /></a>

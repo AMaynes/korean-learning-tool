@@ -351,28 +351,24 @@ export const particleTypes: readonly IntroType[] = [
 export const conjugationRules = [
   ['Say that you do one thing and then another', 'Use -고 (and, or and then) on the first action. Attach 고 directly to its stem, then say the second action.', [
     [['먹', 'eat'], ['고', 'and then'], ['먹고', 'eat and then…']],
-    [['먹고', 'I eat and then…'], ['쉬어요', 'I rest'], ['먹고 쉬어요', 'I eat and then rest']],
+    [['먹고', 'I eat and then…'], ['쉰다', 'I rest'], ['먹고 쉰다', 'I eat and then rest']],
   ]],
-  ['Say what you do in everyday polite speech', 'Check the last vowel in the stem. Use -아요 for ㅏ or ㅗ and -어요 for other regular vowels. Matching vowels can merge. Words ending in 하다 use 해요.', [
-    [['가', 'go'], ['아요', 'polite ending'], ['가요', 'I go']],
-    [['먹', 'eat'], ['어요', 'polite ending'], ['먹어요', 'I eat']],
-    [['하', 'do'], ['여요', 'polite ending'], ['해요', 'I do']],
+  ['Say what you do in casual speech', 'Check the last vowel in the stem. Use -아 for ㅏ or ㅗ and -어 for other regular vowels. Matching vowels can merge. Words ending in 하다 use 해.', [
+    [['가', 'go'], ['아', 'casual ending'], ['가', 'I go']],
+    [['먹', 'eat'], ['어', 'casual ending'], ['먹어', 'I eat']],
+    [['하', 'do'], ['여', 'casual ending'], ['해', 'I do']],
   ]],
   ['Say what happens if a condition is met', 'For -(으)면, add 면 after a vowel or final ㄹ. Add 으면 after other regular final consonants.', [
     [['살', 'live'], ['면', 'if'], ['살면', 'if I live']],
     [['먹', 'eat'], ['으면', 'if'], ['먹으면', 'if I eat']],
   ]],
   ['Say “I listen” with the irregular verb 듣다', 'The stem of 듣다 changes from 듣 to 들 before a vowel ending. It keeps ㄷ before -고.', [
-    [['듣', 'listen'], ['어요', 'polite ending'], ['들어요', 'I listen']],
+    [['듣', 'listen'], ['어', 'casual ending'], ['들어', 'I listen']],
     [['듣', 'listen'], ['고', 'and then'], ['듣고', 'listen and then…']],
   ]],
   ['Make a formal polite statement', 'For a formal polite statement, add ㅂ니다 after a vowel or 습니다 after a consonant. A final ㄹ drops before ㅂ니다.', [
     [['살', 'live'], ['ㅂ니다', 'formal polite ending'], ['삽니다', 'I live']],
     [['먹', 'eat'], ['습니다', 'formal polite ending'], ['먹습니다', 'I eat']],
-  ]],
-  ['Say what someone or something is', 'For the polite present, add 이에요 after a final consonant or 예요 after a vowel.', [
-    [['학생', 'student'], ['이에요', 'am / is / are'], ['학생이에요', 'I’m a student']],
-    [['의사', 'doctor'], ['예요', 'am / is / are'], ['의사예요', 'I’m a doctor']],
   ]],
 ] as const
 

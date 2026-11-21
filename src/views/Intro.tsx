@@ -464,14 +464,17 @@ function ExampleParts({ parts, meaning, note }: {
   parts: readonly (readonly [label: string, korean: string, english: string, grammar: string])[]; meaning: string; note?: ReactNode
 }) {
   return <figure className="intro-example">
-    <ExampleNumber />
+    <figcaption>
+      <ExampleNumber />
+      <strong><Korean>{parts.map(([, word]) => word).join(' ')}</Korean></strong><br />
+      <em>{meaning}</em>{note && <> {note}</>}
+    </figcaption>
     <dl className="intro-parts">
       {parts.map(([label, korean, english, grammar]) => <div key={label}>
         <dt>{isIntroTerm(label) ? <GrammarLabel term={label} /> : label}</dt>
         <dd><Korean>{korean}</Korean><small><em>{english}</em></small><span className="intro-part-grammar">{grammar}</span></dd>
       </div>)}
     </dl>
-    <figcaption><em>{meaning}</em>{note && <> {note}</>}</figcaption>
   </figure>
 }
 

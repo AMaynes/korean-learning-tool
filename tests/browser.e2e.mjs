@@ -310,6 +310,10 @@ describe('deployed study workflow', { concurrency: false }, () => {
       await sentenceExamples.getByRole('tab', { name: title, exact: true }).click()
       const panel = sentenceExamples.getByRole('tabpanel', { name: title, exact: true })
       await panel.locator('figure').first().waitFor()
+      for (const example of await panel.locator('figure').all()) {
+        const words = await example.locator('dd [lang="ko"]').allTextContents()
+        assert.equal(await example.locator('figcaption [lang="ko"]').innerText(), words.join(' '))
+      }
       assert.equal(await sentenceExamples.getByRole('tabpanel').count(), 1)
     }
     const fullSentence = sentenceExamples.getByRole('tabpanel', { name: 'Statements' }).locator('figure')

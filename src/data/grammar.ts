@@ -109,8 +109,8 @@ const coreEndings = ([
 const extraEndings = ([
   ['try', '-아/어 보다', 'Try doing', 'Auxiliary', 'Use an action verb’s 아/어 base before 봐요.', '먹다', 'Eat', 'Try eating'],
   ['plan', '-(으)려고 하다', 'Plan / intend to', 'Auxiliary', 'Attach 려고 after a vowel or final ㄹ, 으려고 after most other consonants, then add 해요.', '가다', 'Go', 'Plan to go'],
-  ['before', '-기 전에', 'Before doing', 'Time connective', 'Nominalize with 기 and follow it with 전에.', '먹다', 'Eat', 'Before eating …'],
-  ['after', '-(으)ㄴ 후에', 'After doing', 'Time connective', 'Use the completed-action modifier with 후에.', '가다', 'Go', 'After going …'],
+  ['before', '-기 전', 'Before doing', 'Time connective', 'Nominalize with 기 and follow it with 전.', '먹다', 'Eat', 'Before eating …'],
+  ['after', '-(으)ㄴ 후', 'After doing', 'Time connective', 'Use the completed-action modifier with 후.', '가다', 'Go', 'After going …'],
   ['seems', '-(으)ㄹ 것 같다', 'Probably / seems likely', 'Auxiliary construction', 'Use the prospective modifier before 것 같아요.', '오다', 'Come', 'Will probably come'],
   ['background', '-는데 / -(으)ㄴ데', 'Background / contrast', 'Connective', 'Use 는데 for action verbs and forms ending in 있다/없다, and ㄴ데/은데 for most other adjectives.', '어렵다', 'Difficult', 'It is difficult, and/but …', 'adjective', 'b'],
 ] satisfies ConjugationSeed[]).map(ending)

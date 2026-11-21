@@ -158,8 +158,8 @@ export function conjugate(entry: Entry, wordClass: WordClass, rule: string): str
       const { base, eu } = euBase(stem, i)
       return wordClass === 'verb' && !existence ? base + (eu ? '으' : '') + '려고 해요' : null
     }
-    case 'before': return wordClass === 'verb' && !existence ? stem + '기 전에' : null
-    case 'after': return wordClass === 'verb' && !existence ? modifier(stem, 'n', i) + ' 후에' : null
+    case 'before': return wordClass === 'verb' && !existence ? stem + '기 전' : null
+    case 'after': return wordClass === 'verb' && !existence ? modifier(stem, 'n', i) + ' 후' : null
     case 'seems': return modifier(stem, 'r', i) + ' 것 같아요'
     case 'background': {
       if (wordClass === 'verb' || existence) return withoutR + '는데'

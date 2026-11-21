@@ -9,7 +9,7 @@
  */
 
 
-import { createContext, useContext, useEffect, useId, useRef, useState } from 'react'
+import { Fragment, createContext, useContext, useEffect, useId, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import {
   conjugationRules, introGlossary, introWordMeanings, modifierTypes, nounTypes,
@@ -406,24 +406,24 @@ function SentenceStructure() {
       { label: 'Statements', content: <>
         <p>Put the <GrammarLabel term="Predicate">predicate</GrammarLabel> last. For an action with an object, a common order is <strong>who + what + action</strong>.</p>
         <ExampleParts parts={[
-          ['Topic', '저는', 'I', '저 + 는 (topic marker)'],
-          ['Object', '밥을', 'rice', '밥 + 을 (object marker)'],
+          ['Topic', '저는', 'I', '는 · topic particle', '는'],
+          ['Object', '밥을', 'rice', '을 · object particle', '을'],
           ['Predicate', '먹어요.', 'eat', 'Verb'],
         ]} meaning="I eat rice." />
         <p>Here, <Korean>저</Korean> (<em>I</em>) is both the topic and the subject. <Korean>는</Korean> marks the topic, and the speaker is the one eating. In other sentences, the topic and subject can differ.</p>
-        <p>When it’s clear who’s eating, you can leave out <Korean>저는</Korean> (<em>I</em>) and say <Korean>밥을 먹어요</Korean> (<em>I eat rice</em>).</p>
+        <p>When it’s clear who’s eating, you can leave out <Korean>저<u>는</u></Korean> (<em>I</em>) and say <Korean>밥<u>을</u> 먹어요</Korean> (<em>I eat rice</em>).</p>
       </> },
       { label: 'Questions', content: <>
         <h3>Ask for information</h3>
         <p>For a yes/no question in everyday polite speech, keep the statement’s words and raise your voice at the end. To ask for a detail, put a question word where the answer belongs.</p>
-        <ExampleParts parts={[['Object', '밥을', 'rice', 'Noun + object particle'], ['Question', '먹어요?', 'do you eat?', 'Verb']]} meaning="Do you eat rice?" />
-        <ExampleParts parts={[['Object', '뭘', 'what', 'Short for 무엇을'], ['Question', '먹어요?', 'are you eating?', 'Verb']]} meaning="What are you eating?" />
+        <ExampleParts parts={[['Object', '밥을', 'rice', '을 · object particle', '을'], ['Question', '먹어요?', 'do you eat?', 'Verb']]} meaning="Do you eat rice?" />
+        <ExampleParts parts={[['Object', '무엇을', 'what', '을 · object particle (무엇을 contracts to 뭘)', '을'], ['Question', '먹어요?', 'are you eating?', 'Verb']]} meaning="What are you eating?" />
       </> },
       { label: 'Commands & requests', content: <>
         <h3>Ask someone to do something</h3>
         <p>Put the requested action last. Use <Korean>-(으)세요</Korean> for a polite instruction or <Korean>-아/어 주세요</Korean> to ask someone to do you a favor.</p>
-        <ExampleParts parts={[['Object', '책을', 'the book', 'Noun + object particle'], ['Instruction', '읽으세요.', 'please read', 'Verb + polite instruction ending']]} meaning="Please read the book." />
-        <ExampleParts parts={[['Object', '책을', 'the book', 'Noun + object particle'], ['Action', '읽어', 'read', 'Verb'], ['Request', '주세요.', 'please do it for me', 'Auxiliary verb']]} meaning="Please read the book for me." />
+        <ExampleParts parts={[['Object', '책을', 'the book', '을 · object particle', '을'], ['Instruction', '읽으세요.', 'please read', 'Verb + polite instruction ending']]} meaning="Please read the book." />
+        <ExampleParts parts={[['Object', '책을', 'the book', '을 · object particle', '을'], ['Action', '읽어', 'read', 'Verb'], ['Request', '주세요.', 'please do it for me', 'Auxiliary verb']]} meaning="Please read the book for me." />
       </> },
       { label: 'Suggestions', content: <>
         <h3>Suggest doing something together</h3>
@@ -434,7 +434,7 @@ function SentenceStructure() {
       { label: 'Exclamations', content: <>
         <h3>React to something you notice</h3>
         <p>Use <Korean>-네요</Korean> when something strikes you in the moment, such as tasting food for the first time.</p>
-        <ExampleParts parts={[['Subject', '음식이', 'the food', 'Noun + subject particle'], ['Reaction', '맵네요!', 'is spicy!', 'Adjective + reaction ending']]} meaning="Wow, the food is spicy!" />
+        <ExampleParts parts={[['Subject', '음식이', 'the food', '이 · subject particle', '이'], ['Reaction', '맵네요!', 'is spicy!', 'Adjective + reaction ending']]} meaning="Wow, the food is spicy!" />
       </> },
     ]} />
     <a className="text-button" href="#grammar">Practice sentence structure <Icon name="arrow" size={15} /></a>
@@ -462,18 +462,22 @@ function SyllableBlock({ letters: [initial, vowel, result, endings = []], positi
 
 /** Keep labeled Korean chunks in reading order and pair them with a full gloss. */
 function ExampleParts({ parts, meaning, note }: {
-  parts: readonly (readonly [label: string, korean: string, english: string, grammar: string])[]; meaning: string; note?: ReactNode
+  parts: readonly (readonly [label: string, korean: string, english: string, grammar: string, particle?: string])[]; meaning: string; note?: ReactNode
 }) {
+  function markParticle(word: string, particle?: string) {
+    if (!particle) return word
+    return <>{word.slice(0, -particle.length)}<u>{particle}</u></>
+  }
   return <figure className="intro-example">
     <figcaption>
       <ExampleNumber />
-      <strong><Korean>{parts.map(([, word]) => word).join(' ')}</Korean></strong><br />
+      <strong><Korean>{parts.map(([label, word, , , particle], index) => <Fragment key={label}>{index > 0 && ' '}{markParticle(word, particle)}</Fragment>)}</Korean></strong><br />
       <em>{meaning}</em>{note && <> {note}</>}
     </figcaption>
     <dl className="intro-parts">
-      {parts.map(([label, korean, english, grammar]) => <div key={label}>
+      {parts.map(([label, korean, english, grammar, particle]) => <div key={label}>
         <dt>{isIntroTerm(label) ? <GrammarLabel term={label} /> : label}</dt>
-        <dd><Korean>{korean}</Korean><small><em>{english}</em></small><span className="intro-part-grammar">{grammar}</span></dd>
+        <dd><Korean>{markParticle(korean, particle)}</Korean><small><em>{english}</em></small><span className="intro-part-grammar">{grammar}</span></dd>
       </div>)}
     </dl>
   </figure>

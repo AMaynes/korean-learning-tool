@@ -75,7 +75,8 @@ export function Intro() {
     if (event.key === 'Escape' && explanation) closeExplanation()
   }}>
     <div className="section-heading"><div>
-      <h1>How Korean works</h1>
+      <h1>An intro to Korean</h1>
+      <p><strong>Note:</strong> This tool is here to help you get started with Korean. Kori is a fun app that makes practice easier, too. Above all, practice a little every day. Those short sessions add up in any language.</p>
       <p>Build up to <em>“Today I’m eating spicy food at home.”</em> Choose a tab to see its examples and rules. Select an underlined term for three examples.</p>
     </div><a className="button primary" href="#recall">Go to practice <Icon name="arrow" /></a></div>
 

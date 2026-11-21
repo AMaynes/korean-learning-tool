@@ -93,9 +93,9 @@ describe('deployed study workflow', { concurrency: false }, () => {
       return { background: style.backgroundColor, text: style.color, scheme: style.colorScheme }
     })
     assert.deepEqual(palette, { background: 'rgb(23, 23, 23)', text: 'rgb(255, 255, 255)', scheme: 'dark' })
-    assert.equal(await page.getByRole('heading', { name: 'How Korean works' }).count(), 0)
+    assert.equal(await page.getByRole('heading', { name: 'An intro to Korean' }).count(), 0)
     await page.getByRole('link', { name: 'Intro', exact: true }).click()
-    await heading(page, 'How Korean works')
+    await heading(page, 'An intro to Korean')
     const lessonHeadings = page.locator('.intro-lesson > summary h2')
     assert.deepEqual(await lessonHeadings.allTextContents(), [
       'Hangul + Pronunciation', 'Nominals', 'Predicates', 'Modifiers + Particles + Conjugation', 'Independent Forms', 'Sentence Structures',
@@ -367,7 +367,7 @@ describe('deployed study workflow', { concurrency: false }, () => {
     await explanation.waitFor({ state: 'hidden' })
     assert.equal(await nominal.evaluate(button => document.activeElement === button), true)
     await page.reload()
-    await heading(page, 'How Korean works')
+    await heading(page, 'An intro to Korean')
     await page.getByRole('link', { name: 'Go to practice' }).click()
     await heading(page, 'Vocabulary Recall')
     if (process.env.KOREAN_QA_SCREENSHOTS) await page.screenshot({ path: join(process.env.KOREAN_QA_SCREENSHOTS, 'korean-mobile.png'), fullPage: true })

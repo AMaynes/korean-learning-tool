@@ -18,10 +18,10 @@ import type { PracticeMode, StudyState } from '../engine/storage'
 import { ActiveConfig, AnswerForm, DirectionSwitch, Empty, Icon, Korean, speakKorean, stopKoreanAudio, StandalonePronunciationNote, Transform } from './shared'
 import type { Save, SelectList } from './shared'
 
-const grammarModes = ['particles', 'conjugations', 'assembly', 'writing', 'decoding'] as const
+const grammarModes = ['particles', 'conjugations', 'writing', 'decoding'] as const
 const listeningModes = ['dictation', 'conversation'] as const
 const labels: Record<PracticeMode, string> = {
-  particles: 'Particle Practice', conjugations: 'Conjugation Practice', assembly: 'Sentence Assembly',
+  particles: 'Particle Practice', conjugations: 'Conjugation Practice',
   decoding: 'Sentence Decoding', writing: 'Sentence Writing', dictation: 'Listening Dictation', conversation: 'Guided Conversation',
 }
 
@@ -33,7 +33,6 @@ const forwardLabels: Partial<Record<PracticeMode, string>> = {
 const modeCategories: Record<PracticeMode, Category[]> = {
   particles: ['nouns', 'pronouns', 'particles'],
   conjugations: ['verbs', 'adjectives', 'conjugations'],
-  assembly: ['nouns', 'pronouns', 'verbs', 'adjectives', 'particles', 'conjugations'],
   decoding: ['nouns', 'pronouns', 'verbs', 'adjectives', 'particles', 'conjugations'],
   writing: ['nouns', 'pronouns', 'verbs', 'adjectives', 'particles', 'conjugations'],
   dictation: ['nouns', 'pronouns', 'verbs', 'adjectives', 'particles', 'conjugations', 'sentences'],
@@ -200,19 +199,12 @@ function ExerciseCard({ mode, reading, exercise, number, total, save, advance }:
   save: Save; advance: () => void
 }) {
   const [input, setInput] = useState('')
-  const [choice, setChoice] = useState<number[]>([])
-  const [tokens] = useState(() => {
-    const source = exercise.tokens ?? []
-    const order = shuffle(source)
-    return order.length > 1 && order.every((token, index) => token === source[index]) ? [...order.slice(1), order[0]] : order
-  })
   const [result, setResult] = useState<Result>()
   const [busy, setBusy] = useState(false)
   const [showTranslation, setShowTranslation] = useState(false)
   const [manualReview, setManualReview] = useState(false)
   const dictation = mode === 'dictation'
   const conversation = mode === 'conversation'
-  const assembly = mode === 'assembly'
   const audio = dictation || conversation
   const sentenceWriting = mode === 'writing' || conversation
   const examples = conversation && !reading ? exercise.responses ?? [exercise.answer] : [exercise.answer, ...exercise.alternatives ?? []]
@@ -224,7 +216,7 @@ function ExerciseCard({ mode, reading, exercise, number, total, save, advance }:
   async function grade(answer: string, reveal = false) {
     if (busy || result) return
     const correct = !reveal && (reading ? matchesEnglishAnswer(answer, examples) : matchesAnswer(answer, examples))
-    if (!correct && !reveal && (sentenceWriting || (reading && !assembly))) { setResult('different'); return }
+    if (!correct && !reveal && (sentenceWriting || reading)) { setResult('different'); return }
     setBusy(true)
     const ok = await save(previous => addScore(previous, mode, exercise.target, correct))
     if (ok) setResult(reveal ? 'revealed' : correct ? 'correct' : 'incorrect')
@@ -252,7 +244,6 @@ function ExerciseCard({ mode, reading, exercise, number, total, save, advance }:
         <StandalonePronunciationNote word={exercise.prompt} />
         <p>{exercise.transformation.originalMeaning}</p>
       </>}
-      {assembly && <p>{reading ? 'Put the English words in order.' : 'Find the polite predicate first. It usually goes at the end.'}</p>}
       {dictation && <p>Use Slow to hear each part, then replay at normal speed.</p>}
       {mode === 'writing' && !reading && <p>Use a polite ending. You can leave out an obvious subject.</p>}
       {audio && exercise.audio && <AudioControls key={exercise.audio} phrase={exercise.audio} />}
@@ -260,18 +251,8 @@ function ExerciseCard({ mode, reading, exercise, number, total, save, advance }:
       {conversation && !reading && showTranslation && <p>{exercise.translation}</p>}
       {conversation && !reading && <p>Reply with a short polite sentence. You can say your answer aloud before comparing it.</p>}
     </div>
-    {assembly ? <>
-      <div className="token-answer" aria-label="Your sentence">
-        {choice.length ? choice.map(index => <button className="token selected" key={index} disabled={!!result} onClick={() =>
-          setChoice(choice.filter(item => item !== index))}>{reading ? tokens[index] : <Korean>{tokens[index]}</Korean>}</button>) : <span>Add words here in sentence order.</span>}
-      </div>
-      <div className="token-bank" aria-label="Available words">{tokens.map((token, index) => <button className="token" key={index}
-        disabled={choice.includes(index) || !!result} onClick={() => setChoice([...choice, index])}>{reading ? token : <Korean>{token}</Korean>}</button>)}</div>
-      <div className="button-row"><button className="button" disabled={!choice.length || !!result} onClick={() => setChoice([])}>Clear</button>
-        <button className="button primary" disabled={choice.length !== tokens.length || busy || !!result}
-          onClick={() => void grade(choice.map(index => tokens[index]).join(' '))}>Check answer</button></div>
-    </> : <AnswerForm value={input} onChange={setInput} submit={() => void grade(input)} multiline={sentenceWriting}
-      language={reading ? 'en' : 'ko'} label={reading ? 'English meaning' : conversation ? 'Your response' : dictation ? 'Your transcription' : 'Your answer'} disabled={busy || !!result} />}
+    <AnswerForm value={input} onChange={setInput} submit={() => void grade(input)} multiline={sentenceWriting}
+      language={reading ? 'en' : 'ko'} label={reading ? 'English meaning' : conversation ? 'Your response' : dictation ? 'Your transcription' : 'Your answer'} disabled={busy || !!result} />
     <div className="feedback" aria-live="polite">
       {result && <>
         <p className={result === 'correct' ? 'success' : 'retry'}>{result === 'correct' && <Icon name="check" />}{feedbackText[result]}</p>

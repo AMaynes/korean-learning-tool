@@ -98,10 +98,9 @@ describe('practice in English', () => {
 
   it('reverses sentence, dictation, and conversation prompts without changing the audio', () => {
     const active = activeLists(defaultSelection)
-    const assembly = generate('assembly', active)[0]
-    const reversed = toEnglishPractice('assembly', assembly)
-    expect(reversed).toMatchObject({ prompt: assembly.answer, answer: assembly.prompt })
-    expect(reversed.tokens?.join(' ')).toBe(assembly.prompt.replace(/\.$/u, ''))
+    const writing = generate('writing', active)[0]
+    const reversed = toEnglishPractice('writing', writing)
+    expect(reversed).toMatchObject({ prompt: writing.answer, answer: writing.prompt })
     for (const mode of ['writing', 'dictation'] as const) {
       const exercise = generate(mode, active)[0]
       expect(toEnglishPractice(mode, exercise)).toMatchObject({
@@ -259,9 +258,9 @@ describe('adaptive recall and persistence', () => {
 
   it('tracks mode scores and rejects invalid backups', () => {
     let state = defaults()
-    for (let i = 0; i < 3; i++) state = addScore(state, 'assembly', 'frame-1', true)
-    expect(state.scores.assembly?.['frame-1']).toMatchObject({ mastered: true, attempts: 3 })
-    expect(state.scores.writing).toBeUndefined()
+    for (let i = 0; i < 3; i++) state = addScore(state, 'writing', 'frame-1', true)
+    expect(state.scores.writing?.['frame-1']).toMatchObject({ mastered: true, attempts: 3 })
+    expect(state.scores.decoding).toBeUndefined()
     expect(() => importBackup({ kind: 'korean-study-backup', state: { ...state, version: 2 } })).toThrow()
   })
 })

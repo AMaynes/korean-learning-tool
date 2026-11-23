@@ -14,7 +14,7 @@ import type { Selection } from '../data/model'
 import type { DeckProgress } from './mastery'
 import { activeLists, defaultSelection } from './registry'
 
-export const practiceModes = ['particles', 'conjugations', 'assembly', 'writing', 'decoding', 'dictation', 'conversation'] as const
+export const practiceModes = ['particles', 'conjugations', 'writing', 'decoding', 'dictation', 'conversation'] as const
 export type PracticeMode = typeof practiceModes[number]
 
 /** Independent performance for each exercise mode. */
@@ -29,7 +29,7 @@ export interface StudyState {
   version: 1
   selected: Selection
   recall: Record<string, DeckProgress>
-  scores: Partial<Record<PracticeMode, Record<string, Score>>>
+  scores: Partial<Record<PracticeMode | 'assembly', Record<string, Score>>>
 }
 
 /** Create fresh state without sharing mutable records across consumers. */
@@ -110,7 +110,7 @@ export function importBackup(value: unknown): StudyState {
 
   const invalidRecall = Object.entries(state.recall).some(([id, deck]) => !validId(id) || !validDeck(deck))
   const invalidScores = Object.entries(state.scores).some(([mode, scores]) =>
-    !practiceModes.includes(mode as PracticeMode) || !record(scores) || Object.values(scores).some(score => !validScore(score)))
+    (mode !== 'assembly' && !practiceModes.includes(mode as PracticeMode)) || !record(scores) || Object.values(scores).some(score => !validScore(score)))
   if (invalidRecall || invalidScores) throw new Error('The backup contains invalid study records.')
   return restoreStudyData(state as unknown as StudyState)
 }

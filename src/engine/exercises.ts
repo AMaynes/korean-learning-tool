@@ -85,7 +85,7 @@ export function generate(mode: PracticeMode, active: Active, scope: HostCategory
   switch (mode) {
     case 'particles': return particleExercises(active, scope === 'nouns' || scope === 'pronouns' ? scope : 'both')
     case 'conjugations': return conjugationExercises(active, scope === 'verbs' || scope === 'adjectives' ? scope : 'both')
-    case 'decoding': case 'assembly': case 'writing': return sentenceExercises(active)
+    case 'decoding': case 'writing': return sentenceExercises(active)
     case 'conversation': return sentenceExercises(active).filter(exercise => exercise.audio).map(exercise => ({
       ...exercise, prompt: exercise.audio!, cue: 'Reply in Korean', translation: exercise.translation,
       explanation: `A polite statement can become a question with rising intonation. ${exercise.explanation}`,
@@ -116,7 +116,7 @@ export function toEnglishPractice(mode: PracticeMode, exercise: Exercise): Exerc
     prompt: mode === 'conversation' ? exercise.prompt : exercise.answer,
     cue, answer,
     alternatives: transformation ? answer.split(/\s+\/\s+/u) : undefined,
-    tokens: mode === 'assembly' ? normalizedAnswer(answer).split(/\s+/u) : undefined,
+    tokens: undefined,
   }
 }
 
@@ -278,7 +278,7 @@ function sentenceExercises(active: Active): Exercise[] {
   return [...actions, ...descriptions].filter(exercise => (exercise.tokens?.length ?? 0) > 1)
 }
 
-/** Shuffle independently so advancing and sentence assembly can use random order safely. */
+/** Shuffle a copy for a new round of practice. */
 export function shuffle<T>(items: T[], random = Math.random): T[] {
   const shuffled = [...items]
   for (let i = shuffled.length - 1; i > 0; i--) {

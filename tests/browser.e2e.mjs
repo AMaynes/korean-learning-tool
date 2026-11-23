@@ -609,11 +609,7 @@ describe('deployed study workflow', { concurrency: false }, () => {
     const verb = await page.locator('.exercise-prompt h2').textContent()
     assert.ok(['마시다','읽다','쓰다','자다','일하다','운동하다','걷다','듣다','돕다','일어나다'].includes(verb))
 
-    await page.getByRole('button', { name: 'Sentence Assembly' }).click()
-    const tokens = page.getByRole('group', { name: 'Available words' }).or(page.locator('.token-bank'))
-    assert.equal(await tokens.getByText('먹어요', { exact: true }).count(), 0)
-    await page.getByRole('button', { name: 'Reveal answer' }).click()
-    await page.getByText('Example answer', { exact: true }).waitFor()
+    assert.equal(await page.getByRole('button', { name: 'Sentence Assembly' }).count(), 0)
     await page.getByRole('button', { name: 'Sentence Writing' }).click()
     await page.getByLabel('Your answer').fill('안녕하세요')
     await page.getByRole('button', { name: 'Check answer' }).click()
@@ -725,17 +721,11 @@ describe('deployed study workflow', { concurrency: false }, () => {
     assert.equal(await page.getByLabel('Nouns', { exact: true }).inputValue(), 'nouns-all')
     const reading = page.getByRole('group', { name: 'Practice direction' }).getByRole('button', { name: 'Korean → English', exact: true })
     await reading.click()
-    for (const mode of ['Particle Practice', 'Conjugation Practice', 'Sentence Assembly', 'Sentence Writing']) {
+    for (const mode of ['Particle Practice', 'Conjugation Practice', 'Sentence Writing']) {
       await page.getByRole('button', { name: mode, exact: true }).click()
       await page.locator('.exercise-prompt h2 [lang="ko"]').waitFor()
       assert.equal(await page.locator('.model-answer').count(), 0)
-      if (mode === 'Sentence Assembly') {
-        await page.getByText('Put the English words in order.', { exact: true }).waitFor()
-        assert.ok(await page.locator('.token-bank button').count() > 0)
-        assert.equal(await page.locator('.token-bank [lang="ko"]').count(), 0)
-      } else {
-        assert.equal(await page.getByRole('textbox', { name: 'English meaning' }).getAttribute('lang'), 'en')
-      }
+      assert.equal(await page.getByRole('textbox', { name: 'English meaning' }).getAttribute('lang'), 'en')
       await page.getByRole('button', { name: 'Reveal meaning' }).click()
       await page.locator('.model-answer strong').waitFor()
     }

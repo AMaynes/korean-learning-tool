@@ -458,3 +458,6 @@ td [lang="ko"] { color: var(--accent); font-weight: 650; }
 .grammar-list td.grammar-detail { white-space: normal; background: var(--subtle); }
 .grammar-detail p { max-width: min(52ch, 75vw); margin: 6px 0; }
 .grammar-detail ol { padding-left: 22px; margin: 4px 0; }
+
+.decode-words { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr)); gap: 12px; }
+.decode-words input { width: 100%; }

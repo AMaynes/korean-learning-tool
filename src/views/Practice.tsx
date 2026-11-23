@@ -18,11 +18,11 @@ import type { PracticeMode, StudyState } from '../engine/storage'
 import { ActiveConfig, AnswerForm, DirectionSwitch, Empty, Icon, Korean, speakKorean, stopKoreanAudio, StandalonePronunciationNote, Transform } from './shared'
 import type { Save, SelectList } from './shared'
 
-const grammarModes = ['particles', 'conjugations', 'assembly', 'writing'] as const
+const grammarModes = ['particles', 'conjugations', 'assembly', 'writing', 'decoding'] as const
 const listeningModes = ['dictation', 'conversation'] as const
 const labels: Record<PracticeMode, string> = {
   particles: 'Particle Practice', conjugations: 'Conjugation Practice', assembly: 'Sentence Assembly',
-  writing: 'Sentence Writing', dictation: 'Listening Dictation', conversation: 'Guided Conversation',
+  decoding: 'Sentence Decoding', writing: 'Sentence Writing', dictation: 'Listening Dictation', conversation: 'Guided Conversation',
 }
 
 const forwardLabels: Partial<Record<PracticeMode, string>> = {
@@ -34,6 +34,7 @@ const modeCategories: Record<PracticeMode, Category[]> = {
   particles: ['nouns', 'pronouns', 'particles'],
   conjugations: ['verbs', 'adjectives', 'conjugations'],
   assembly: ['nouns', 'pronouns', 'verbs', 'adjectives', 'particles', 'conjugations'],
+  decoding: ['nouns', 'pronouns', 'verbs', 'adjectives', 'particles', 'conjugations'],
   writing: ['nouns', 'pronouns', 'verbs', 'adjectives', 'particles', 'conjugations'],
   dictation: ['nouns', 'pronouns', 'verbs', 'adjectives', 'particles', 'conjugations', 'sentences'],
   conversation: ['nouns', 'pronouns', 'verbs', 'adjectives', 'particles', 'conjugations'],
@@ -52,7 +53,7 @@ export function Practice({ module, active, lists, state, onSelect, save }: {
   const [ruleFilter, setRuleFilter] = useState('')
   const [revision, setRevision] = useState(0)
   const [direction, setDirection] = useState<RecallDirection>('en-to-ko')
-  const reading = direction === 'ko-to-en'
+  const reading = mode !== 'decoding' && direction === 'ko-to-en'
   const ruleList = mode === 'particles' || mode === 'conjugations' ? active[mode] : undefined
   const validFilter = ruleList?.entries.some(entry => entry.id === ruleFilter) ? ruleFilter : ''
   const exercises = useMemo(() => {
@@ -83,7 +84,7 @@ export function Practice({ module, active, lists, state, onSelect, save }: {
           <summary>Active vocabulary</summary>
           <ActiveConfig categories={modeCategories[mode]} lists={lists} active={active} onSelect={onSelect} />
         </details>
-        <DirectionSwitch direction={direction} onChange={setDirection} forwardLabel={forwardLabels[mode]} />
+        {mode !== 'decoding' && <DirectionSwitch direction={direction} onChange={setDirection} forwardLabel={forwardLabels[mode]} />}
         {exercises.length ? <PracticeSession
           key={`${mode}:${direction}:${scopeKey}:${scope}:${validFilter}:${revision}:${exerciseKey}`}
           mode={mode} reading={reading} exercises={exercises} save={save}
@@ -135,6 +136,7 @@ function PracticeSession({ mode, reading, exercises, save }: {
 }) {
   const [order, setOrder] = useState(() => shuffle(exercises.map(exercise => exercise.id)))
   const [position, setPosition] = useState(0)
+  const [round, setRound] = useState(0)
   const exercise = exercises.find(item => item.id === order[position]) ?? exercises[0]
 
   /** Shuffle each completed round while avoiding an immediate repeat. */
@@ -142,12 +144,52 @@ function PracticeSession({ mode, reading, exercises, save }: {
     if (position + 1 < order.length) { setPosition(position + 1); return }
     const shuffled = shuffle(order)
     if (shuffled.length > 1 && shuffled[0] === exercise.id) shuffled.push(shuffled.shift()!)
+    setRound(value => value + 1)
     setOrder(shuffled)
     setPosition(0)
   }
 
+  if (mode === 'decoding') return <DecodingCard key={round + ':' + exercise.id + ':' + position} exercise={exercise}
+    number={position + 1} total={order.length} advance={advance} save={save} />
   return <ExerciseCard key={exercise.id + ':' + position} mode={mode} reading={reading} exercise={exercise}
     number={position + 1} total={order.length} save={save} advance={advance} />
+}
+
+function DecodingCard({ exercise, number, total, advance, save }: {
+  exercise: Exercise; number: number; total: number; advance: () => void; save: Save
+}) {
+  const words = exercise.tokens!
+  const [answers, setAnswers] = useState(() => words.map(() => ''))
+  const [translation, setTranslation] = useState('')
+  const [review, setReview] = useState(false)
+  const [busy, setBusy] = useState(false)
+  async function finish(correct: boolean) {
+    if (busy) return
+    setBusy(true)
+    if (await save(previous => addScore(previous, 'decoding', exercise.target, correct))) advance()
+    setBusy(false)
+  }
+  return <article className="panel exercise-panel">
+    <div className="card-meta"><span>Sentence Decoding</span><span>Exercise {number} of {total}</span></div>
+    <div className="exercise-prompt"><h2><Korean>{exercise.answer}.</Korean></h2>
+      <p>Give each word’s meaning, then translate the full sentence into natural English.</p></div>
+    <form className="answer-form" onSubmit={event => { event.preventDefault(); setReview(true) }}>
+      <div className="decode-words">{words.map((word, index) => <label className="field" key={index}>
+        <Korean>{word}</Korean>
+        <input aria-label={word + ' meaning'} value={answers[index]} readOnly={review}
+          onChange={event => setAnswers(answers.map((old, i) => i === index ? event.target.value : old))} />
+        {review && <em>{exercise.wordMeanings![index]}</em>}
+      </label>)}</div>
+      <label className="field">Whole sentence meaning<textarea value={translation} readOnly={review}
+        onChange={event => setTranslation(event.target.value)} /></label>
+      {!review && <button className="button primary" disabled={!translation.trim() || answers.some(value => !value.trim())}>Check meanings</button>}
+    </form>
+    {review && <div className="feedback"><strong>Example translation</strong><p>{exercise.prompt}</p><p>{exercise.explanation}</p>
+      <p>Did you get every word and the full meaning? Equivalent English wording counts.</p>
+      <div className="button-row"><button className="button primary" disabled={busy} onClick={() => void finish(true)}>Got it · Next</button>
+        <button className="button" disabled={busy} onClick={() => void finish(false)}>Missed something · Next</button></div>
+    </div>}
+  </article>
 }
 
 type Result = 'correct' | 'different' | 'incorrect' | 'revealed'

@@ -28,6 +28,7 @@ export interface Exercise {
   alternatives?: string[]
   explanation: string
   transformation?: Transformation
+  wordMeanings?: string[]
   tokens?: string[]
   audio?: string
   translation?: string
@@ -84,7 +85,7 @@ export function generate(mode: PracticeMode, active: Active, scope: HostCategory
   switch (mode) {
     case 'particles': return particleExercises(active, scope === 'nouns' || scope === 'pronouns' ? scope : 'both')
     case 'conjugations': return conjugationExercises(active, scope === 'verbs' || scope === 'adjectives' ? scope : 'both')
-    case 'assembly': case 'writing': return sentenceExercises(active)
+    case 'decoding': case 'assembly': case 'writing': return sentenceExercises(active)
     case 'conversation': return sentenceExercises(active).filter(exercise => exercise.audio).map(exercise => ({
       ...exercise, prompt: exercise.audio!, cue: 'Reply in Korean', translation: exercise.translation,
       explanation: `A polite statement can become a question with rising intonation. ${exercise.explanation}`,
@@ -204,13 +205,14 @@ function sentenceExercises(active: Active): Exercise[] {
   const descriptions: Exercise[] = []
 
   /** Register an action frame with a topic and subject alternative when those rules are enabled. */
-  function addAction(id: string, body: string[], gloss: string, explanation: string) {
+  function addAction(id: string, body: string[], meanings: string[], gloss: string, explanation: string) {
     const core = body.join(' ')
     const tokens = [topic ?? subject, ...body].filter((token): token is string => Boolean(token))
     const answer = tokens.join(' ')
     actions.push({
       id: `${scope}:action:${id}`, target: `${scope}:action:${id}`, prompt: `I ${gloss}.`, cue: 'Build a polite statement',
       answer, alternatives: [core, ...(subject ? [`${subject} ${core}`] : []), ...(topic ? [`${topic} ${core}`] : [])],
+      wordMeanings: [...(topic || subject ? [topic ? 'I (topic)' : 'I (subject)'] : []), ...meanings],
       tokens, explanation: `${explanation} The polite predicate comes last. The speaker can be left implicit when clear.`,
       audio: `${core}?`, translation: `Do you ${gloss}?`, responses: [core, answer],
     })
@@ -225,14 +227,14 @@ function sentenceExercises(active: Active): Exercise[] {
       for (const noun of active.nouns.entries.filter(entry => entry.tags?.includes(tag))) {
         if (noun.korean === '집' && particle === 'destination' && verb.korean !== '도착하다') {
           const place = attach(noun.korean, particle)
-          if (place) addAction(`${verb.id}:${noun.id}`, [place.result, predicate], verb.korean === '가다' ? 'go home' : 'come home', '에 marks the destination.')
+          if (place) addAction(`${verb.id}:${noun.id}`, [place.result, predicate], ['home (destination, 에)', gloss(verb)], verb.korean === '가다' ? 'go home' : 'come home', '에 marks the destination.')
           continue
         }
         const host = attach(noun.korean, particle)
-        if (host) addAction(`${verb.id}:${noun.id}`, [host.result, predicate], english(noun), particle === 'object' ? '을/를 marks the direct object.' : '에 marks the destination.')
+        if (host) addAction(`${verb.id}:${noun.id}`, [host.result, predicate], [gloss(noun) + ' (' + particle + ', ' + host.applied + ')', gloss(verb)], english(noun), particle === 'object' ? '을/를 marks the direct object.' : '에 marks the destination.')
       }
     }
-    if (simpleActions[verb.korean]) addAction(verb.id, [predicate], simpleActions[verb.korean], 'This action can be expressed without a direct object.')
+    if (simpleActions[verb.korean]) addAction(verb.id, [predicate], [simpleActions[verb.korean]], simpleActions[verb.korean], 'This action can be expressed without a direct object.')
     if (hasParticle('subject') && ['있다', '없다'].includes(verb.korean)) {
       for (const noun of active.nouns.entries.filter(entry => entry.tags?.includes('food') || entry.tags?.includes('drink'))) {
         const host = attach(noun.korean, 'subject')
@@ -242,6 +244,7 @@ function sentenceExercises(active: Active): Exercise[] {
         const key = `${scope}:exist:${verb.id}:${noun.id}`
         descriptions.push({
           id: key, target: key, prompt: `There is ${verb.korean === '없다' ? 'no ' : 'some '}${gloss(noun)}.`,
+          wordMeanings: [gloss(noun) + ' (subject, ' + host.applied + ')', verb.korean === '없다' ? 'there is no' : 'there is'],
           cue: 'Express presence or absence', answer, tokens, explanation: '이/가 marks what exists or is missing. 있어요 and 없어요 express presence and absence.',
         })
       }
@@ -264,6 +267,7 @@ function sentenceExercises(active: Active): Exercise[] {
         const quality = adjective.korean === '많다' ? 'plentiful' : adjective.korean === '적다' ? 'scarce' : gloss(adjective)
         descriptions.push({
           id, target: id, prompt: `${sentenceCase(subjectGloss)} is ${quality}.`, cue: 'Describe the subject', answer,
+          wordMeanings: [gloss(noun) + (markedSubject ? ' (subject)' : ' (topic)'), 'is ' + quality],
           alternatives: [`${markedTopic ?? markedSubject} ${predicate}`, predicate], tokens,
           explanation: 'The descriptive predicate carries the polite ending by itself. 이/가 marks the subject and 은/는 can set the topic.',
           audio: `${answer}?`, translation: `Is ${subjectGloss} ${quality}?`, responses: [predicate, answer],

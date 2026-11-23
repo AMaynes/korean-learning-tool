@@ -14,7 +14,7 @@ import type { Selection } from '../data/model'
 import type { DeckProgress } from './mastery'
 import { activeLists, defaultSelection } from './registry'
 
-export const practiceModes = ['particles', 'conjugations', 'assembly', 'writing', 'dictation', 'conversation'] as const
+export const practiceModes = ['particles', 'conjugations', 'assembly', 'writing', 'decoding', 'dictation', 'conversation'] as const
 export type PracticeMode = typeof practiceModes[number]
 
 /** Independent performance for each exercise mode. */

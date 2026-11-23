@@ -485,6 +485,24 @@ describe('deployed study workflow', { concurrency: false }, () => {
     await page.close()
   })
 
+  it('decodes each Korean word and reviews the complete translation', async () => {
+    const page = await browser.newPage({ viewport: { width: 320, height: 740 } })
+    await page.goto(projectPage + '#grammar')
+    await page.getByRole('button', { name: 'Sentence Decoding', exact: true }).click()
+    const check = page.getByRole('button', { name: 'Check meanings' })
+    assert.ok(await check.isDisabled())
+    const words = page.locator('.decode-words input')
+    assert.ok(await words.count() >= 2)
+    for (const word of await words.all()) await word.fill('my gloss')
+    await page.getByLabel('Whole sentence meaning').fill('my translation')
+    await check.click()
+    assert.equal(await page.locator('.decode-words em').count(), await words.count())
+    await page.getByRole('button', { name: 'Got it · Next' }).click()
+    await check.waitFor()
+    assert.equal(await words.first().inputValue(), '')
+    await page.close()
+  })
+
   it('opens the full grammar list from a recall card in either mode', async () => {
     const page = await browser.newPage()
     await page.setViewportSize({ width: 320, height: 760 })

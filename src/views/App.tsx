@@ -31,7 +31,7 @@ const studyNav = [
   ['recall', 'Vocabulary Recall', 'cards'],
   ['grammar', 'Grammar Trainer', 'grammar'],
   ['reading', 'Reading Trainer', 'book'],
-  ['listening', 'Listening & Conversation', 'sound'],
+  ['listening', 'Conversation Tool', 'sound'],
 ] as const
 
 /** Keep static hosting compatible with direct links and default to the recall tool. */

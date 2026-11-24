@@ -469,4 +469,5 @@ td [lang="ko"] { color: var(--accent); font-weight: 650; }
 .reading-word { display: grid; gap: 4px; width: 8rem; max-width: 100%; overflow-wrap: anywhere; }
 .reading-word strong { font-size: 18px; }
 .reading-word input { width: 100%; min-width: 0; }
-.reading-translation { border-top: 1px solid var(--line); padding-top: 10px; }
+.reading-sentence-guess { margin-top: 14px; }
+.reading-translation { margin: 8px 0 0; }

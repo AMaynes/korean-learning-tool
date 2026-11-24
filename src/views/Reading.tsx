@@ -86,7 +86,10 @@ function ReadingSheet({ sentences, edit }: { sentences: string[]; edit: () => vo
       </div>)}
         <button className="button quiet" type="button" aria-label={'Hear sentence ' + (i + 1)} onClick={() => play(sentence)}><Icon name="sound" /></button>
       </div>
-      {submitted && Object.hasOwn(meanings, sentence) && <p className="reading-translation"><em>{meanings[sentence]}</em></p>}
+      <label className="field reading-sentence-guess">Your sentence translation
+        <input lang="en" placeholder="What does the whole sentence mean in English?" />
+      </label>
+      {submitted && Object.hasOwn(meanings, sentence) && <p className="reading-translation"><strong>Translation</strong> <em>{meanings[sentence]}</em></p>}
     </section>)}
     {soundError && <p role="status">Audio couldn’t play. Tap the word or speaker to retry.</p>}
     {failed && <p role="status">Translation was interrupted. Retry to finish the passage.</p>}

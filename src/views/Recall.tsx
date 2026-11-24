@@ -9,20 +9,20 @@
  */
 
 
-import { useId, useState } from 'react'
+import { useEffect, useId, useState } from 'react'
 import { categories, categoryIds } from '../data/model'
 import type { Category, WordList } from '../data/model'
 import { matchesAnswer, matchesEnglishAnswer, recallCard, shuffle } from '../engine/exercises'
 import type { RecallDirection } from '../engine/exercises'
 import { emptyDeck, recordRecall, nextRecall } from '../engine/mastery'
 import type { DeckProgress } from '../engine/mastery'
-import { AnswerForm, DirectionSwitch, Empty, Icon, Korean, ListSelect, StandalonePronunciationNote, Transform } from './shared'
+import { AnswerForm, DirectionSwitch, Empty, Icon, Korean, ListSelect, speakKorean, stopKoreanAudio, StandalonePronunciationNote, Transform } from './shared'
 import type { Save, SelectList } from './shared'
 
 import { GrammarList } from './GrammarList'
 import { pictureCategories, pictureClues } from '../data/pictures'
 
-type RecallPrompt = RecallDirection | 'image-to-ko'
+type RecallPrompt = RecallDirection | 'image-to-ko' | 'sound-to-en'
 type Mode = 'mental' | 'typing'
 
 /** Display deck selection and the two recall modes. */
@@ -52,7 +52,7 @@ export function Recall({ category, setCategory, deck: selectedDeck, lists, onSel
             {(pictures ? pictureCategories : categoryIds).map(id => <option key={id} value={id}>{categories[id]}</option>)}
           </select></label>
           <ListSelect category={category} lists={lists} selected={deck.id} onSelect={onSelect} />
-          <DirectionSwitch direction={direction} onChange={setDirection} label="Recall direction" onImage={() => {
+          <DirectionSwitch direction={direction} onChange={setDirection} label="Recall direction" onSound={() => setDirection('sound-to-en')} onImage={() => {
             if (!pictureCategories.includes(category)) setCategory('nouns')
             setDirection('image-to-ko')
           }} />
@@ -89,14 +89,31 @@ function PicturePrompt({ word }: { word: string }) {
   return <img className="recall-picture" src={src} alt={clue.description} width={144} height={144} />
 }
 
+function SoundPrompt({ text }: { text: string }) {
+  const [blocked, setBlocked] = useState(false)
+  function play() {
+    setBlocked(false)
+    speakKorean(text, 1, () => {}, () => setBlocked(true))
+  }
+  useEffect(() => {
+    play()
+    return stopKoreanAudio
+  }, [text])
+  return <div>
+    <button className="button" onClick={play}><Icon name="sound" /> Play sound</button>
+    {blocked && <p role="status">Tap Play sound to try again.</p>}
+  </div>
+}
+
 /** Present a local, ungraded deck whose order can be reshuffled independently. */
 function MentalRecall({ deck, direction }: { deck: WordList; direction: RecallPrompt }) {
   const [order, setOrder] = useState(deck.entries.map(entry => entry.id))
   const [position, setPosition] = useState(0)
   const [flipped, setFlipped] = useState(false)
   const entry = deck.entries.find(candidate => candidate.id === order[position]) ?? deck.entries[0]
-  const card = recallCard(deck.category, entry, direction === 'image-to-ko' ? 'en-to-ko' : direction)
-  const reading = direction === 'ko-to-en'
+  const sound = direction === 'sound-to-en'
+  const reading = sound || direction === 'ko-to-en'
+  const card = recallCard(deck.category, entry, reading ? 'ko-to-en' : 'en-to-ko')
   const word = flipped ? card.answer : card.prompt
   const koreanFace = reading ? !flipped : flipped || Boolean(card.transformation)
   const caption = reading
@@ -105,10 +122,11 @@ function MentalRecall({ deck, direction }: { deck: WordList; direction: RecallPr
   return <div className="panel recall-panel">
     <CardHeader category={deck.category} counter={`Card ${position + 1} of ${order.length}`} help={reading ? "Recall the English meaning, then flip to check." : "Recall the Korean word, then flip to check."} />
     <div className="recall-face" aria-live="polite">
-      <span className="eyebrow">{flipped ? 'Answer' : direction === 'image-to-ko' ? 'Picture prompt' : reading || card.transformation ? card.cue : 'English prompt'}</span>
-      {direction === 'image-to-ko' && !flipped ? <PicturePrompt word={entry.korean} /> :
+      <span className="eyebrow">{flipped ? 'Answer' : sound ? 'Listen for the meaning' : direction === 'image-to-ko' ? 'Picture prompt' : reading || card.transformation ? card.cue : 'English prompt'}</span>
+      {sound && !flipped ? <SoundPrompt key={entry.id} text={card.prompt} /> : direction === 'image-to-ko' && !flipped ? <PicturePrompt word={entry.korean} /> :
         <div className="recall-word">{koreanFace ? <Korean>{word}</Korean> : word}</div>}
-      {koreanFace && <StandalonePronunciationNote word={word} />}
+      {sound && flipped && <Korean>{card.prompt}</Korean>}
+      {!sound && koreanFace && <StandalonePronunciationNote word={word} />}
       {caption && <p>{caption}</p>}
     </div>
     {flipped && card.transformation && <Transform example={card.transformation} />}
@@ -128,6 +146,7 @@ function TypingRecall({ deck, direction, progressKey, progress, save }: {
   deck: WordList; direction: RecallPrompt; progressKey: string; progress: DeckProgress; save: Save
 }) {
   const ids = deck.entries.map(entry => entry.id)
+  const [draw, setDraw] = useState(0)
   const [current, setCurrent] = useState(() => nextRecall(ids, progress))
   const [input, setInput] = useState('')
   const [failed, setFailed] = useState(false)
@@ -136,8 +155,9 @@ function TypingRecall({ deck, direction, progressKey, progress, save }: {
   const [busy, setBusy] = useState(false)
   if (!current) return null
   const entry = deck.entries.find(candidate => candidate.id === current)!
-  const card = recallCard(deck.category, entry, direction === 'image-to-ko' ? 'en-to-ko' : direction)
-  const reading = direction === 'ko-to-en'
+  const sound = direction === 'sound-to-en'
+  const reading = sound || direction === 'ko-to-en'
+  const card = recallCard(deck.category, entry, reading ? 'ko-to-en' : 'en-to-ko')
 
   /** Store the first failure immediately while keeping the current card open for correction. */
   async function reveal() {
@@ -168,15 +188,16 @@ function TypingRecall({ deck, direction, progressKey, progress, save }: {
   return <div className="panel recall-panel" data-grade={correct ? 'correct' : wrong ? 'wrong' : undefined}>
     <CardHeader category={deck.category} help="Recall each new word on your first try to unlock the next. After the whole list is unlocked, missed words come back more often." />
     <div className="recall-face typing-face">
-      <span className="eyebrow">{direction === 'image-to-ko' ? 'Picture prompt' : reading || card.transformation ? card.cue : 'English prompt'}</span>
-      {direction === 'image-to-ko' ? <PicturePrompt word={entry.korean} /> :
+      <span className="eyebrow">{sound ? 'Listen for the meaning' : direction === 'image-to-ko' ? 'Picture prompt' : reading || card.transformation ? card.cue : 'English prompt'}</span>
+      {sound ? <SoundPrompt key={draw} text={card.prompt} /> : direction === 'image-to-ko' ? <PicturePrompt word={entry.korean} /> :
         <div className="recall-word">{reading || card.transformation ? <Korean>{card.prompt}</Korean> : card.prompt}</div>}
-      {reading && <StandalonePronunciationNote word={card.prompt} />}
+      {!sound && reading && <StandalonePronunciationNote word={card.prompt} />}
     </div>
     <AnswerForm value={input} onChange={value => { setInput(value); setWrong(false) }} submit={() => void check()} disabled={correct || busy} language={reading ? 'en' : 'ko'} />
     <div className="feedback" aria-live="polite">
       {correct && <p className="success"><Icon name="check" /> {failed ? 'Correction complete.' : 'Correct.'}</p>}
       {failed && !correct && <p className="retry">{wrong ? 'Incorrect.' : 'Answer'} {reading ? <strong>{card.answer}</strong> : <Korean>{card.answer}</Korean>}.</p>}
+      {sound && (correct || failed) && <Korean>{card.prompt}</Korean>}
       {correct && reading && <p className="inline-note">{card.answer}</p>}
       {(failed || correct) && !reading && <StandalonePronunciationNote word={card.answer} />}
     </div>
@@ -185,7 +206,7 @@ function TypingRecall({ deck, direction, progressKey, progress, save }: {
     <div className="card-actions">
       <button className="button quiet" disabled={failed || correct || busy} onClick={() => void reveal()}>Reveal answer</button>
       <button className="button" disabled={busy || (!correct && !failed)} onClick={() => {
-        setCurrent(nextRecall(ids, progress, current)); setInput(''); setFailed(false); setWrong(false); setCorrect(false)
+        setDraw(value => value + 1); setCurrent(nextRecall(ids, progress, current)); setInput(''); setFailed(false); setWrong(false); setCorrect(false)
       }}>Next <Icon name="arrow" /></button>
     </div>
   </div>

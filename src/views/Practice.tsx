@@ -70,7 +70,7 @@ export function Practice({ module, active, lists, state, onSelect, save }: {
   const filters = mode === 'particles' ? ['nouns', 'pronouns'] as const : ['verbs', 'adjectives'] as const
 
   return <>
-    <div className="section-heading"><div><h1>{module === 'grammar' ? 'Grammar Trainer' : 'Listening & Conversation'}</h1>
+    <div className="section-heading"><div><h1>{module === 'grammar' ? 'Grammar Trainer' : 'Conversation Tool'}</h1>
       <p>{module === 'grammar' ? 'Practice individual rules, then use them to build complete sentences.' : 'Hear Korean, transcribe what you hear, and practice replying.'}</p></div></div>
     <div className="segmented mode-tabs" aria-label={module === 'grammar' ? 'Grammar exercise' : 'Listening exercise'}>
       {modes.map(value => <button key={value} aria-pressed={mode === value} onClick={() => {

@@ -461,3 +461,11 @@ td [lang="ko"] { color: var(--accent); font-weight: 650; }
 
 .decode-words { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr)); gap: 12px; }
 .decode-words input { width: 100%; }
+
+.reading-sheet { display: grid; gap: 12px; }
+.reading-sheet > button { justify-self: start; }
+.reading-line { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 12px; }
+.reading-word { display: grid; gap: 4px; width: 8rem; max-width: 100%; overflow-wrap: anywhere; }
+.reading-word strong { font-size: 18px; }
+.reading-word input { width: 100%; min-width: 0; }
+.reading-translation { border-top: 1px solid var(--line); padding-top: 10px; }

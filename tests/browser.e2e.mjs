@@ -485,6 +485,27 @@ describe('deployed study workflow', { concurrency: false }, () => {
     await page.close()
   })
 
+  it('reveals pasted reading translations with every guess left blank', async () => {
+    const page = await browser.newPage()
+    const translations = new Map([['물이 있어요.', 'There is water.'], ['물이', 'water'], ['있어요.', 'exists'], ['가요!', 'Go!']])
+    await page.route('https://translate.googleapis.com/**', route => {
+      const text = new URL(route.request().url()).searchParams.get('q')
+      return route.fulfill({ json: [[[translations.get(text), text]]] })
+    })
+    await page.goto(projectPage)
+    await page.getByRole('link', { name: 'Reading Trainer' }).click()
+    await page.getByLabel('Korean text').fill('물이 있어요.\n가요!')
+    await page.getByRole('button', { name: 'Start reading' }).click()
+    assert.equal(await page.locator('.reading-word input').count(), 3)
+    assert.equal(await page.getByRole('button', { name: /Hear sentence/ }).count(), 2)
+    assert.equal(await page.getByText('There is water.').count(), 0)
+    await page.getByRole('button', { name: 'Submit', exact: true }).click()
+    await page.getByRole('button', { name: 'Translations shown' }).waitFor()
+    assert.deepEqual(await page.locator('.reading-word small').allTextContents(), ['water', 'exists', 'Go!'])
+    assert.deepEqual(await page.locator('.reading-translation').allTextContents(), ['There is water.', 'Go!'])
+    await page.close()
+  })
+
   it('decodes each Korean word and reviews the complete translation', async () => {
     const page = await browser.newPage({ viewport: { width: 320, height: 740 } })
     await page.goto(projectPage + '#grammar')

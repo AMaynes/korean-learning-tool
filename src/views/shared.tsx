@@ -18,7 +18,7 @@ import type { StudyState } from '../engine/storage'
 
 export type Save = (change: (state: StudyState) => StudyState) => Promise<boolean>
 export type SelectList = (category: Category, id: string) => void
-export type View = 'recall' | 'library' | 'grammar' | 'listening' | 'pronunciation' | 'intro' | 'settings'
+export type View = 'reading' | 'recall' | 'library' | 'grammar' | 'listening' | 'pronunciation' | 'intro' | 'settings'
 
 const iconPaths = {
   grid: 'M3 3h7v7H3zm11 0h7v7h-7zM3 14h7v7H3zm11 0h7v7h-7z',

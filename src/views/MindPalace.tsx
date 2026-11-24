@@ -52,7 +52,7 @@ export function MindPalace({ deck, state, save }: { deck: WordList; state: Study
         event.preventDefault()
         if (busy || duplicate || !name.trim() || !stops.length) return
         setBusy(true)
-        const id = crypto.randomUUID()
+        const id = 'route-' + crypto.getRandomValues(new Uint32Array(2)).join('-')
         const item = {name: name.trim(), stops}
         if (await save(previous => ({ ...previous, activePalace: id, customPalaces: { ...previous.customPalaces, [id]: item } }))) {
           setCreating(false); setName(''); setLandmarks('')

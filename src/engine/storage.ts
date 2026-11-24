@@ -14,6 +14,8 @@ import type { Selection } from '../data/model'
 import type { DeckProgress } from './mastery'
 import { activeLists, defaultSelection } from './registry'
 
+import { palaceNames, type Theme } from '../data/palaces'
+
 export const practiceModes = ['particles', 'conjugations', 'writing', 'decoding', 'dictation', 'conversation'] as const
 export type PracticeMode = typeof practiceModes[number]
 
@@ -30,7 +32,7 @@ export interface StudyState {
   selected: Selection
   recall: Record<string, DeckProgress>
   activePalace?: string
-  customPalaces?: Record<string, { name: string; stops: string[] }>
+  customPalaces?: Record<string, { name: string; stops: string[]; theme?: Theme }>
   palaceCues?: Record<string, string>
   scores: Partial<Record<PracticeMode | 'assembly', Record<string, Score>>>
 }
@@ -117,13 +119,13 @@ export function importBackup(value: unknown): StudyState {
   const invalidCues = state.palaceCues !== undefined && (!record(state.palaceCues) ||
     Object.entries(state.palaceCues).some(([id, cue]) => !validId(id) || typeof cue !== 'string' || cue.length > 2000))
   if (state.customPalaces !== undefined && (!record(state.customPalaces) || Object.entries(state.customPalaces).some(([id, palace]) =>
-    !validId(id) || ['home', 'park', 'cafe'].includes(id) || !record(palace) || typeof palace.name !== 'string' ||
-    !palace.name.trim() || palace.name.length > 80 || !Array.isArray(palace.stops) || !palace.stops.length ||
+    !validId(id) || Object.hasOwn(palaceNames, id) || !record(palace) || typeof palace.name !== 'string' ||
+    (palace.theme !== undefined && (typeof palace.theme !== 'string' || !Object.hasOwn(palaceNames, palace.theme))) || !palace.name.trim() || palace.name.length > 80 || !Array.isArray(palace.stops) || !palace.stops.length ||
     palace.stops.some(stop => typeof stop !== 'string' || !stop.trim()) || palace.stops.join('\n').length > 8000))) {
     throw new Error('The backup contains an invalid palace route.')
   }
   if (state.activePalace !== undefined && (typeof state.activePalace !== 'string' ||
-    !['home', 'park', 'cafe'].includes(state.activePalace) && !Object.hasOwn(state.customPalaces ?? {}, state.activePalace))) {
+    !Object.hasOwn(palaceNames, state.activePalace) && !Object.hasOwn(state.customPalaces ?? {}, state.activePalace))) {
     throw new Error('The selected palace is missing from the backup.')
   }
   if (invalidRecall || invalidScores || invalidCues) throw new Error('The backup contains invalid study records.')

@@ -1,3 +1,4 @@
+import { palaceNames, palaceRoute } from '../src/data/palaces'
 /**
  * Overview & Purpose: Verify the vocabulary, morphology, scheduling, and backup contracts.
  *
@@ -262,5 +263,24 @@ describe('adaptive recall and persistence', () => {
     expect(state.scores.writing?.['frame-1']).toMatchObject({ mastered: true, attempts: 3 })
     expect(state.scores.decoding).toBeUndefined()
     expect(() => importBackup({ kind: 'korean-study-backup', state: { ...state, version: 2 } })).toThrow()
+  })
+})
+
+describe('mind palace vocabulary', () => {
+  it('assigns a known word to every landmark and mixes nouns, verbs, and adjectives', () => {
+    for (const id of Object.keys(palaceNames)) {
+      const route = palaceRoute(id, undefined, {})
+      for (const stop of route) expect(stop.word.korean).toBeTruthy()
+      const categories = route.map(stop => stop.word.category)
+      expect(categories).toContain('verbs')
+      expect(categories).toContain('nouns')
+    }
+    const cafe = palaceRoute('cafe', undefined, {})
+    expect(cafe.find(stop => stop.place === 'Bean grinder')?.word.korean).toBe('커피')
+    expect(cafe.find(stop => stop.place === 'Espresso machine')?.word.korean).toBe('뜨겁다')
+  })
+  it('retains an older memory scene at its original landmark', () => {
+    const route = palaceRoute('home', undefined, { 'nouns-person': 'A person at the front gate.' })
+    expect(route.find(stop => stop.cueId === 'nouns-person')).toMatchObject({place: 'Front gate', word: {korean: '사람'}})
   })
 })

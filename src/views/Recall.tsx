@@ -50,17 +50,17 @@ export function Recall({ category, setCategory, deck: selectedDeck, lists, onSel
     </div>
     <div className="recall-workspace">
       <section className="study-main" aria-label="Flashcard practice">
-        <div className="panel deck-controls">
+        {mode !== 'palace' && <div className="panel deck-controls">
           <label className="field">Category<select aria-label="Category" value={category} onChange={event => setCategory(event.target.value as Category)}>
             {(pictures ? pictureCategories : categoryIds).map(id => <option key={id} value={id}>{categories[id]}</option>)}
           </select></label>
           <ListSelect category={category} lists={lists} selected={deck.id} onSelect={onSelect} />
-          {mode !== 'palace' && <DirectionSwitch direction={direction} onChange={setDirection} label="Recall direction" onSound={() => setDirection('sound-to-en')} onImage={() => {
+          <DirectionSwitch direction={direction} onChange={setDirection} label="Recall direction" onSound={() => setDirection('sound-to-en')} onImage={() => {
             if (!pictureCategories.includes(category)) setCategory('nouns')
             setDirection('image-to-ko')
-          }} />}
-        </div>
-        {mode === 'palace' ? <MindPalace key={deck.id} deck={deck} state={state} save={save} /> : deck.entries.length ? mode === 'mental'
+          }} />
+        </div>}
+        {mode === 'palace' ? <MindPalace state={state} save={save} /> : deck.entries.length ? mode === 'mental'
           ? <MentalRecall key={sessionKey} deck={deck} direction={direction} />
           : <TypingRecall key={sessionKey} deck={deck} direction={direction} progressKey={progressKey} progress={progress} save={save} />
           : <Empty title={pictures ? 'No pictures in this list' : 'This list is empty'}><p>Choose another vocabulary list to practice.</p></Empty>}

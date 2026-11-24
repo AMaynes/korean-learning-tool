@@ -471,3 +471,10 @@ td [lang="ko"] { color: var(--accent); font-weight: 650; }
 .reading-word input { width: 100%; min-width: 0; }
 .reading-sentence-guess { margin-top: 14px; }
 .reading-translation { margin: 8px 0 0; }
+
+.palace { display: grid; gap: 12px; }
+.palace :is(h2, p) { margin: 0; }
+.palace > :is(.segmented, .button) { justify-self: start; }
+@media (max-width: 600px) {
+  .section-heading .segmented[aria-label="Recall mode"] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}

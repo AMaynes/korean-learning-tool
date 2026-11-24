@@ -19,20 +19,21 @@ import type { DeckProgress } from '../engine/mastery'
 import { AnswerForm, DirectionSwitch, Empty, Icon, Korean, ListSelect, speakKorean, stopKoreanAudio, StandalonePronunciationNote, Transform } from './shared'
 import type { Save, SelectList } from './shared'
 
+import { MindPalace } from './MindPalace'
 import { GrammarList } from './GrammarList'
 import { pictureCategories, pictureClues } from '../data/pictures'
 
 type RecallPrompt = RecallDirection | 'image-to-ko' | 'sound-to-en'
-type Mode = 'mental' | 'typing'
+type Mode = 'mental' | 'typing' | 'palace'
 
 /** Display deck selection and the two recall modes. */
-export function Recall({ category, setCategory, deck: selectedDeck, lists, onSelect, save, progressByDeck }: {
+export function Recall({ category, setCategory, deck: selectedDeck, lists, onSelect, save, progressByDeck, palaceCues }: {
   category: Category; setCategory: (category: Category) => void; deck: WordList; lists: WordList[];
-  onSelect: SelectList; save: Save; progressByDeck: Record<string, DeckProgress>
+  onSelect: SelectList; save: Save; progressByDeck: Record<string, DeckProgress>; palaceCues: Record<string, string>
 }) {
   const [mode, setMode] = useState<Mode>('mental')
   const [direction, setDirection] = useState<RecallPrompt>('en-to-ko')
-  const pictures = direction === 'image-to-ko'
+  const pictures = mode !== 'palace' && direction === 'image-to-ko'
   const deck = pictures ? { ...selectedDeck, entries: selectedDeck.entries.filter(entry => pictureClues.has(entry.korean)) } : selectedDeck
   const progressKey = direction === 'en-to-ko' ? deck.id : `${deck.id}-${direction}`
   const progress = progressByDeck[progressKey] ?? emptyDeck
@@ -43,6 +44,7 @@ export function Recall({ category, setCategory, deck: selectedDeck, lists, onSel
       <div className="segmented" aria-label="Recall mode">
         <button aria-pressed={mode === 'mental'} onClick={() => setMode('mental')}>Mental Recall</button>
         <button aria-pressed={mode === 'typing'} onClick={() => setMode('typing')}>Typing Practice</button>
+        <button aria-pressed={mode === 'palace'} onClick={() => { setMode('palace'); if (pictures) setDirection('en-to-ko') }}>Mind Palace</button>
       </div>
     </div>
     <div className="recall-workspace">
@@ -52,12 +54,12 @@ export function Recall({ category, setCategory, deck: selectedDeck, lists, onSel
             {(pictures ? pictureCategories : categoryIds).map(id => <option key={id} value={id}>{categories[id]}</option>)}
           </select></label>
           <ListSelect category={category} lists={lists} selected={deck.id} onSelect={onSelect} />
-          <DirectionSwitch direction={direction} onChange={setDirection} label="Recall direction" onSound={() => setDirection('sound-to-en')} onImage={() => {
+          {mode !== 'palace' && <DirectionSwitch direction={direction} onChange={setDirection} label="Recall direction" onSound={() => setDirection('sound-to-en')} onImage={() => {
             if (!pictureCategories.includes(category)) setCategory('nouns')
             setDirection('image-to-ko')
-          }} />
+          }} />}
         </div>
-        {deck.entries.length ? mode === 'mental'
+        {mode === 'palace' ? <MindPalace key={deck.id} deck={deck} cues={palaceCues} save={save} /> : deck.entries.length ? mode === 'mental'
           ? <MentalRecall key={sessionKey} deck={deck} direction={direction} />
           : <TypingRecall key={sessionKey} deck={deck} direction={direction} progressKey={progressKey} progress={progress} save={save} />
           : <Empty title={pictures ? 'No pictures in this list' : 'This list is empty'}><p>Choose another vocabulary list to practice.</p></Empty>}

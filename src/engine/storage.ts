@@ -29,6 +29,7 @@ export interface StudyState {
   version: 1
   selected: Selection
   recall: Record<string, DeckProgress>
+  palaceCues?: Record<string, string>
   scores: Partial<Record<PracticeMode | 'assembly', Record<string, Score>>>
 }
 
@@ -111,15 +112,17 @@ export function importBackup(value: unknown): StudyState {
   const invalidRecall = Object.entries(state.recall).some(([id, deck]) => !validId(id) || !validDeck(deck))
   const invalidScores = Object.entries(state.scores).some(([mode, scores]) =>
     (mode !== 'assembly' && !practiceModes.includes(mode as PracticeMode)) || !record(scores) || Object.values(scores).some(score => !validScore(score)))
-  if (invalidRecall || invalidScores) throw new Error('The backup contains invalid study records.')
+  const invalidCues = state.palaceCues !== undefined && (!record(state.palaceCues) ||
+    Object.entries(state.palaceCues).some(([id, cue]) => !validId(id) || typeof cue !== 'string' || cue.length > 2000))
+  if (invalidRecall || invalidScores || invalidCues) throw new Error('The backup contains invalid study records.')
   return restoreStudyData(state as unknown as StudyState)
 }
 
 /** Keep study progress and resolve selections against the bundled catalog. */
-function restoreStudyData({ selected, recall, scores }: StudyState): StudyState {
+function restoreStudyData({ selected, recall, scores, palaceCues }: StudyState): StudyState {
   const active = activeLists(selected)
   const resolved = Object.fromEntries(categoryIds.map(category => [category, active[category].id])) as Selection
-  return { version: 1, selected: resolved, recall, scores }
+  return { version: 1, selected: resolved, recall, scores, ...(palaceCues && { palaceCues }) }
 }
 
 /** Recognize a plain JSON record before reading its fields. */

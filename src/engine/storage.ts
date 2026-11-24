@@ -29,6 +29,8 @@ export interface StudyState {
   version: 1
   selected: Selection
   recall: Record<string, DeckProgress>
+  activePalace?: string
+  customPalaces?: Record<string, { name: string; stops: string[] }>
   palaceCues?: Record<string, string>
   scores: Partial<Record<PracticeMode | 'assembly', Record<string, Score>>>
 }
@@ -114,15 +116,25 @@ export function importBackup(value: unknown): StudyState {
     (mode !== 'assembly' && !practiceModes.includes(mode as PracticeMode)) || !record(scores) || Object.values(scores).some(score => !validScore(score)))
   const invalidCues = state.palaceCues !== undefined && (!record(state.palaceCues) ||
     Object.entries(state.palaceCues).some(([id, cue]) => !validId(id) || typeof cue !== 'string' || cue.length > 2000))
+  if (state.customPalaces !== undefined && (!record(state.customPalaces) || Object.entries(state.customPalaces).some(([id, palace]) =>
+    !validId(id) || ['home', 'park', 'cafe'].includes(id) || !record(palace) || typeof palace.name !== 'string' ||
+    !palace.name.trim() || palace.name.length > 80 || !Array.isArray(palace.stops) || !palace.stops.length ||
+    palace.stops.some(stop => typeof stop !== 'string' || !stop.trim()) || palace.stops.join('\n').length > 8000))) {
+    throw new Error('The backup contains an invalid palace route.')
+  }
+  if (state.activePalace !== undefined && (typeof state.activePalace !== 'string' ||
+    !['home', 'park', 'cafe'].includes(state.activePalace) && !Object.hasOwn(state.customPalaces ?? {}, state.activePalace))) {
+    throw new Error('The selected palace is missing from the backup.')
+  }
   if (invalidRecall || invalidScores || invalidCues) throw new Error('The backup contains invalid study records.')
   return restoreStudyData(state as unknown as StudyState)
 }
 
 /** Keep study progress and resolve selections against the bundled catalog. */
-function restoreStudyData({ selected, recall, scores, palaceCues }: StudyState): StudyState {
+function restoreStudyData({ selected, recall, scores, palaceCues, customPalaces, activePalace }: StudyState): StudyState {
   const active = activeLists(selected)
   const resolved = Object.fromEntries(categoryIds.map(category => [category, active[category].id])) as Selection
-  return { version: 1, selected: resolved, recall, scores, ...(palaceCues && { palaceCues }) }
+  return { version: 1, selected: resolved, recall, scores, ...(palaceCues && { palaceCues }), ...(customPalaces && { customPalaces }), ...(activePalace && { activePalace }) }
 }
 
 /** Recognize a plain JSON record before reading its fields. */

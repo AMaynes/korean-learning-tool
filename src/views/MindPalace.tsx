@@ -3,7 +3,9 @@ import type { WordList } from '../data/model'
 import { selectableLists } from '../engine/registry'
 import { Korean, type Save } from './shared'
 
-const rooms = [
+import type { StudyState } from '../engine/storage'
+
+const homeRooms = [
   ['Entryway', 'Front gate', 'Doorbell', 'Doormat', 'Coat hook', 'Shoe rack'],
   ['Living room', 'Sofa', 'Coffee table', 'Rug', 'Bookshelf', 'Window'],
   ['Kitchen', 'Fridge', 'Counter', 'Sink', 'Stove', 'Spice rack'],
@@ -12,17 +14,77 @@ const rooms = [
   ['Study', 'Desk', 'Chair', 'Globe', 'Clock', 'Noticeboard'],
 ]
 
-export function MindPalace({ deck, cues, save }: { deck: WordList; cues: Record<string, string>; save: Save }) {
+const presetRooms = {
+  home: homeRooms,
+  park: [
+    ['Park entrance', 'Iron gate', 'Trail map', 'Bicycle rack', 'Ticket booth', 'Stone arch'],
+    ['Playground', 'Slide', 'Swing', 'Sandbox', 'Climbing frame', 'Seesaw'],
+    ['Lakeside', 'Footbridge', 'Boat dock', 'Reed bed', 'Fishing pier', 'Waterfall'],
+  ],
+  cafe: [
+    ['Café entrance', 'Striped awning', 'Chalkboard', 'Glass door', 'Umbrella stand', 'Menu board'],
+    ['Coffee bar', 'Bean grinder', 'Espresso machine', 'Milk pitcher', 'Pastry case', 'Register'],
+    ['Seating area', 'Window seat', 'Reading lamp', 'Corner booth', 'Bar stool', 'Patio table'],
+  ],
+}
+
+export function MindPalace({ deck, state, save }: { deck: WordList; state: StudyState; save: Save }) {
+  const [creating, setCreating] = useState(false)
+  const [name, setName] = useState('')
+  const [landmarks, setLandmarks] = useState('')
+  const [busy, setBusy] = useState(false)
+  const custom = state.customPalaces ?? {}
+  const selected = state.activePalace ?? 'home'
+  const palace = custom[selected]
+  const stops = landmarks.split(/\r?\n/).map(line => line.trim()).filter(Boolean)
+  const names: Record<string, string> = {home: 'Home', park: 'Park', cafe: 'Café'}
+  for (const [id, item] of Object.entries(custom)) names[id] = item.name
+  const duplicate = Object.values(names).some(value => value.toLowerCase() === name.trim().toLowerCase())
+
+  return <>
+    <div className="panel exercise-panel palace">
+      <label className="field">Choose a palace<select value={selected} onChange={event => {
+        const activePalace = event.target.value
+        void save(previous => ({ ...previous, activePalace }))
+      }}>{Object.entries(names).map(([id, label]) => <option key={id} value={id}>{label}</option>)}</select></label>
+      <button className="button quiet" aria-expanded={creating} onClick={() => setCreating(!creating)}>{creating ? 'Cancel' : 'Create palace'}</button>
+      {creating && <form className="palace" onSubmit={async event => {
+        event.preventDefault()
+        if (busy || duplicate || !name.trim() || !stops.length) return
+        setBusy(true)
+        const id = crypto.randomUUID()
+        const item = {name: name.trim(), stops}
+        if (await save(previous => ({ ...previous, activePalace: id, customPalaces: { ...previous.customPalaces, [id]: item } }))) {
+          setCreating(false); setName(''); setLandmarks('')
+        }
+        setBusy(false)
+      }}>
+        <label className="field">Palace name<input value={name} maxLength={80} onChange={e => setName(e.target.value)} /></label>
+        {duplicate && <small>Choose a different name for this palace.</small>}
+        <label className="field">Landmarks in walking order (one per line)<textarea value={landmarks} maxLength={8000}
+          placeholder={'Front steps\nHall mirror\nKitchen sink'} onChange={e => setLandmarks(e.target.value)} /></label>
+        <button className="button primary" disabled={busy || duplicate || !name.trim() || !stops.length}>Save palace</button>
+      </form>}
+    </div>
+    <PalaceRoute key={selected} deck={deck} cues={state.palaceCues ?? {}} save={save} palaceId={selected}
+      rooms={palace ? [[palace.name, ...palace.stops]] : presetRooms[selected as keyof typeof presetRooms] ?? homeRooms} />
+  </>
+}
+
+function PalaceRoute({ deck, cues, save, palaceId, rooms }: {
+  deck: WordList; cues: Record<string, string>; save: Save; palaceId: string; rooms: string[][]
+}) {
   const [index, setIndex] = useState(0)
   const [walk, setWalk] = useState(false)
   const catalog = selectableLists.find(list => list.id === deck.category + '-all')!
   const entry = deck.entries[index]
   if (!entry) return <p>This list has no stops yet.</p>
   const slot = catalog.entries.findIndex(item => item.id === entry.id)
-  const roomIndex = Math.floor(slot / 5)
+  const stopsPerRoom = rooms[0].length - 1
+  const roomIndex = Math.floor(slot / stopsPerRoom)
   const [room, ...places] = rooms[roomIndex % rooms.length]
-  const place = places[slot % 5]
-  const cueId = deck.category + '-' + entry.id
+  const place = places[slot % stopsPerRoom]
+  const cueId = (palaceId === 'home' ? '' : palaceId + '-') + deck.category + '-' + entry.id
   return <article className="panel exercise-panel palace">
     <div className="card-meta"><span>Mind Palace</span><span>Stop {index + 1} of {deck.entries.length}</span></div>
     <div className="segmented" aria-label="Palace activity">

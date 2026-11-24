@@ -15,6 +15,7 @@ import type { Category, WordList } from '../data/model'
 import { matchesAnswer, matchesEnglishAnswer, recallCard, shuffle } from '../engine/exercises'
 import type { RecallDirection } from '../engine/exercises'
 import { emptyDeck, recordRecall, nextRecall } from '../engine/mastery'
+import type { StudyState } from '../engine/storage'
 import type { DeckProgress } from '../engine/mastery'
 import { AnswerForm, DirectionSwitch, Empty, Icon, Korean, ListSelect, speakKorean, stopKoreanAudio, StandalonePronunciationNote, Transform } from './shared'
 import type { Save, SelectList } from './shared'
@@ -27,16 +28,16 @@ type RecallPrompt = RecallDirection | 'image-to-ko' | 'sound-to-en'
 type Mode = 'mental' | 'typing' | 'palace'
 
 /** Display deck selection and the two recall modes. */
-export function Recall({ category, setCategory, deck: selectedDeck, lists, onSelect, save, progressByDeck, palaceCues }: {
+export function Recall({ category, setCategory, deck: selectedDeck, lists, onSelect, save, state }: {
   category: Category; setCategory: (category: Category) => void; deck: WordList; lists: WordList[];
-  onSelect: SelectList; save: Save; progressByDeck: Record<string, DeckProgress>; palaceCues: Record<string, string>
+  onSelect: SelectList; save: Save; state: StudyState
 }) {
   const [mode, setMode] = useState<Mode>('mental')
   const [direction, setDirection] = useState<RecallPrompt>('en-to-ko')
   const pictures = mode !== 'palace' && direction === 'image-to-ko'
   const deck = pictures ? { ...selectedDeck, entries: selectedDeck.entries.filter(entry => pictureClues.has(entry.korean)) } : selectedDeck
   const progressKey = direction === 'en-to-ko' ? deck.id : `${deck.id}-${direction}`
-  const progress = progressByDeck[progressKey] ?? emptyDeck
+  const progress = state.recall[progressKey] ?? emptyDeck
   const sessionKey = `${progressKey}:${deck.entries.map(entry => entry.id).join(',')}`
   return <>
     <div className="section-heading">
@@ -59,7 +60,7 @@ export function Recall({ category, setCategory, deck: selectedDeck, lists, onSel
             setDirection('image-to-ko')
           }} />}
         </div>
-        {mode === 'palace' ? <MindPalace key={deck.id} deck={deck} cues={palaceCues} save={save} /> : deck.entries.length ? mode === 'mental'
+        {mode === 'palace' ? <MindPalace key={deck.id} deck={deck} state={state} save={save} /> : deck.entries.length ? mode === 'mental'
           ? <MentalRecall key={sessionKey} deck={deck} direction={direction} />
           : <TypingRecall key={sessionKey} deck={deck} direction={direction} progressKey={progressKey} progress={progress} save={save} />
           : <Empty title={pictures ? 'No pictures in this list' : 'This list is empty'}><p>Choose another vocabulary list to practice.</p></Empty>}

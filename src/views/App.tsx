@@ -9,7 +9,7 @@
  */
 
 
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
 import { categories } from '../data/model'
 import type { Category } from '../data/model'
 import { activeLists, selectableLists as lists } from '../engine/registry'
@@ -122,7 +122,10 @@ export function App() {
     <div className={'app-frame ' + (!toolActive ? 'full-frame' : '')}>
       {toolActive && <aside className="sidebar">
         <nav aria-label="Learning modules"><span className="sidebar-label">Study modules</span>
-          {studyNav.map(([id, name, icon]) => <a href={'#' + id} key={id} aria-current={view === id ? 'page' : undefined}><Icon name={icon} /><span>{name}</span></a>)}
+          {studyNav.map(([id, name, icon]) => <Fragment key={id}>
+            <a href={'#' + id} aria-current={view === id ? 'page' : undefined}><Icon name={icon} /><span>{name}</span></a>
+            {id === 'library' && <hr className="module-divider" />}
+          </Fragment>)}
         </nav>
         <nav className="sidebar-bottom" aria-label="Study preferences"><a href="#settings"><Icon name="settings" /><span>Active vocabulary</span></a></nav>
       </aside>}

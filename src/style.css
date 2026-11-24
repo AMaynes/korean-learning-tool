@@ -60,6 +60,7 @@ p { color: var(--muted); line-height: 1.55; }
 .app-frame { max-width: 1600px; min-height: calc(100vh - 73px); margin: 0 auto; display: grid; grid-template-columns: 241px minmax(0, 1fr); }
 .sidebar { border-right: 1px solid var(--line); background: var(--panel); padding: 30px 14px 26px 20px; display: flex; flex-direction: column; justify-content: space-between; gap: 28px; }
 .sidebar nav { display: grid; gap: 5px; }
+.module-divider { grid-column: 1 / -1; width: 100%; margin: 4px 0; border: 0; border-top: 1px solid var(--line); }
 .sidebar-label { margin: 0 12px 10px; font-size: 11px; font-weight: 750; text-transform: uppercase; letter-spacing: .11em; color: var(--muted); }
 .sidebar a { min-height: 44px; padding: 9px 10px; display: flex; align-items: center; gap: 10px; border: 1px solid transparent; border-radius: 9px; color: var(--muted); font-size: 13px; font-weight: 620; white-space: nowrap; }
 .sidebar a:hover { color: var(--accent); background: var(--subtle); }

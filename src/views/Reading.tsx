@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { readingChunks, readingSentences, translateReading } from '../engine/reading'
 import { Icon, Korean } from './shared'
 
@@ -21,7 +21,39 @@ export function Reading() {
   </>
 }
 
+function ElapsedTime({ start, saved }: { start: number | null; saved: number }) {
+  const [, refresh] = useState(0)
+  useEffect(() => {
+    if (start === null) return
+    const timer = window.setInterval(() => refresh(tick => tick + 1), 100)
+    return () => window.clearInterval(timer)
+  }, [start])
+  const tenths = Math.floor((saved + (start === null ? 0 : performance.now() - start)) / 100)
+  const minutes = Math.floor(tenths / 600)
+  const seconds = String(Math.floor(tenths / 10) % 60).padStart(2, '0')
+  return <strong role="timer" aria-label="Elapsed time">{minutes}:{seconds}.{tenths % 10}</strong>
+}
+
 function ReadingSheet({ sentences, edit }: { sentences: string[]; edit: () => void }) {
+  const [start, setStart] = useState<number | null>(null)
+  const [elapsed, setElapsed] = useState(0)
+  const [marking, setMarking] = useState(false)
+  const [lastWord, setLastWord] = useState<number | null>(null)
+  const words = useMemo(() => {
+    let count = 0
+    return sentences.map(sentence => sentence.split(/\s+/u).map(word => ({
+      word, position: /[\p{L}\p{N}]/u.test(word) ? ++count : null,
+    })))
+  }, [sentences])
+  const wpm = lastWord && elapsed > 0 ? Math.round(lastWord * 60000 / elapsed) : null
+  const pace = wpm === null ? '' : wpm < 30 ? 'Slow' : wpm < 60 ? 'Steady' : wpm < 120 ? 'Brisk' : 'Fast'
+
+  function run(restart: boolean) {
+    if (restart) setElapsed(0)
+    setMarking(false)
+    setLastWord(null)
+    setStart(performance.now())
+  }
   const [meanings, setMeanings] = useState<Record<string, string>>({})
   const [busy, setBusy] = useState(false)
   const [submitted, setSubmitted] = useState(false)
@@ -78,9 +110,30 @@ function ReadingSheet({ sentences, edit }: { sentences: string[]; edit: () => vo
 
   return <form className="reading-sheet" onSubmit={event => { event.preventDefault(); void submit() }}>
     <button className="text-button" type="button" onClick={edit}>Edit passage</button>
+    <section className="panel reading-clock" aria-label="Reading stopwatch">
+      <div className="button-row">
+        <ElapsedTime start={start} saved={elapsed} />
+        <button type="button" className="button primary" onClick={() => {
+          if (start === null) run(false)
+          else { setElapsed(elapsed + performance.now() - start); setStart(null) }
+        }}>{start !== null ? 'Stop' : elapsed ? 'Resume' : 'Start'}</button>
+        <button type="button" className="button" onClick={() => run(true)}>Restart</button>
+        {start === null && elapsed > 0 && <button type="button" className="button" aria-pressed={marking}
+          onClick={() => setMarking(!marking)}>{marking ? 'Cancel marking' : lastWord ? 'Change last word' : 'Mark last word'}</button>}
+      </div>
+      {marking && <p role="status">Tap the last word you finished reading.</p>}
+      {wpm !== null && <div role="status"><strong>{wpm} WPM</strong> · {lastWord} words read · {pace} pace
+        <small>Practice speed only. Slow under 30, steady 30–59, brisk 60–119, fast 120+ WPM. Each space-separated word counts once.</small>
+      </div>}
+    </section>
     {sentences.map((sentence, i) => <section className="panel exercise-panel" key={i} aria-label={'Sentence ' + (i + 1)}>
-      <div className="reading-line">{sentence.split(/\s+/u).map((word, j) => <div className="reading-word" key={j}>
-        <button type="button" className="text-button" onClick={() => play(word)}><strong><Korean>{word}</Korean></strong></button>
+      <div className="reading-line">{words[i].map(({ word, position }, j) => <div className="reading-word" key={j}>
+        <button type="button" className="text-button" disabled={marking && position === null}
+          data-endpoint={position !== null && position === lastWord || undefined}
+          onClick={() => {
+            if (marking && position !== null) { setLastWord(position); setMarking(false) }
+            else play(word)
+          }}><strong><Korean>{word}</Korean></strong></button>
         <input aria-label={word + ' meaning'} placeholder="Your guess" />
         {submitted && Object.hasOwn(meanings, word) && <small>{meanings[word]}</small>}
       </div>)}

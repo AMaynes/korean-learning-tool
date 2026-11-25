@@ -477,3 +477,9 @@ td [lang="ko"] { color: var(--accent); font-weight: 650; }
 @media (max-width: 600px) {
   .section-heading .segmented[aria-label="Recall mode"] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
+
+.reading-clock { position: sticky; top: 0; z-index: 2; padding: 10px 14px; }
+.reading-clock [role="timer"] { font-variant-numeric: tabular-nums; min-width: 5ch; font-size: 20px; }
+.reading-clock [role="status"] { margin: 6px 0 0; }
+.reading-clock small { display: block; color: var(--muted); }
+.reading-word [data-endpoint="true"] { text-decoration: underline double; text-underline-offset: 4px; }

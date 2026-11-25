@@ -34,6 +34,15 @@ function ElapsedTime({ start, saved }: { start: number | null; saved: number }) 
   return <strong role="timer" aria-label="Elapsed time">{minutes}:{seconds}.{tenths % 10}</strong>
 }
 
+// Rounded grade means for the RA-RCP narrative passage, Table 7 in the linked study.
+function oralPaceComparison(wpm: number) {
+  if (wpm < 50) return 'below the Grade 1 average (50 WPM)'
+  if (wpm === 50) return 'at the Grade 1 average (50 WPM)'
+  if (wpm < 80) return 'between the Grade 1 average (50 WPM) and the averages for Grades 2–6 (80–91 WPM)'
+  if (wpm <= 91) return 'within the range of grade averages for Grades 2–6 (80–91 WPM)'
+  return 'above the highest grade average (91 WPM)'
+}
+
 function ReadingSheet({ sentences, edit }: { sentences: string[]; edit: () => void }) {
   const [start, setStart] = useState<number | null>(null)
   const [elapsed, setElapsed] = useState(0)
@@ -46,7 +55,6 @@ function ReadingSheet({ sentences, edit }: { sentences: string[]; edit: () => vo
     })))
   }, [sentences])
   const wpm = lastWord && elapsed > 0 ? Math.round(lastWord * 60000 / elapsed) : null
-  const pace = wpm === null ? '' : wpm < 30 ? 'Slow' : wpm < 60 ? 'Steady' : wpm < 120 ? 'Brisk' : 'Fast'
 
   function run(restart: boolean) {
     if (restart) setElapsed(0)
@@ -122,9 +130,20 @@ function ReadingSheet({ sentences, edit }: { sentences: string[]; edit: () => vo
           onClick={() => setMarking(!marking)}>{marking ? 'Cancel marking' : lastWord ? 'Change last word' : 'Mark last word'}</button>}
       </div>
       {marking && <p role="status">Tap the last word you finished reading.</p>}
-      {wpm !== null && <div role="status"><strong>{wpm} WPM</strong> · {lastWord} words read · {pace} pace
-        <small>Practice speed only. Slow under 30, steady 30–59, brisk 60–119, fast 120+ WPM. Each space-separated word counts once.</small>
-      </div>}
+      {wpm !== null && <>
+        <div role="status"><strong>{wpm} WPM</strong> · {lastWord} {lastWord === 1 ? 'word' : 'words'} read
+          <small>If you read aloud, your pace was {oralPaceComparison(wpm)} in a Korean elementary-school study.</small>
+          <small>For fluency, could you read the words accurately, pause where the meaning calls for it, and explain what you read?</small>
+        </div>
+        <details>
+          <summary>How to interpret this pace</summary>
+          <p>Korea’s Grades 1–2 curriculum emphasizes reading aloud accurately and grouping words by meaning.
+            In Grades 3–4, the goal is to read fluently while understanding the text. These goals have no WPM cutoff. <a href="https://www.moe.go.kr/boardCnts/viewRenew.do?boardID=141&boardSeq=93458&lev=0&m=0302" target="_blank" rel="noreferrer">National Korean language curriculum</a></p>
+          <p>The study timed 10 children per grade reading a grade-specific story aloud. It counted correctly read
+            word groups (어절) in one minute. The timer counts every space-separated group you mark, including mistakes.
+            Passage difficulty and short timings can change your score. For silent reading, compare your own times on similar passages. <a href="https://www.jslhd.org/_PR/view/?aidx=24108&bidx=1977" target="_blank" rel="noreferrer">Study, Table 7 (RA-RCP story)</a></p>
+        </details>
+      </>}
     </section>
     {sentences.map((sentence, i) => <section className="panel exercise-panel" key={i} aria-label={'Sentence ' + (i + 1)}>
       <div className="reading-line">{words[i].map(({ word, position }, j) => <div className="reading-word" key={j}>

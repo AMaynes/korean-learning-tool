@@ -103,7 +103,6 @@ p { color: var(--muted); line-height: 1.55; }
 .recall-face { min-height: 270px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 11px; padding: 25px 16px; text-align: center; background: var(--subtle); border: 1px solid var(--line); border-radius: 11px; }
 .eyebrow { font-size: 11px; font-weight: 750; letter-spacing: .105em; text-transform: uppercase; color: var(--accent); }
 .recall-word { max-width: 100%; font-size: clamp(29px, 4vw, 56px); font-weight: 760; letter-spacing: -.055em; overflow-wrap: anywhere; line-height: 1.18; }
-.recall-picture { display: block; width: clamp(96px, 24vw, 144px); height: auto; object-fit: contain; }
 .recall-face p { font-size: 13px; }
 .typing-face { min-height: 175px; }
 .pronunciation-panel { max-width: 660px; }

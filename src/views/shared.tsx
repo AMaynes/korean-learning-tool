@@ -102,14 +102,13 @@ export function ListSelect({ category, lists, selected, onSelect, label = 'Vocab
 }
 
 /** Switch the target language for a recall or practice session. */
-export function DirectionSwitch({ direction, onChange, label = 'Practice direction', forwardLabel = 'English → Korean', onImage, onSound }: {
-  direction: RecallDirection | 'image-to-ko' | 'sound-to-en'; onChange: (direction: RecallDirection) => void; label?: string; forwardLabel?: string; onImage?: () => void; onSound?: () => void
+export function DirectionSwitch({ direction, onChange, label = 'Practice direction', forwardLabel = 'English → Korean', onSound }: {
+  direction: RecallDirection | 'sound-to-en'; onChange: (direction: RecallDirection) => void; label?: string; forwardLabel?: string; onSound?: () => void
 }) {
   return <div className="segmented direction-switch" role="group" aria-label={label}>
     <button type="button" aria-pressed={direction === 'en-to-ko'} onClick={() => onChange('en-to-ko')}>{forwardLabel}</button>
     <button type="button" aria-pressed={direction === 'ko-to-en'} onClick={() => onChange('ko-to-en')}>Korean → English</button>
     {onSound && <button type="button" aria-pressed={direction === 'sound-to-en'} onClick={onSound}>Korean Sound → English</button>}
-    {onImage && <button type="button" aria-pressed={direction === 'image-to-ko'} onClick={onImage}>Image → Korean</button>}
   </div>
 }
 

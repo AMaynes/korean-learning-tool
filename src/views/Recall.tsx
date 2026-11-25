@@ -22,20 +22,17 @@ import type { Save, SelectList } from './shared'
 
 import { MindPalace } from './MindPalace'
 import { GrammarList } from './GrammarList'
-import { pictureCategories, pictureClues } from '../data/pictures'
 
-type RecallPrompt = RecallDirection | 'image-to-ko' | 'sound-to-en'
+type RecallPrompt = RecallDirection | 'sound-to-en'
 type Mode = 'mental' | 'typing' | 'palace'
 
 /** Display deck selection and the two recall modes. */
-export function Recall({ category, setCategory, deck: selectedDeck, lists, onSelect, save, state }: {
+export function Recall({ category, setCategory, deck, lists, onSelect, save, state }: {
   category: Category; setCategory: (category: Category) => void; deck: WordList; lists: WordList[];
   onSelect: SelectList; save: Save; state: StudyState
 }) {
   const [mode, setMode] = useState<Mode>('mental')
   const [direction, setDirection] = useState<RecallPrompt>('en-to-ko')
-  const pictures = mode !== 'palace' && direction === 'image-to-ko'
-  const deck = pictures ? { ...selectedDeck, entries: selectedDeck.entries.filter(entry => pictureClues.has(entry.korean)) } : selectedDeck
   const progressKey = direction === 'en-to-ko' ? deck.id : `${deck.id}-${direction}`
   const progress = state.recall[progressKey] ?? emptyDeck
   const sessionKey = `${progressKey}:${deck.entries.map(entry => entry.id).join(',')}`
@@ -45,25 +42,22 @@ export function Recall({ category, setCategory, deck: selectedDeck, lists, onSel
       <div className="segmented" aria-label="Recall mode">
         <button aria-pressed={mode === 'mental'} onClick={() => setMode('mental')}>Mental Recall</button>
         <button aria-pressed={mode === 'typing'} onClick={() => setMode('typing')}>Typing Practice</button>
-        <button aria-pressed={mode === 'palace'} onClick={() => { setMode('palace'); if (pictures) setDirection('en-to-ko') }}>Mind Palace</button>
+        <button aria-pressed={mode === 'palace'} onClick={() => setMode('palace')}>Mind Palace</button>
       </div>
     </div>
     <div className="recall-workspace">
       <section className="study-main" aria-label="Flashcard practice">
         {mode !== 'palace' && <div className="panel deck-controls">
           <label className="field">Category<select aria-label="Category" value={category} onChange={event => setCategory(event.target.value as Category)}>
-            {(pictures ? pictureCategories : categoryIds).map(id => <option key={id} value={id}>{categories[id]}</option>)}
+            {categoryIds.map(id => <option key={id} value={id}>{categories[id]}</option>)}
           </select></label>
           <ListSelect category={category} lists={lists} selected={deck.id} onSelect={onSelect} />
-          <DirectionSwitch direction={direction} onChange={setDirection} label="Recall direction" onSound={() => setDirection('sound-to-en')} onImage={() => {
-            if (!pictureCategories.includes(category)) setCategory('nouns')
-            setDirection('image-to-ko')
-          }} />
+          <DirectionSwitch direction={direction} onChange={setDirection} label="Recall direction" onSound={() => setDirection('sound-to-en')} />
         </div>}
         {mode === 'palace' ? <MindPalace state={state} save={save} /> : deck.entries.length ? mode === 'mental'
           ? <MentalRecall key={sessionKey} deck={deck} direction={direction} />
           : <TypingRecall key={sessionKey} deck={deck} direction={direction} progressKey={progressKey} progress={progress} save={save} />
-          : <Empty title={pictures ? 'No pictures in this list' : 'This list is empty'}><p>Choose another vocabulary list to practice.</p></Empty>}
+          : <Empty title="This list is empty"><p>Choose another vocabulary list to practice.</p></Empty>}
       </section>
     </div>
   </>
@@ -83,13 +77,6 @@ function CardHeader({ category, help, counter }: { category: Category; help: str
     </div>
     <p id={id} hidden={!open} className="inline-note">{help}</p>
   </>
-}
-
-/** Load the bundled illustration with a descriptive alternative for screen readers. */
-function PicturePrompt({ word }: { word: string }) {
-  const clue = pictureClues.get(word)!
-  const src = new URL(`../assets/pictures/${clue.asset}.svg`, import.meta.url).href
-  return <img className="recall-picture" src={src} alt={clue.description} width={144} height={144} />
 }
 
 function SoundPrompt({ text }: { text: string }) {
@@ -125,8 +112,8 @@ function MentalRecall({ deck, direction }: { deck: WordList; direction: RecallPr
   return <div className="panel recall-panel">
     <CardHeader category={deck.category} counter={`Card ${position + 1} of ${order.length}`} help={reading ? "Recall the English meaning, then flip to check." : "Recall the Korean word, then flip to check."} />
     <div className="recall-face" aria-live="polite">
-      <span className="eyebrow">{flipped ? 'Answer' : sound ? 'Listen for the meaning' : direction === 'image-to-ko' ? 'Picture prompt' : reading || card.transformation ? card.cue : 'English prompt'}</span>
-      {sound && !flipped ? <SoundPrompt key={entry.id} text={card.prompt} /> : direction === 'image-to-ko' && !flipped ? <PicturePrompt word={entry.korean} /> :
+      <span className="eyebrow">{flipped ? 'Answer' : sound ? 'Listen for the meaning' : reading || card.transformation ? card.cue : 'English prompt'}</span>
+      {sound && !flipped ? <SoundPrompt key={entry.id} text={card.prompt} /> :
         <div className="recall-word">{koreanFace ? <Korean>{word}</Korean> : word}</div>}
       {sound && flipped && <Korean>{card.prompt}</Korean>}
       {!sound && koreanFace && <StandalonePronunciationNote word={word} />}
@@ -191,8 +178,8 @@ function TypingRecall({ deck, direction, progressKey, progress, save }: {
   return <div className="panel recall-panel" data-grade={correct ? 'correct' : wrong ? 'wrong' : undefined}>
     <CardHeader category={deck.category} help="Recall each new word on your first try to unlock the next. After the whole list is unlocked, missed words come back more often." />
     <div className="recall-face typing-face">
-      <span className="eyebrow">{sound ? 'Listen for the meaning' : direction === 'image-to-ko' ? 'Picture prompt' : reading || card.transformation ? card.cue : 'English prompt'}</span>
-      {sound ? <SoundPrompt key={draw} text={card.prompt} /> : direction === 'image-to-ko' ? <PicturePrompt word={entry.korean} /> :
+      <span className="eyebrow">{sound ? 'Listen for the meaning' : reading || card.transformation ? card.cue : 'English prompt'}</span>
+      {sound ? <SoundPrompt key={draw} text={card.prompt} /> :
         <div className="recall-word">{reading || card.transformation ? <Korean>{card.prompt}</Korean> : card.prompt}</div>}
       {!sound && reading && <StandalonePronunciationNote word={card.prompt} />}
     </div>

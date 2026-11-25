@@ -23,7 +23,7 @@ The vocabulary registry resolves eight independent categories. Exercise engines 
 
 - **Pronouncing Hangul** includes 21 vowel and 19 consonant flashcards. Play or reveal the sound, rate yourself, or choose Next to skip without affecting your score.
 - **Vocabulary Library** shows fixed lists in a compact searchable table, with examples for particles and endings.
-- **Vocabulary Recall** offers mental and typed practice, including **Korean Sound → English** for listening recall and **Image → Korean** for pictured vocabulary. Typed practice draws recently missed cards more often and recently correct cards less often. Tap the card’s info button for instructions.
+- **Vocabulary Recall** offers mental and typed practice, including **Korean Sound → English** for listening recall. Typed practice draws recently missed cards more often and recently correct cards less often. Tap the card’s info button for instructions.
 - **Grammar Trainer** covers particle practice, conjugation, sentence writing, and word-by-word sentence decoding. Open-ended alternatives can be compared against sample answers and self-reviewed.
 - **Conversation Tool** uses the same bundled Korean female neural voice as the pronunciation cards and alphabet chart. Normal and Slow adjust playback speed. GitHub Actions renders the clips once per curriculum change using [Supertonic-3](https://k2-fsa.github.io/sherpa/onnx/tts/supertonic.html) in Korean with voice F1. For a local build with audio, follow the List spoken prompts and Render Korean voice clips steps in the Pages workflow.
 
@@ -58,7 +58,3 @@ Study data belongs to the browser profile and site origin. Export a full backup 
 ## Dependencies
 
 Node.js 20.19+ or 22.12+, npm, React, TypeScript, Vite, Vitest, and Playwright. Audio requires a browser with a Korean system speech voice.
-
-## Picture credits
-
-Vocabulary illustrations are unmodified [Twemoji graphics by Twitter, Inc. and other contributors](https://github.com/twitter/twemoji/tree/v14.0.2), licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).

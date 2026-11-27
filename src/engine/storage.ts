@@ -14,6 +14,7 @@ import type { Selection } from '../data/model'
 import type { DeckProgress } from './mastery'
 import { activeLists, defaultSelection } from './registry'
 
+import { mapForScene } from '../data/sceneMaps'
 import { classicPalaces, palaceNames, type Theme } from '../data/palaces'
 
 export const practiceModes = ['particles', 'conjugations', 'writing', 'decoding', 'dictation', 'conversation'] as const
@@ -125,7 +126,7 @@ export function importBackup(value: unknown): StudyState {
     throw new Error('The backup contains an invalid palace route.')
   }
   if (state.activePalace !== undefined && (typeof state.activePalace !== 'string' ||
-    !Object.hasOwn(palaceNames, state.activePalace) && !Object.hasOwn(state.customPalaces ?? {}, state.activePalace))) {
+    !mapForScene.has(state.activePalace) && !Object.hasOwn(palaceNames, state.activePalace) && !Object.hasOwn(state.customPalaces ?? {}, state.activePalace))) {
     throw new Error('The selected palace is missing from the backup.')
   }
   if (invalidRecall || invalidScores || invalidCues) throw new Error('The backup contains invalid study records.')
@@ -136,7 +137,7 @@ export function importBackup(value: unknown): StudyState {
 function restoreStudyData({ selected, recall, scores, palaceCues, customPalaces, activePalace }: StudyState): StudyState {
   const active = activeLists(selected)
   const resolved = Object.fromEntries(categoryIds.map(category => [category, active[category].id])) as Selection
-  return { version: 1, selected: resolved, recall, scores, ...(palaceCues && { palaceCues }), ...(customPalaces && { customPalaces }), ...(activePalace && { activePalace }) }
+  return { version: 1, selected: resolved, recall, scores, ...(palaceCues && { palaceCues }), ...(customPalaces && { customPalaces }), ...(activePalace && { activePalace: mapForScene.get(activePalace) ?? activePalace }) }
 }
 
 /** Recognize a plain JSON record before reading its fields. */

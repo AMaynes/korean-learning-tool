@@ -284,9 +284,20 @@ describe('mind palace vocabulary', () => {
     expect(new Set(sceneMaps.map(map => map.id)).size).toBe(sceneMaps.length)
     for (const map of sceneMaps) {
       const route = palaceRoute(map.id, undefined, {})
-      expect(route.map(stop => [stop.word.korean, stop.word.english, stop.place])).toEqual(map.stops)
+      expect(route.map(stop => [stop.word.korean, stop.word.english, stop.place])).toEqual(map.sections.flatMap(section => section.stops))
       expect(new Set(route.map(stop => stop.cueId)).size).toBe(route.length)
     }
+  })
+  it('merges all original sections and restores the selected map and its cues', () => {
+    const ids = sceneMaps.flatMap(map => map.sections.map(section => section.id))
+    expect(ids.length).toBe(37)
+    expect(new Set(ids).size).toBe(37)
+    const palaceCues = { 'stop-outside-0': 'My front steps' }
+    const restored = importBackup({ kind: 'korean-study-backup', state: { ...defaults(), activePalace: 'outside', palaceCues } })
+    expect(restored.activePalace).toBe('forecast')
+    const route = palaceRoute(restored.activePalace!, undefined, palaceCues)
+    expect(route.find(stop => stop.cueId === 'stop-outside-0')?.word.korean).toBe('오늘')
+    expect(restored.palaceCues).toEqual(palaceCues)
   })
   it('retains an older memory scene at its original landmark', () => {
     const route = palaceRoute('home', undefined, { 'nouns-person': 'A person at the front gate.' })

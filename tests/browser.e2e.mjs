@@ -638,7 +638,8 @@ describe('deployed study workflow', { concurrency: false }, () => {
     await words.locator('summary').click()
     await words.getByText('커피 주세요', { exact: true }).waitFor()
     assert.deepEqual(await words.locator('[lang="ko"]').allTextContents(),
-      ['카페', '카페에서', '여기요', '주세요', '물 주세요', '커피', '커피 주세요'])
+      ['카페', '카페에서', '여기요', '주세요', '물 주세요', '커피', '커피 주세요',
+       '이거', '이거는', '얼마예요?', '원', '비싸요', '싸요', '지갑', '돈', '사요'])
     await words.locator('summary').click()
     assert.equal(await page.locator('.palace h2').innerText(), stop)
     await page.getByRole('button', { name: 'Reveal word' }).waitFor()

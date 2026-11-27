@@ -1,12 +1,11 @@
-export interface SceneMap {
-  id: string
+interface Scene {
   name: string
-  group: 'Daily life' | 'Conversations'
   stops: [korean: string, english: string, cue: string][]
 }
 
-export const sceneMaps: SceneMap[] = [
-  { id: "morning", name: "Getting ready", group: "Daily life", stops: [
+// These section IDs are also used by previously saved memory cues.
+const scenes = {
+  "morning": { name: "Getting ready", stops: [
     ["아침", "morning", "Your alarm rings and the sun is up."],
     ["일어나요", "I get up", "You swing your feet off the bed."],
     ["이를 닦아요", "I brush my teeth", "You reach for the toothbrush."],
@@ -15,7 +14,7 @@ export const sceneMaps: SceneMap[] = [
     ["코트", "coat", "You take your coat off its hook."],
     ["매일", "every day", "Think how often you do this routine."],
   ] },
-  { id: "house-tour", name: "Walking through the house", group: "Daily life", stops: [
+  "house-tour": { name: "Walking through the house", stops: [
     ["집", "home / house", "Picture the whole place from the street."],
     ["방", "room", "Step into your bedroom."],
     ["침대", "bed", "Touch the blanket."],
@@ -25,7 +24,7 @@ export const sceneMaps: SceneMap[] = [
     ["화장실", "bathroom / restroom", "Turn back for your toothbrush."],
     ["문", "door", "Close the front door behind you."],
   ] },
-  { id: "forecast", name: "Checking the weather", group: "Daily life", stops: [
+  "forecast": { name: "Checking the weather", stops: [
     ["날씨", "weather", "Open the forecast on your phone."],
     ["날씨가", "the weather (as subject)", "Start saying that the weather is clear. Mark “weather” as the subject."],
     ["맑아요", "it’s clear", "Look up at a cloudless sky."],
@@ -34,7 +33,7 @@ export const sceneMaps: SceneMap[] = [
     ["비 올 거예요", "it will rain", "The forecast shows rain later."],
     ["우산", "umbrella", "Grab something to keep the rain off."],
   ] },
-  { id: "outside", name: "Stepping outside", group: "Daily life", stops: [
+  "outside": { name: "Stepping outside", stops: [
     ["오늘", "today", "Check the date as you leave."],
     ["오늘 추워요", "it’s cold today", "Describe the whole day as you zip your coat."],
     ["추워요", "it’s cold", "Feel the chill on your hands."],
@@ -42,7 +41,7 @@ export const sceneMaps: SceneMap[] = [
     ["따뜻해요", "it’s warm", "Step into a patch of sun."],
     ["시원해요", "it’s pleasantly cool", "Feel the breeze in the shade."],
   ] },
-  { id: "commute", name: "Car to campus bus", group: "Daily life", stops: [
+  "commute": { name: "Car to campus bus", stops: [
     ["차", "car", "Find your car outside the house."],
     ["주차장", "parking lot", "Park here before taking the bus to campus."],
     ["정류장", "bus stop", "Walk to the sign where the bus picks you up."],
@@ -53,7 +52,7 @@ export const sceneMaps: SceneMap[] = [
     ["가다", "to go", "Recall the dictionary form of that action."],
     ["학교", "school", "Step onto campus and name the place."],
   ] },
-  { id: "class", name: "Sitting down for class", group: "Daily life", stops: [
+  "class": { name: "Sitting down for class", stops: [
     ["앉아요", "I sit down", "Take your seat."],
     ["들어요", "I listen", "The lecture starts."],
     ["읽어요", "I read", "Look at the words on the board."],
@@ -62,7 +61,7 @@ export const sceneMaps: SceneMap[] = [
     ["공부하다", "to study", "Name that activity in dictionary form."],
     ["해요", "I do", "Use the short verb for doing a task."],
   ] },
-  { id: "park-break", name: "A break by the campus pond", group: "Daily life", stops: [
+  "park-break": { name: "A break by the campus pond", stops: [
     ["공원", "park", "Leave class for the green space."],
     ["걸어요", "I walk", "Follow the campus path."],
     ["나무", "tree", "Pick one to lie under."],
@@ -72,7 +71,7 @@ export const sceneMaps: SceneMap[] = [
     ["보다", "to see / watch", "Recall the dictionary form of watching."],
     ["좋아요", "it’s good / nice", "Take in how nice it is here."],
   ] },
-  { id: "campus-meal", name: "Getting lunch", group: "Daily life", stops: [
+  "campus-meal": { name: "Getting lunch", stops: [
     ["배고파요", "I’m hungry", "Your stomach growls between classes."],
     ["식당", "restaurant / dining hall", "Pick a place to eat."],
     ["밥", "rice / meal", "Look at the bowl on your tray."],
@@ -81,7 +80,7 @@ export const sceneMaps: SceneMap[] = [
     ["마셔요", "I drink", "Take a sip."],
     ["마시다", "to drink", "Recall the dictionary form of taking a drink."],
   ] },
-  { id: "menu", name: "Looking over the menu", group: "Daily life", stops: [
+  "menu": { name: "Looking over the menu", stops: [
     ["메뉴", "menu", "Pick up the list of dishes."],
     ["비빔밥", "bibimbap / mixed rice", "Spot the bowl of rice and mixed toppings."],
     ["불고기", "bulgogi / marinated meat", "Picture the plate of marinated beef."],
@@ -90,13 +89,13 @@ export const sceneMaps: SceneMap[] = [
     ["빵", "bread", "Pass the bakery display."],
     ["쿠키", "cookie", "Pick a sweet from the last tray."],
   ] },
-  { id: "flavors", name: "Tasting the first bite", group: "Daily life", stops: [
+  "flavors": { name: "Tasting the first bite", stops: [
     ["맛있어요", "it’s delicious", "You want another bite immediately."],
     ["맛없어요", "it doesn’t taste good", "Try a dish you would skip next time."],
     ["달아요", "it’s sweet", "Taste the sugar in a cookie."],
     ["매워요", "it’s spicy", "Feel the heat from the chili."],
   ] },
-  { id: "lab-day", name: "A day at the lab", group: "Daily life", stops: [
+  "lab-day": { name: "A day at the lab", stops: [
     ["일하다", "to work", "Name the activity you came to the lab for."],
     ["이번 주", "this week", "Find the current week’s lab meeting on your calendar."],
     ["만나요", "I meet / we meet", "Your lab group gets together."],
@@ -104,7 +103,7 @@ export const sceneMaps: SceneMap[] = [
     ["쉬워요", "it’s easy", "The next task feels straightforward."],
     ["다음 주", "next week", "Look ahead to the next meeting."],
   ] },
-  { id: "gym", name: "From the bus to the gym", group: "Daily life", stops: [
+  "gym": { name: "From the bus to the gym", stops: [
     ["차", "car", "Take the bus back to the lot and find your ride."],
     ["입구", "entrance", "Walk up to the gym keypad."],
     ["손", "hand", "Lift your hand to type the code."],
@@ -114,7 +113,7 @@ export const sceneMaps: SceneMap[] = [
     ["물", "water", "Name what’s in the bottle."],
     ["피곤해요", "I’m tired", "Finish your last set."],
   ] },
-  { id: "evening", name: "Home after the gym", group: "Daily life", stops: [
+  "evening": { name: "Home after the gym", stops: [
     ["집에", "home / to the house", "Name where you’re headed after the gym."],
     ["다녀왔어요", "I’m back / I’m home", "Announce your return at the door."],
     ["씻어요", "I wash up", "Head straight for the shower."],
@@ -123,7 +122,7 @@ export const sceneMaps: SceneMap[] = [
     ["자요", "I sleep / go to bed", "Put the phone down at last."],
     ["자다", "to sleep", "Recall the dictionary form of sleeping."],
   ] },
-  { id: "minecraft-build", name: "Minecraft · first shelter", group: "Daily life", stops: [
+  "minecraft-build": { name: "Minecraft · first shelter", stops: [
     ["집", "house", "Pick a spot for your first house."],
     ["작다", "to be small", "Name the size of your starter build in dictionary form."],
     ["작아요", "it’s small", "Describe it aloud when you step inside."],
@@ -133,7 +132,7 @@ export const sceneMaps: SceneMap[] = [
     ["크다", "to be big", "Recall the dictionary form for the size of your next build."],
     ["커요", "it’s big", "Step back and describe the finished expansion."],
   ] },
-  { id: "minecraft-view", name: "Minecraft · checking a build", group: "Daily life", stops: [
+  "minecraft-view": { name: "Minecraft · checking a build", stops: [
     ["색", "color", "Pick the block palette."],
     ["예뻐요", "it’s pretty", "Admire the garden."],
     ["멋있어요", "it looks cool / impressive", "Stand back from the finished tower."],
@@ -141,7 +140,7 @@ export const sceneMaps: SceneMap[] = [
     ["나빠요", "it’s bad", "Try one that works poorly."],
     ["재미있어요", "it’s fun", "Think about how building felt."],
   ] },
-  { id: "keypad", name: "Reading the gym keypad", group: "Daily life", stops: [
+  "keypad": { name: "Reading the gym keypad", stops: [
     ["일", "one (Sino-Korean)", "Read digit 1 on the keypad."],
     ["이", "two (Sino-Korean)", "Read digit 2."],
     ["삼", "three (Sino-Korean)", "Read digit 3."],
@@ -153,13 +152,13 @@ export const sceneMaps: SceneMap[] = [
     ["구", "nine (Sino-Korean)", "Read digit 9."],
     ["십", "ten (Sino-Korean)", "Read the number 10 on the locker beside the keypad."],
   ] },
-  { id: "reps", name: "Counting reps aloud", group: "Daily life", stops: [
+  "reps": { name: "Counting reps aloud", stops: [
     ["하나", "one (native Korean)", "Count the first lift out loud."],
     ["둘", "two (native Korean)", "Count the second lift."],
     ["셋", "three (native Korean)", "Count the third lift."],
     ["넷", "four (native Korean)", "Count the fourth lift."],
   ] },
-  { id: "planner", name: "Planning the week", group: "Daily life", stops: [
+  "planner": { name: "Planning the week", stops: [
     ["시간", "time", "Check how much time you have."],
     ["지금", "now", "Find the current moment on your schedule."],
     ["내일", "tomorrow", "Swipe forward one day."],
@@ -167,7 +166,7 @@ export const sceneMaps: SceneMap[] = [
     ["금요일", "Friday", "Find the final weekday."],
     ["주말", "weekend", "Look at Saturday and Sunday together."],
   ] },
-  { id: "seoul-transit", name: "Following a route in Seoul", group: "Daily life", stops: [
+  "seoul-transit": { name: "Following a route in Seoul", stops: [
     ["서울에서", "in Seoul (where an action happens)", "Say where you’re traveling around."],
     ["지하철", "subway", "Choose how to get across town."],
     ["역", "station", "Find the station on the map."],
@@ -176,7 +175,7 @@ export const sceneMaps: SceneMap[] = [
     ["오른쪽", "right", "Check the other side."],
     ["직진", "straight ahead", "Follow the forward arrow."],
   ] },
-  { id: "seoul-walk", name: "A walk through Seoul", group: "Daily life", stops: [
+  "seoul-walk": { name: "A walk through Seoul", stops: [
     ["시장", "market", "Walk between the market stalls."],
     ["가게", "store", "Stop at a little shop."],
     ["편의점", "convenience store", "Spot a place for a quick snack."],
@@ -184,7 +183,7 @@ export const sceneMaps: SceneMap[] = [
     ["궁", "palace", "Stop at the palace gate."],
     ["박물관", "museum", "Walk into the exhibition hall."],
   ] },
-  { id: "arrival", name: "Arriving for a trip", group: "Daily life", stops: [
+  "arrival": { name: "Arriving for a trip", stops: [
     ["공항", "airport", "Step off the plane."],
     ["여권", "passport", "Take out your travel document."],
     ["택시", "taxi", "Get a ride from the taxi stand."],
@@ -192,7 +191,7 @@ export const sceneMaps: SceneMap[] = [
     ["예약", "reservation", "Pull up your booking."],
     ["표", "ticket", "Check the ticket for your next ride."],
   ] },
-  { id: "introductions", name: "Meeting someone", group: "Conversations", stops: [
+  "introductions": { name: "Meeting someone", stops: [
     ["안녕하세요", "hello (polite)", "Greet someone you just met."],
     ["안녕", "hi (casual)", "Greet a close friend your age."],
     ["반갑습니다", "nice to meet you", "Respond to an introduction."],
@@ -201,7 +200,7 @@ export const sceneMaps: SceneMap[] = [
     ["저는 …이에요", "I’m … (name ends in a consonant)", "Introduce yourself using a name like 민준."],
     ["저는 …예요", "I’m … (name ends in a vowel)", "Introduce yourself using a name like 유나."],
   ] },
-  { id: "acquaintance", name: "Getting to know someone", group: "Conversations", stops: [
+  "acquaintance": { name: "Getting to know someone", stops: [
     ["저는", "as for me / I (topic)", "Turn the conversation to yourself."],
     ["제가", "I (subject)", "Someone asks who did it. Start your answer with “I.”"],
     ["사람", "person", "Point out a person in a photo."],
@@ -210,7 +209,7 @@ export const sceneMaps: SceneMap[] = [
     ["선생님", "teacher", "Introduce the person who taught you."],
     ["좋아해요", "I like it", "Your new friend asks how you feel about a hobby."],
   ] },
-  { id: "family-chat", name: "Talking about family", group: "Conversations", stops: [
+  "family-chat": { name: "Talking about family", stops: [
     ["가족", "family", "Show a family photo."],
     ["엄마", "mom", "Point to your mom."],
     ["아빠", "dad", "Point to your dad."],
@@ -220,7 +219,7 @@ export const sceneMaps: SceneMap[] = [
     ["누나", "older sister (male speaker)", "A man introduces his older sister."],
     ["오빠", "older brother (female speaker)", "A woman introduces her older brother."],
   ] },
-  { id: "plans", name: "Making plans with a friend", group: "Conversations", stops: [
+  "plans": { name: "Making plans with a friend", stops: [
     ["뭐 해?", "what are you doing? (casual)", "Text a close friend about what they’re doing."],
     ["뭐 하세요?", "what are you doing? (polite)", "Ask someone the same question politely."],
     ["어디 가?", "where are you going? (casual)", "Ask a close friend where they’re headed."],
@@ -229,14 +228,14 @@ export const sceneMaps: SceneMap[] = [
     ["만나요", "let’s meet / we meet", "Suggest meeting at the park."],
     ["와요", "I come / someone comes", "Say you’re coming to the meeting spot."],
   ] },
-  { id: "clock-chat", name: "Checking the time", group: "Conversations", stops: [
+  "clock-chat": { name: "Checking the time", stops: [
     ["몇 시예요?", "what time is it?", "Ask someone for the time."],
     ["세 시예요", "it’s three o’clock", "Look at 3:00 and answer."],
     ["늦었어요", "I’m late", "You arrive after your friend."],
     ["잠시만요", "one moment, please", "Politely ask them to wait using the phrase starting with 잠시."],
     ["잠깐만요", "just a moment, please", "Ask again using the phrase starting with 잠깐."],
   ] },
-  { id: "ordering", name: "Ordering food or coffee", group: "Conversations", stops: [
+  "ordering": { name: "Ordering food or coffee", stops: [
     ["카페", "café", "Suggest a place for coffee."],
     ["카페에서", "at the café (where an action happens)", "Say where you’re having coffee."],
     ["여기요", "over here / excuse me", "Get the server’s attention."],
@@ -245,7 +244,7 @@ export const sceneMaps: SceneMap[] = [
     ["커피", "coffee", "Point to the drink you want."],
     ["커피 주세요", "coffee, please", "Make the whole coffee order."],
   ] },
-  { id: "shopping", name: "Purchasing something", group: "Conversations", stops: [
+  "shopping": { name: "Purchasing something", stops: [
     ["이거", "this one", "Point to an item at the counter."],
     ["이거는", "as for this one", "Shift attention to a different item."],
     ["얼마예요?", "how much is it?", "Ask the price."],
@@ -256,14 +255,14 @@ export const sceneMaps: SceneMap[] = [
     ["돈", "money", "Pull out the cash."],
     ["사요", "I buy it", "Decide to buy the item."],
   ] },
-  { id: "directions", name: "Asking for directions", group: "Conversations", stops: [
+  "directions": { name: "Asking for directions", stops: [
     ["실례합니다", "excuse me", "Politely approach a passerby."],
     ["어디예요?", "where is it?", "Ask where a place is."],
     ["지하철 어디예요?", "where is the subway?", "Ask specifically for the subway."],
     ["주소", "address", "Show the address on your phone."],
     ["여기 있어요", "it’s here / here it is", "Point to the spot on the map."],
   ] },
-  { id: "help", name: "Asking for help", group: "Conversations", stops: [
+  "help": { name: "Asking for help", stops: [
     ["도와주세요", "please help me", "Ask a stranger for help."],
     ["도와줘", "help me (casual)", "Ask a close friend for help."],
     ["필요해요", "I need it", "Say that something is necessary."],
@@ -271,18 +270,18 @@ export const sceneMaps: SceneMap[] = [
     ["잃어버렸어요", "I lost it", "Explain what happened to your wallet."],
     ["전화해 주세요", "please call", "Ask someone to make a call."],
   ] },
-  { id: "clarification", name: "When you don’t understand", group: "Conversations", stops: [
+  "clarification": { name: "When you don’t understand", stops: [
     ["한국어 잘 못해요", "I don’t speak Korean well", "Explain why you’re having trouble following."],
     ["영어 하세요?", "do you speak English?", "Ask if English is an option."],
     ["천천히 말해 주세요", "please speak slowly", "The other person speaks too fast."],
     ["다시 말해 주세요", "please say it again", "You missed what they just said."],
   ] },
-  { id: "requests", name: "Making a small request", group: "Conversations", stops: [
+  "requests": { name: "Making a small request", stops: [
     ["열어 주세요", "please open it", "Ask someone to open the door."],
     ["닫아 주세요", "please close it", "Ask them to close it behind you."],
     ["조용히 해 주세요", "please be quiet", "Ask for quiet while you study."],
   ] },
-  { id: "checking-in", name: "Checking if someone is okay", group: "Conversations", stops: [
+  "checking-in": { name: "Checking if someone is okay", stops: [
     ["괜찮으세요?", "are you okay? (respectful)", "Someone stumbles. Check on them."],
     ["네", "yes", "Answer a yes-or-no question positively."],
     ["아니요", "no", "Give the negative answer."],
@@ -290,7 +289,7 @@ export const sceneMaps: SceneMap[] = [
     ["괜찮지 않아요", "I’m not okay", "Tell them you still feel unwell."],
     ["쉬세요", "please rest", "Encourage the other person to take a break."],
   ] },
-  { id: "symptoms", name: "Explaining what hurts", group: "Conversations", stops: [
+  "symptoms": { name: "Explaining what hurts", stops: [
     ["머리", "head", "Point to your head."],
     ["배", "stomach / belly", "Point to your belly."],
     ["아파요", "it hurts", "Say how it feels."],
@@ -298,7 +297,7 @@ export const sceneMaps: SceneMap[] = [
     ["배가 아파요", "my stomach hurts", "Explain your stomachache."],
     ["열이 있어요", "I have a fever", "Describe your high temperature."],
   ] },
-  { id: "urgent-help", name: "Getting urgent help", group: "Conversations", stops: [
+  "urgent-help": { name: "Getting urgent help", stops: [
     ["약", "medicine", "Say what you need from the pharmacist."],
     ["약국", "pharmacy", "Ask for the place that sells medicine."],
     ["병원", "hospital", "Name the place you need to reach."],
@@ -308,7 +307,7 @@ export const sceneMaps: SceneMap[] = [
     ["긴급해요", "it’s urgent", "Explain that it can’t wait."],
     ["119에 전화해 주세요", "please call 119", "Ask for a call to 119."],
   ] },
-  { id: "manners", name: "Thanking, apologizing, and reacting", group: "Conversations", stops: [
+  "manners": { name: "Thanking, apologizing, and reacting", stops: [
     ["감사합니다", "thank you (formal polite)", "Thank someone formally."],
     ["고마워요", "thanks (polite)", "Thank someone using the polite 요 ending."],
     ["고마워", "thanks (casual)", "Thank a close friend."],
@@ -317,7 +316,7 @@ export const sceneMaps: SceneMap[] = [
     ["미안해", "sorry (casual)", "Apologize to a close friend."],
     ["대박", "awesome / no way", "React to your friend’s surprising news."],
   ] },
-  { id: "goodbyes", name: "Saying goodbye or good night", group: "Conversations", stops: [
+  "goodbyes": { name: "Saying goodbye or good night", stops: [
     ["안녕히 가세요", "goodbye (to someone leaving)", "You stay behind. Say goodbye to the guest walking away."],
     ["안녕히 계세요", "goodbye (to someone staying)", "You leave. Say goodbye to the host at the door."],
     ["다녀오세요", "have a good outing / see you when you get back", "Someone is heading out and will return. See them off."],
@@ -326,4 +325,28 @@ export const sceneMaps: SceneMap[] = [
     ["잘 자", "sleep well (casual)", "Say good night to a close friend."],
     ["잘 자요", "sleep well (polite)", "Say good night using the polite 요 ending."],
   ] },
+} satisfies Record<string, Scene>
+
+function map(name: string, group: 'Daily life' | 'Conversations', ...ids: [keyof typeof scenes, ...(keyof typeof scenes)[]]) {
+  return { id: ids[0], name, group, sections: ids.map(id => ({ id, ...scenes[id] })) }
+}
+
+export const sceneMaps = [
+  map('At home', 'Daily life', 'morning', 'house-tour', 'evening'),
+  map('Outdoors & weather', 'Daily life', 'forecast', 'outside', 'park-break'),
+  map('Campus & lab', 'Daily life', 'commute', 'class', 'lab-day', 'planner'),
+  map('Food & flavors', 'Daily life', 'campus-meal', 'menu', 'flavors'),
+  map('Gym & numbers', 'Daily life', 'gym', 'keypad', 'reps'),
+  map('Minecraft', 'Daily life', 'minecraft-build', 'minecraft-view'),
+  map('Getting around Seoul', 'Daily life', 'arrival', 'seoul-transit', 'seoul-walk'),
+  map('Getting to know someone', 'Conversations', 'introductions', 'acquaintance', 'family-chat'),
+  map('Time & making plans', 'Conversations', 'plans', 'clock-chat'),
+  map('Ordering & shopping', 'Conversations', 'ordering', 'shopping'),
+  map('Directions, help & requests', 'Conversations', 'directions', 'help', 'clarification', 'requests'),
+  map('Health & urgent help', 'Conversations', 'checking-in', 'symptoms', 'urgent-help'),
+  map('Goodbyes & everyday manners', 'Conversations', 'goodbyes', 'manners'),
 ]
+
+export const mapForScene = new Map<string, string>(
+  sceneMaps.flatMap(map => map.sections.map(section => [section.id, map.id] as const)),
+)

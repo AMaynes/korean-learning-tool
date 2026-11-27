@@ -12,10 +12,10 @@ export function MindPalace({ state, save }: { state: StudyState; save: Save }) {
   const [landmarks, setLandmarks] = useState('')
   const [busy, setBusy] = useState(false)
   const custom = state.customPalaces ?? {}
-  const firstMap = sceneMaps[0].id
+  const firstMap = sceneMaps[0]
   // Earlier versions left the default Home selection implicit when saving a scene.
-  const hasLegacyCues = Object.keys(state.palaceCues ?? {}).some(id => !id.startsWith('stop-' + firstMap + '-'))
-  const selected = state.activePalace ?? (hasLegacyCues ? 'home' : firstMap)
+  const hasLegacyCues = Object.keys(state.palaceCues ?? {}).some(id => !firstMap.sections.some(section => id.startsWith('stop-' + section.id + '-')))
+  const selected = state.activePalace ?? (hasLegacyCues ? 'home' : firstMap.id)
   const palace = custom[selected]
   const stops = landmarks.split(/\r?\n/).map(line => line.trim()).filter(Boolean)
   const names: Record<string, string> = {...palaceNames}
@@ -77,8 +77,11 @@ function PalaceRoute({ route, cues, save }: {
     </div>
     <details onToggle={event => setShowWords(event.currentTarget.open)}>
       <summary>Words in this map ({route.length})</summary>
-      {showWords && <ol className="palace-words">{route.map(stop =>
-        <li key={stop.cueId}><Korean>{stop.word.korean}</Korean> · <em>{stop.word.english}</em></li>)}</ol>}
+      {showWords && <ol className="palace-words">{route.map((stop, i) =>
+        <li key={stop.cueId}>
+          {route[i - 1]?.room !== stop.room && <strong className="palace-word-section">{stop.room}</strong>}
+          <Korean>{stop.word.korean}</Korean> · <em>{stop.word.english}</em>
+        </li>)}</ol>}
     </details>
     <p className="eyebrow">{room}</p>
     <h2>{place}</h2>

@@ -44,10 +44,10 @@ const byWord = new Map(catalog.map(entry => [entry.korean, entry]))
 export type PalaceLandmark = { room: string; place: string; word: { korean: string; english: string }; cueId: string }
 
 export function palaceRoute(id: string, custom: {name: string; stops: string[]; theme?: Theme} | undefined, cues: Record<string, string>) {
-  const scene = sceneMaps.find(map => map.id === id)
-  if (scene) return scene.stops.map(([korean, english, place], i) => ({
-    room: scene.name, place, word: { korean, english }, cueId: 'stop-' + id + '-' + i,
-  }))
+  const map = sceneMaps.find(map => map.id === id)
+  if (map) return map.sections.flatMap(scene => scene.stops.map(([korean, english, place], i) => ({
+    room: scene.name, place, word: { korean, english }, cueId: 'stop-' + scene.id + '-' + i,
+  })))
   const theme = (custom?.theme ?? (custom ? 'home' : id)) as Theme
   const themed = routes[theme].flatMap(([room, stops]) => stops.map(([place, word]) => ({room, place, word: byWord.get(word)!})))
   const route = (custom ? custom.stops.map((place, i) => {

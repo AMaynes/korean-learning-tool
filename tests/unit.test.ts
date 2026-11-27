@@ -52,6 +52,22 @@ describe('vocabulary registry', () => {
     expect(active.adjectives.id).toBe('adjectives-3')
   })
 
+  it('provides a flashcard for every map form and a deduplicated full deck', () => {
+    const forms = new Set<string>()
+    for (const map of sceneMaps) {
+      const deck = activeLists({ topics: 'topics-' + map.id }).topics
+      const words = new Set(map.sections.flatMap(section => section.stops.map(([word]) => word)))
+      expect(deck.entries.map(entry => entry.korean)).toEqual([...words])
+      for (const entry of deck.entries) {
+        forms.add(entry.korean)
+        expect(entry.id).toMatch(/^[a-z0-9-]{1,99}$/u)
+      }
+    }
+    const full = activeLists({ topics: 'topics-all' }).topics
+    expect(full.entries.map(entry => entry.korean)).toEqual([...forms])
+    expect(forms.size).toBe(238)
+  })
+
   it('provides a worked grammar example for every bundled pattern', () => {
     const grammarLists = builtInLists.filter(list => list.category === 'particles' || list.category === 'conjugations')
     for (const list of grammarLists) {

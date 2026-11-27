@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { readingChunks, readingSentences, translateReading } from '../engine/reading'
+import { generatePassage } from '../engine/readingPassages'
 import { Icon, Korean } from './shared'
 
 export function Reading() {
@@ -15,7 +16,10 @@ export function Reading() {
       }}>
         <label className="field">Korean text<textarea lang="ko" rows={7} value={text}
           onChange={event => setText(event.target.value)} /></label>
-        <button className="button primary" disabled={!text.trim()}>Start reading</button>
+        <div className="button-row">
+          <button type="button" className="button" onClick={() => setText(generatePassage(text))}>Generate</button>
+          <button className="button primary" disabled={!text.trim()}>Start reading</button>
+        </div>
       </form>}
     <p className="inline-note">Audio and translations use Google Translate online. Playing audio sends the selected text. Submitting sends the Korean passage.</p>
   </>

@@ -12,17 +12,31 @@
 import { conjugationRules, grammarLists, particleRules } from '../data/grammar'
 import { categoryIds } from '../data/model'
 import type { Category, Entry, Selection, WordList } from '../data/model'
+import { sceneMaps } from '../data/sceneMaps'
 import { lexicalLists } from '../data/words'
 
-export const builtInLists = [...lexicalLists, ...grammarLists]
+// A form can appear in several scenes. Its recall ID follows the spelling, even if a scene moves.
+const topicLists: WordList[] = sceneMaps.map(map => {
+  const entries = new Map<string, Entry>()
+  for (const section of map.sections) {
+    for (const [korean, english] of section.stops) {
+      if (entries.has(korean)) continue
+      const id = Array.from(korean, char => char.codePointAt(0)!.toString(16)).join('-')
+      entries.set(korean, { id, korean, english })
+    }
+  }
+  return { category: 'topics', id: 'topics-' + map.id, name: map.name, entries: [...entries.values()] }
+})
+
+export const builtInLists = [...lexicalLists, ...grammarLists, ...topicLists]
 export const selectableLists: WordList[] = [...builtInLists, ...categoryIds.map(category => {
   const entries = builtInLists.filter(list => list.category === category).flatMap(list => list.entries)
   return {
-    id: category + '-all', category, name: 'All lists',
+    id: category + '-all', category, name: category === 'topics' ? 'Full vocabulary list' : 'All lists',
     entries: [...new Map(entries.map(entry => [entry.id, entry])).values()],
   }
 })]
-export const defaultSelection = Object.fromEntries(categoryIds.map(category => [category, category + '-1'])) as Selection
+export const defaultSelection = Object.fromEntries(categoryIds.map(category => [category, builtInLists.find(list => list.category === category)!.id])) as Selection
 
 /** Resolve only catalog lists and fall back within each category for obsolete selections. */
 export function activeLists(selection: Partial<Record<Category, unknown>>) {

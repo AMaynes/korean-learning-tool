@@ -46,7 +46,7 @@ export function App() {
   const [view, setView] = useState(currentView)
   const [state, setState] = useState<StudyState>()
   const [notice, setNotice] = useState('')
-  const [category, setCategory] = useState<Category>('nouns')
+  const [category, setCategory] = useState<Category>('topics')
   const [revision, setRevision] = useState(0)
   const [volatile, setVolatile] = useState(false)
   const stateRef = useRef(defaults())

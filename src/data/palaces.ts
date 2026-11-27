@@ -36,7 +36,7 @@ const routes: Record<Theme, Room[]> = {
     ['Platform', [['Departure board', '떠나다'], ['Waiting bench', '기다리다'], ['Arrival clock', '도착하다'], ['Train door', '타다'], ['Subway tracks', '지하철']]],
   ],
 }
-const catalog = [...new Map(builtInLists.flatMap(list => list.entries.map(entry => {
+const catalog = [...new Map(builtInLists.filter(list => list.category !== 'topics').flatMap(list => list.entries.map(entry => {
   const key = list.category + '-' + entry.id
   return [key, {...entry, key, category: list.category}] as const
 }))).values()]

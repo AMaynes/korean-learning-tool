@@ -10,6 +10,7 @@
 
 
 export const categories = {
+  topics: 'Daily life & conversations',
   nouns: 'Nouns', pronouns: 'Pronouns', verbs: 'Verbs', adjectives: 'Adjectives',
   sentences: 'Common Sentences', independent: 'Independent Words',
   particles: 'Particles', conjugations: 'Conjugations',

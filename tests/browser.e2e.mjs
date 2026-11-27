@@ -637,6 +637,15 @@ describe('deployed study workflow', { concurrency: false }, () => {
     const stop = await page.locator('.palace h2').innerText()
     await words.locator('summary').click()
     await words.getByText('커피 주세요', { exact: true }).waitFor()
+    const ordering = words.getByRole('table', { name: 'Ordering food or coffee' })
+    const shopping = words.getByRole('table', { name: 'Purchasing something' })
+    assert.equal(await ordering.getByRole('row').count(), 7)
+    assert.equal(await shopping.getByRole('row').count(), 9)
+    await page.setViewportSize({ width: 360, height: 800 })
+    const term = await ordering.getByRole('rowheader', { name: '물 주세요', exact: true }).boundingBox()
+    const meaning = await ordering.getByRole('cell', { name: 'water, please', exact: true }).boundingBox()
+    assert.ok(term && meaning && term.x < meaning.x && Math.abs(term.y - meaning.y) < 1)
+    assert.ok(meaning.x + meaning.width <= 360)
     assert.deepEqual(await words.locator('[lang="ko"]').allTextContents(),
       ['카페', '카페에서', '여기요', '주세요', '물 주세요', '커피', '커피 주세요',
        '이거', '이거는', '얼마예요?', '원', '비싸요', '싸요', '지갑', '돈', '사요'])

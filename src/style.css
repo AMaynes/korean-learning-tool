@@ -484,8 +484,13 @@ td [lang="ko"] { color: var(--accent); font-weight: 650; }
 .reading-clock small { display: block; color: var(--muted); }
 .reading-word [data-endpoint="true"] { text-decoration: underline double; text-underline-offset: 4px; }
 
-.palace-words { margin: 0; padding-left: 1.7rem; }
-.palace-words li { padding: 4px 0; }
-.palace-words em { color: var(--muted); }
-
-.palace-word-section { display: block; margin-top: .4rem; }
+.palace-reference { min-width: 0; border: 1px solid var(--line); border-radius: 8px; }
+.palace-reference > summary { padding: 10px 12px; cursor: pointer; }
+.palace-reference[open] > summary { border-bottom: 1px solid var(--line); }
+.palace-words { display: grid; gap: 16px; padding: 12px; }
+.palace-words table { table-layout: fixed; }
+.palace-words caption { text-align: left; font-size: 14px; font-weight: 700; padding-bottom: 5px; }
+.palace-words :is(th, td) { padding: 5px 0; overflow-wrap: anywhere; line-height: 1.45; }
+.palace-words th { width: min(44%, 13rem); padding-right: 12px; font-size: 15px; word-break: keep-all; }
+.palace-words td { color: var(--muted); }
+.palace-words tr:last-child > * { border-bottom: 0; }

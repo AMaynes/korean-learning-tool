@@ -12,7 +12,10 @@ export function MindPalace({ state, save }: { state: StudyState; save: Save }) {
   const [landmarks, setLandmarks] = useState('')
   const [busy, setBusy] = useState(false)
   const custom = state.customPalaces ?? {}
-  const selected = state.activePalace ?? (Object.keys(state.palaceCues ?? {}).length ? 'home' : sceneMaps[0].id)
+  const firstMap = sceneMaps[0].id
+  // Earlier versions left the default Home selection implicit when saving a scene.
+  const hasLegacyCues = Object.keys(state.palaceCues ?? {}).some(id => !id.startsWith('stop-' + firstMap + '-'))
+  const selected = state.activePalace ?? (hasLegacyCues ? 'home' : firstMap)
   const palace = custom[selected]
   const stops = landmarks.split(/\r?\n/).map(line => line.trim()).filter(Boolean)
   const names: Record<string, string> = {...palaceNames}

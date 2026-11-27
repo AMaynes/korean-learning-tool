@@ -14,7 +14,7 @@ import type { Selection } from '../data/model'
 import type { DeckProgress } from './mastery'
 import { activeLists, defaultSelection } from './registry'
 
-import { palaceNames, type Theme } from '../data/palaces'
+import { classicPalaces, palaceNames, type Theme } from '../data/palaces'
 
 export const practiceModes = ['particles', 'conjugations', 'writing', 'decoding', 'dictation', 'conversation'] as const
 export type PracticeMode = typeof practiceModes[number]
@@ -120,7 +120,7 @@ export function importBackup(value: unknown): StudyState {
     Object.entries(state.palaceCues).some(([id, cue]) => !validId(id) || typeof cue !== 'string' || cue.length > 2000))
   if (state.customPalaces !== undefined && (!record(state.customPalaces) || Object.entries(state.customPalaces).some(([id, palace]) =>
     !validId(id) || Object.hasOwn(palaceNames, id) || !record(palace) || typeof palace.name !== 'string' ||
-    (palace.theme !== undefined && (typeof palace.theme !== 'string' || !Object.hasOwn(palaceNames, palace.theme))) || !palace.name.trim() || palace.name.length > 80 || !Array.isArray(palace.stops) || !palace.stops.length ||
+    (palace.theme !== undefined && (typeof palace.theme !== 'string' || !Object.hasOwn(classicPalaces, palace.theme))) || !palace.name.trim() || palace.name.length > 80 || !Array.isArray(palace.stops) || !palace.stops.length ||
     palace.stops.some(stop => typeof stop !== 'string' || !stop.trim()) || palace.stops.join('\n').length > 8000))) {
     throw new Error('The backup contains an invalid palace route.')
   }

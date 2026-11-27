@@ -483,3 +483,7 @@ td [lang="ko"] { color: var(--accent); font-weight: 650; }
 .reading-clock [role="status"] { margin: 6px 0 0; }
 .reading-clock small { display: block; color: var(--muted); }
 .reading-word [data-endpoint="true"] { text-decoration: underline double; text-underline-offset: 4px; }
+
+.palace-words { margin: 0; padding-left: 1.7rem; }
+.palace-words li { padding: 4px 0; }
+.palace-words em { color: var(--muted); }

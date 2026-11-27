@@ -1,7 +1,12 @@
 import { builtInLists } from '../engine/registry'
 
-export const palaceNames = { home: 'Home', park: 'Park', cafe: 'Café', school: 'School', station: 'Train Station' }
-export type Theme = keyof typeof palaceNames
+import { sceneMaps } from './sceneMaps'
+
+export const classicPalaces = { home: 'Home', park: 'Park', cafe: 'Café', school: 'School', station: 'Train Station' }
+export type Theme = keyof typeof classicPalaces
+export const palaceNames: Record<string, string> = {
+  ...classicPalaces, ...Object.fromEntries(sceneMaps.map(map => [map.id, map.name])),
+}
 type Room = [room: string, stops: [place: string, word: string][]]
 const routes: Record<Theme, Room[]> = {
   home: [
@@ -36,12 +41,16 @@ const catalog = [...new Map(builtInLists.flatMap(list => list.entries.map(entry 
   return [key, {...entry, key, category: list.category}] as const
 }))).values()]
 const byWord = new Map(catalog.map(entry => [entry.korean, entry]))
-export type PalaceLandmark = { room: string; place: string; word: typeof catalog[number]; cueId: string }
+export type PalaceLandmark = { room: string; place: string; word: { korean: string; english: string }; cueId: string }
 
 export function palaceRoute(id: string, custom: {name: string; stops: string[]; theme?: Theme} | undefined, cues: Record<string, string>) {
+  const scene = sceneMaps.find(map => map.id === id)
+  if (scene) return scene.stops.map(([korean, english, place], i) => ({
+    room: scene.name, place, word: { korean, english }, cueId: 'stop-' + id + '-' + i,
+  }))
   const theme = (custom?.theme ?? (custom ? 'home' : id)) as Theme
   const themed = routes[theme].flatMap(([room, stops]) => stops.map(([place, word]) => ({room, place, word: byWord.get(word)!})))
-  const route: PalaceLandmark[] = (custom ? custom.stops.map((place, i) => {
+  const route = (custom ? custom.stops.map((place, i) => {
     const terms: string[] = place.toLowerCase().match(/[a-z가-힣]+/gu) ?? []
     const match = catalog.find(w => terms.includes(w.korean) || terms.includes(w.english.toLowerCase())) ??
       themed.find(stop => terms.some(term => stop.place.toLowerCase().split(' ').includes(term)))?.word

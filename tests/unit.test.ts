@@ -1,4 +1,5 @@
-import { palaceNames, palaceRoute } from '../src/data/palaces'
+import { sceneMaps } from '../src/data/sceneMaps'
+import { classicPalaces, palaceRoute } from '../src/data/palaces'
 /**
  * Overview & Purpose: Verify the vocabulary, morphology, scheduling, and backup contracts.
  *
@@ -267,17 +268,25 @@ describe('adaptive recall and persistence', () => {
 })
 
 describe('mind palace vocabulary', () => {
-  it('assigns a known word to every landmark and mixes nouns, verbs, and adjectives', () => {
-    for (const id of Object.keys(palaceNames)) {
+  it('assigns a known word to every landmark on each classic route', () => {
+    for (const id of Object.keys(classicPalaces)) {
       const route = palaceRoute(id, undefined, {})
       for (const stop of route) expect(stop.word.korean).toBeTruthy()
-      const categories = route.map(stop => stop.word.category)
+      const categories = route.map(stop => 'category' in stop.word && stop.word.category)
       expect(categories).toContain('verbs')
       expect(categories).toContain('nouns')
     }
     const cafe = palaceRoute('cafe', undefined, {})
     expect(cafe.find(stop => stop.place === 'Bean grinder')?.word.korean).toBe('커피')
     expect(cafe.find(stop => stop.place === 'Espresso machine')?.word.korean).toBe('뜨겁다')
+  })
+  it('keeps every scene cue and listed form accessible in walking order', () => {
+    expect(new Set(sceneMaps.map(map => map.id)).size).toBe(sceneMaps.length)
+    for (const map of sceneMaps) {
+      const route = palaceRoute(map.id, undefined, {})
+      expect(route.map(stop => [stop.word.korean, stop.word.english, stop.place])).toEqual(map.stops)
+      expect(new Set(route.map(stop => stop.cueId)).size).toBe(route.length)
+    }
   })
   it('retains an older memory scene at its original landmark', () => {
     const route = palaceRoute('home', undefined, { 'nouns-person': 'A person at the front gate.' })

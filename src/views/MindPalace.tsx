@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { palaceNames, palaceRoute, type PalaceLandmark, type Theme } from '../data/palaces'
+import { classicPalaces, palaceNames, palaceRoute, type PalaceLandmark, type Theme } from '../data/palaces'
+import { sceneMaps } from '../data/sceneMaps'
 import { Korean, type Save } from './shared'
 
 import type { StudyState } from '../engine/storage'
@@ -11,7 +12,7 @@ export function MindPalace({ state, save }: { state: StudyState; save: Save }) {
   const [landmarks, setLandmarks] = useState('')
   const [busy, setBusy] = useState(false)
   const custom = state.customPalaces ?? {}
-  const selected = state.activePalace ?? 'home'
+  const selected = state.activePalace ?? (Object.keys(state.palaceCues ?? {}).length ? 'home' : sceneMaps[0].id)
   const palace = custom[selected]
   const stops = landmarks.split(/\r?\n/).map(line => line.trim()).filter(Boolean)
   const names: Record<string, string> = {...palaceNames}
@@ -23,7 +24,15 @@ export function MindPalace({ state, save }: { state: StudyState; save: Save }) {
       <label className="field">Choose a palace<select value={selected} onChange={event => {
         const activePalace = event.target.value
         void save(previous => ({ ...previous, activePalace }))
-      }}>{Object.entries(names).map(([id, label]) => <option key={id} value={id}>{label}</option>)}</select></label>
+      }}>
+        {(['Daily life', 'Conversations'] as const).map(group => <optgroup key={group} label={group}>
+          {sceneMaps.filter(map => map.group === group).map(map => <option key={map.id} value={map.id}>{map.name}</option>)}
+        </optgroup>)}
+        <optgroup label="Classic palaces">{Object.entries(classicPalaces).map(([id, label]) =>
+          <option key={id} value={id}>{label}</option>)}</optgroup>
+        {Object.keys(custom).length > 0 && <optgroup label="My palaces">{Object.entries(custom).map(([id, item]) =>
+          <option key={id} value={id}>{item.name}</option>)}</optgroup>}
+      </select></label>
       <button className="button quiet" aria-expanded={creating} onClick={() => setCreating(!creating)}>{creating ? 'Cancel' : 'Create palace'}</button>
       {creating && <form className="palace" onSubmit={async event => {
         event.preventDefault()
@@ -38,7 +47,7 @@ export function MindPalace({ state, save }: { state: StudyState; save: Save }) {
       }}>
         <label className="field">Palace name<input value={name} maxLength={80} onChange={e => setName(e.target.value)} /></label>
         <label className="field">Vocabulary theme<select value={theme} onChange={e => setTheme(e.target.value as Theme)}>
-          {Object.entries(palaceNames).map(([id, label]) => <option key={id} value={id}>{label}</option>)}</select></label>
+          {Object.entries(classicPalaces).map(([id, label]) => <option key={id} value={id}>{label}</option>)}</select></label>
         {duplicate && <small>Choose a different name for this palace.</small>}
         <label className="field">Landmarks in walking order (one per line)<textarea value={landmarks} maxLength={8000}
           placeholder={'Front steps\nHall mirror\nKitchen sink'} onChange={e => setLandmarks(e.target.value)} /></label>
@@ -54,6 +63,7 @@ function PalaceRoute({ route, cues, save }: {
   route: PalaceLandmark[]; cues: Record<string, string>; save: Save
 }) {
   const [index, setIndex] = useState(0)
+  const [showWords, setShowWords] = useState(false)
   const [walk, setWalk] = useState(false)
   const {room, place, word: entry, cueId} = route[index % route.length]
   return <article className="panel exercise-panel palace">
@@ -62,9 +72,14 @@ function PalaceRoute({ route, cues, save }: {
       <button aria-pressed={!walk} onClick={() => setWalk(false)}>Place words</button>
       <button aria-pressed={walk} onClick={() => { setWalk(true); setIndex(0) }}>Walk the route</button>
     </div>
+    <details onToggle={event => setShowWords(event.currentTarget.open)}>
+      <summary>Words in this map ({route.length})</summary>
+      {showWords && <ol className="palace-words">{route.map(stop =>
+        <li key={stop.cueId}><Korean>{stop.word.korean}</Korean> · <em>{stop.word.english}</em></li>)}</ol>}
+    </details>
     <p className="eyebrow">{room}</p>
     <h2>{place}</h2>
-    <PalaceStop key={cueId + walk} korean={entry.korean} english={entry.english} place={place}
+    <PalaceStop key={cueId + walk} korean={entry.korean} english={entry.english}
       cue={cues[cueId] ?? ''} walk={walk} saveCue={value => save(previous => ({
         ...previous, palaceCues: { ...previous.palaceCues, [cueId]: value },
       }))} />
@@ -74,8 +89,8 @@ function PalaceRoute({ route, cues, save }: {
   </article>
 }
 
-function PalaceStop({ korean, english, place, cue, walk, saveCue }: {
-  korean: string; english: string; place: string; cue: string; walk: boolean; saveCue: (value: string) => Promise<boolean>
+function PalaceStop({ korean, english, cue, walk, saveCue }: {
+  korean: string; english: string; cue: string; walk: boolean; saveCue: (value: string) => Promise<boolean>
 }) {
   const [draft, setDraft] = useState(cue)
   const [revealed, setRevealed] = useState(false)
@@ -84,14 +99,14 @@ function PalaceStop({ korean, english, place, cue, walk, saveCue }: {
   return <>
     {(!walk || revealed) && <p><strong><Korean>{korean}</Korean></strong> · <em>{english}</em></p>}
     {walk ? <>
-      <p>Picture the {place.toLowerCase()}. Which Korean word did you leave here, and what does it mean?</p>
+      <p>Picture this stop. What would you say in Korean?</p>
       {hint && <p>{cue}</p>}
       <div className="button-row">
         {cue && !hint && <button className="button quiet" onClick={() => setHint(true)}>Show my scene</button>}
         {!revealed && <button className="button" onClick={() => setRevealed(true)}>Reveal word</button>}
       </div>
     </> : <>
-      <p>Picture the word coming to life at the {place.toLowerCase()}. Say it in Korean as you imagine the scene.</p>
+      <p>Picture this moment and say the Korean aloud.</p>
       <label className="field">My memory scene<textarea value={draft} maxLength={2000} onChange={event => setDraft(event.target.value)}
         placeholder="What happens here that will remind you of this word?" /></label>
       <button className="button" disabled={busy || draft === cue} onClick={async () => {

@@ -33,7 +33,9 @@ export async function translateReading(text: string, signal: AbortSignal) {
   const translations: string[] = []
   for (const q of readingChunks(text, 900)) {
     const params = new URLSearchParams({ client: 'gtx', sl: 'ko', tl: 'en', dt: 't', q })
-    const response = await fetch('https://translate.googleapis.com/translate_a/single?' + params, { signal })
+    const requestSignal = typeof AbortSignal.any === 'function'
+      ? AbortSignal.any([signal, AbortSignal.timeout(12000)]) : signal
+    const response = await fetch('https://translate.googleapis.com/translate_a/single?' + params, { signal: requestSignal })
     if (!response.ok) throw new Error('Translation unavailable')
     const data = await response.json()
     const translated = Array.isArray(data?.[0]) && data[0].map((part: unknown) =>
@@ -42,4 +44,26 @@ export async function translateReading(text: string, signal: AbortSignal) {
     translations.push(translated)
   }
   return translations.join(' ')
+}
+
+interface DeviceTranslator {
+  translate(text: string, options: { signal: AbortSignal }): Promise<string>
+  destroy(): void
+}
+interface TranslatorFactory {
+  availability(options: { sourceLanguage: string; targetLanguage: string }): Promise<string>
+  create(options: { sourceLanguage: string; targetLanguage: string; signal: AbortSignal }): Promise<DeviceTranslator>
+}
+
+const koreanToEnglish = { sourceLanguage: 'ko', targetLanguage: 'en' }
+const deviceFactory = (globalThis as typeof globalThis & { Translator?: TranslatorFactory }).Translator
+
+export async function canTranslateOnDevice() {
+  if (!deviceFactory) return false
+  return (await deviceFactory.availability(koreanToEnglish)) !== 'unavailable'
+}
+
+export async function openDeviceTranslator(signal: AbortSignal) {
+  if (!deviceFactory) throw new Error('Device translation unavailable')
+  return deviceFactory.create({ ...koreanToEnglish, signal })
 }

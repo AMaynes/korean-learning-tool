@@ -540,6 +540,42 @@ describe('deployed study workflow', { concurrency: false }, () => {
     await page.close()
   })
 
+  it('analyzes unfamiliar pasted words and falls back to Korean speech when online audio fails', async () => {
+    const page = await browser.newPage()
+    await page.route('https://translate.google.com/translate_tts**', route => route.abort())
+    await page.route('https://translate.googleapis.com/**', route => route.abort())
+    await page.addInitScript(() => {
+      Object.defineProperty(window, 'Translator', { value: {
+        availability: async () => 'downloadable',
+        create: async () => ({
+          translate: async text => ({ '토끼가 뛰어요.': 'The rabbit runs.', '토끼가': 'rabbit', '뛰어요.': 'runs' })[text],
+          destroy() {},
+        }),
+      } })
+      Object.defineProperty(window, 'speechSynthesis', { value: {
+        getVoices: () => [{ name: 'Yuna', lang: 'ko-KR' }], cancel() {},
+        speak(utterance) { window.readingSpeech = [utterance.text, utterance.voice.lang] },
+      } })
+      window.SpeechSynthesisUtterance = class { constructor(text) { this.text = text } }
+    })
+    await page.goto(projectPage + '#reading')
+    await page.getByLabel('Korean text').fill('토끼가 뛰어요.')
+    await page.getByRole('button', { name: 'Start reading' }).click()
+    await page.getByRole('button', { name: '토끼가', exact: true }).click()
+    await page.waitForFunction(() => window.readingSpeech?.[0] === '토끼가')
+    await page.getByRole('button', { name: 'Hear sentence 1' }).click()
+    await page.waitForFunction(() => window.readingSpeech?.[0] === '토끼가 뛰어요.')
+    assert.equal(await page.evaluate(() => window.readingSpeech[1]), 'ko-KR')
+    await page.getByRole('button', { name: 'Submit', exact: true }).click()
+    await page.getByText('토끼 + 가 → 토끼가', { exact: true }).waitFor()
+    await page.getByText('뛰 + 어요 → 뛰어요', { exact: true }).waitFor()
+    await page.getByRole('button', { name: 'Retry translations' }).waitFor()
+    await page.getByRole('button', { name: /Use device translation/ }).click()
+    await page.getByText('The rabbit runs.', { exact: true }).waitFor()
+    assert.deepEqual(await page.locator('.reading-gloss').allTextContents(), ['rabbit', 'runs'])
+    await page.close()
+  })
+
   it('opens a themed library list as flashcards', async () => {
     const page = await browser.newPage()
     await page.goto(projectPage + '#library')

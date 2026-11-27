@@ -88,6 +88,11 @@ const exampleLines = [
 ]
 export const reviewedLines = [...passageLines, ...exampleLines]
 export const passageByText = new Map(reviewedLines.map(item => [item.korean, item]))
+export function reviewedSentence(text: string) {
+  const normalized = text.normalize('NFC').trim().replace(/\s+/gu, ' ')
+  return passageByText.get(normalized) ?? passageByText.get(normalized + '.')
+}
+
 export const readingAudioPrompts = new Set(reviewedLines.flatMap(({ korean }) =>
   [korean, ...korean.split(' ').map(word => word.replace(/[.!?]+$/u, ''))]))
 

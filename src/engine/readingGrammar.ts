@@ -7,7 +7,7 @@ export function readingToken(word: string) {
   return word.normalize('NFC').replace(/^[\p{P}\p{S}]+|[\p{P}\p{S}]+$/gu, '')
 }
 
-interface Breakdown {
+export interface Breakdown {
   base: string
   stem: string
   parts: { form: string; role: string }[]

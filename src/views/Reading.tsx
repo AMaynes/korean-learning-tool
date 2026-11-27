@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { readingChunks, readingSentences, translateReading } from '../engine/reading'
-import { readingBreakdowns, readingToken } from '../engine/readingGrammar'
-import { generatePassage, passageByText, readingAudioPrompts } from '../engine/readingPassages'
+import { canTranslateOnDevice, openDeviceTranslator, readingChunks, readingSentences, translateReading } from '../engine/reading'
+import { analyzePastedSentences } from '../engine/pastedGrammar'
+import { readingBreakdowns, readingToken, type Breakdown } from '../engine/readingGrammar'
+import { generatePassage, reviewedSentence, readingAudioPrompts } from '../engine/readingPassages'
 import { Icon, Korean, speakKorean, stopKoreanAudio } from './shared'
 
 export function Reading() {
@@ -71,13 +72,26 @@ function ReadingSheet({ sentences, edit }: { sentences: string[]; edit: () => vo
   const [busy, setBusy] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [failed, setFailed] = useState(false)
+  const [deviceAvailable, setDeviceAvailable] = useState(false)
   const [soundError, setSoundError] = useState(false)
   const request = useRef<AbortController | null>(null)
+  const [analysis, setAnalysis] = useState(new Map<string, (Breakdown | undefined)[]>())
+  useEffect(() => {
+    if (!submitted) return
+    const pasted = [...new Set(sentences.filter(sentence => !reviewedSentence(sentence)))]
+    if (!pasted.length) return
+    let active = true
+    void analyzePastedSentences(pasted).then(result => { if (active) setAnalysis(result) }).catch(() => {})
+    return () => { active = false }
+  }, [submitted, sentences])
+  const speech = useRef<SpeechSynthesisUtterance | null>(null)
   const playback = useRef(0)
   const player = useRef<HTMLAudioElement | null>(null)
+  useEffect(() => { window.speechSynthesis?.getVoices() }, [])
   useEffect(() => () => {
     request.current?.abort()
     playback.current++
+    if (speech.current) window.speechSynthesis.cancel()
     stopKoreanAudio()
     player.current?.pause()
     player.current = null
@@ -85,20 +99,47 @@ function ReadingSheet({ sentences, edit }: { sentences: string[]; edit: () => vo
 
   function play(text: string) {
     const id = ++playback.current
+    if (speech.current) { speech.current = null; window.speechSynthesis.cancel() }
     player.current?.pause()
     player.current = null
     stopKoreanAudio()
     setSoundError(false)
-    const clip = readingAudioPrompts.has(text) ? text : readingToken(text)
+    const clip = reviewedSentence(text)?.korean ?? readingToken(text)
     function online() {
       if (id !== playback.current) return
       const audio = new Audio()
       player.current = audio
       const chunks = readingChunks(text, 180)
-      function failed() { if (id === playback.current) setSoundError(true) }
+      let handled = false
+      function failed() {
+        if (id !== playback.current || handled) return
+        handled = true
+        const synth = window.speechSynthesis
+        const voice = synth?.getVoices().find(voice => /^ko(?:-|_|$)/i.test(voice.lang) &&
+          /yuna|yu-na|sora|sunhi|heami|heera|jina|유나|여성|female|google 한국/i.test(voice.name))
+        if (!voice) { setSoundError(true); return }
+        const utterance = new SpeechSynthesisUtterance(currentChunk)
+        speech.current = utterance
+        utterance.lang = 'ko-KR'
+        utterance.voice = voice
+        utterance.onend = () => {
+          if (id !== playback.current) return
+          speech.current = null
+          next()
+        }
+        utterance.onerror = () => {
+          if (id !== playback.current) return
+          speech.current = null
+          setSoundError(true)
+        }
+        synth.speak(utterance)
+      }
+      let currentChunk = ''
       function next() {
         if (id !== playback.current || !chunks.length) return
-        const params = new URLSearchParams({ client: 'tw-ob', tl: 'ko', q: chunks.shift()! })
+        handled = false
+        currentChunk = chunks.shift()!
+        const params = new URLSearchParams({ client: 'tw-ob', tl: 'ko', q: currentChunk })
         audio.src = 'https://translate.google.com/translate_tts?' + params
         void audio.play().catch(failed)
       }
@@ -110,29 +151,37 @@ function ReadingSheet({ sentences, edit }: { sentences: string[]; edit: () => vo
     else online()
   }
 
-  async function submit() {
+  async function submit(onDevice = false) {
     if (request.current) return
     const controller = new AbortController()
     request.current = controller
     setSubmitted(true)
     setBusy(true)
     setFailed(false)
-    const pending = new Set(sentences.filter(sentence => !passageByText.has(sentence))
+    const pending = new Set(sentences.filter(sentence => !reviewedSentence(sentence))
       .flatMap(sentence => [sentence, ...sentence.split(/\s+/u).filter(word => readingToken(word))]))
-    for (const text of pending) {
-      if (Object.hasOwn(meanings, text)) continue
-      try {
-        const value = await translateReading(text, controller.signal)
+    let device
+    try {
+      device = onDevice ? await openDeviceTranslator(controller.signal) : undefined
+      for (const text of pending) {
+        if (Object.hasOwn(meanings, text)) continue
+        const value = device ? await device.translate(text, { signal: controller.signal })
+          : await translateReading(text, controller.signal)
         if (controller.signal.aborted) return
+        if (!value.trim()) throw new Error('Translation unavailable')
         setMeanings(old => ({ ...old, [text]: value }))
-      } catch {
-        if (controller.signal.aborted) return
-        setFailed(true)
-        // Other words and sentences can still be translated.
       }
+    } catch {
+      if (controller.signal.aborted) return
+      setFailed(true)
+      void canTranslateOnDevice().then(available => {
+        if (!controller.signal.aborted) setDeviceAvailable(available)
+      }).catch(() => {})
+    } finally {
+      device?.destroy()
+      request.current = null
+      if (!controller.signal.aborted) setBusy(false)
     }
-    request.current = null
-    setBusy(false)
   }
 
   return <form className="reading-sheet" onSubmit={event => { event.preventDefault(); void submit() }}>
@@ -165,7 +214,7 @@ function ReadingSheet({ sentences, edit }: { sentences: string[]; edit: () => vo
       </>}
     </section>
     {sentences.map((sentence, i) => {
-      const reviewed = passageByText.get(sentence)
+      const reviewed = reviewedSentence(sentence)
       const translation = reviewed?.english ?? meanings[sentence]
       return <section className="panel exercise-panel" key={i} aria-label={'Sentence ' + (i + 1)}>
       <div className="reading-line">{words[i].map(({ word, position }, j) => <div className="reading-word" key={j}>
@@ -177,8 +226,8 @@ function ReadingSheet({ sentences, edit }: { sentences: string[]; edit: () => vo
           }}><strong><Korean>{word}</Korean></strong></button>
         <input aria-label={word + ' meaning'} placeholder="Your guess" />
         {submitted && readingToken(word) && <>
-          <small className="reading-gloss">{reviewed?.glosses[j] ?? meanings[word]}</small>
-          <WordFormation word={word} reviewed={Boolean(reviewed)} />
+          <small className="reading-gloss">{reviewed?.glosses[j] ?? meanings[word] ?? (failed ? 'Translation unavailable' : '')}</small>
+          <WordFormation word={word} reviewed={Boolean(reviewed)} inferred={analysis.get(sentence)?.[j]} />
         </>}
       </div>)}
         <button className="button quiet" type="button" aria-label={'Hear sentence ' + (i + 1)} onClick={() => play(sentence)}><Icon name="sound" /></button>
@@ -190,14 +239,19 @@ function ReadingSheet({ sentences, edit }: { sentences: string[]; edit: () => vo
     </section>})}
     {soundError && <p role="status">Audio couldn’t play. Tap the word or speaker to retry.</p>}
     {failed && <p role="status">Translation was interrupted. Retry to finish the passage.</p>}
+    {failed && deviceAvailable && <button type="button" className="button" disabled={busy}
+      onClick={() => void submit(true)}>Use device translation (may download a language pack)</button>}
     <button className="button primary" disabled={busy || (submitted && !failed)}>
       {busy ? 'Translating…' : failed ? 'Retry translations' : submitted ? 'Translations shown' : 'Submit'}
     </button>
   </form>
 }
 
-function WordFormation({ word, reviewed }: { word: string; reviewed: boolean }) {
-  const matches = readingBreakdowns(word, reviewed)
+function WordFormation({ word, reviewed, inferred }: { word: string; reviewed: boolean; inferred?: Breakdown }) {
+  const known = readingBreakdowns(word, reviewed)
+  const matches = inferred && !known.length ? [inferred] : known
+  if (inferred && matches.length > 1) matches.sort((a, b) =>
+    Number(b.base === inferred.base) - Number(a.base === inferred.base))
   if (!matches.length) return <small className="reading-formation">Breakdown unavailable</small>
   return <div className="reading-formation">
     {matches.length > 1 && <div>Possible readings</div>}

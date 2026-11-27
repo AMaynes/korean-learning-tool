@@ -32,6 +32,7 @@ export interface StudyState {
   version: 1
   selected: Selection
   recall: Record<string, DeckProgress>
+  grammarFocus?: Partial<Record<'particles' | 'conjugations', string>>
   activePalace?: string
   customPalaces?: Record<string, { name: string; stops: string[]; theme?: Theme }>
   palaceCues?: Record<string, string>
@@ -114,6 +115,10 @@ export function importBackup(value: unknown): StudyState {
     throw new Error('The backup is damaged or uses an unsupported version.')
   }
 
+  if (state.grammarFocus !== undefined && (!record(state.grammarFocus) ||
+    Object.entries(state.grammarFocus).some(([key, value]) => !['particles', 'conjugations'].includes(key) || typeof value !== 'string' || value.length > 100))) {
+    throw new Error('The backup contains an invalid grammar focus.')
+  }
   const invalidRecall = Object.entries(state.recall).some(([id, deck]) => !validId(id) || !validDeck(deck))
   const invalidScores = Object.entries(state.scores).some(([mode, scores]) =>
     (mode !== 'assembly' && !practiceModes.includes(mode as PracticeMode)) || !record(scores) || Object.values(scores).some(score => !validScore(score)))
@@ -134,10 +139,10 @@ export function importBackup(value: unknown): StudyState {
 }
 
 /** Keep study progress and resolve selections against the bundled catalog. */
-function restoreStudyData({ selected, recall, scores, palaceCues, customPalaces, activePalace }: StudyState): StudyState {
+function restoreStudyData({ selected, recall, scores, palaceCues, customPalaces, activePalace, grammarFocus }: StudyState): StudyState {
   const active = activeLists(selected)
   const resolved = Object.fromEntries(categoryIds.map(category => [category, active[category].id])) as Selection
-  return { version: 1, selected: resolved, recall, scores, ...(palaceCues && { palaceCues }), ...(customPalaces && { customPalaces }), ...(activePalace && { activePalace: mapForScene.get(activePalace) ?? activePalace }) }
+  return { version: 1, selected: resolved, recall, scores, ...(grammarFocus && { grammarFocus }), ...(palaceCues && { palaceCues }), ...(customPalaces && { customPalaces }), ...(activePalace && { activePalace: mapForScene.get(activePalace) ?? activePalace }) }
 }
 
 /** Recognize a plain JSON record before reading its fields. */

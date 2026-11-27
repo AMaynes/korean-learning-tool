@@ -130,3 +130,26 @@ export const grammarLists = [
   grammarList('conjugations', 1, '20 core endings', coreEndings),
   grammarList('conjugations', 2, 'Sequence & intent', extraEndings),
 ]
+
+export const practiceFamilies: Record<'particles' | 'conjugations', Record<string, string[]>> = {
+  particles: {
+    'Topic, subject & object': ['topic', 'subject', 'honorificSubject', 'object'],
+    'Possession': ['possession'],
+    'Place, time & direction': ['destination', 'actionPlace', 'direction', 'start', 'until', 'approx'],
+    'Recipient & source': ['recipient', 'colloquialRecipient', 'honorificRecipient', 'fromPerson'],
+    'Joining & grouping': ['with', 'colloquialWith', 'writtenWith', 'choice', 'allInGroup'],
+    'Limits & emphasis': ['only', 'onlyNegative', 'also', 'even', 'each'],
+    'Comparison': ['comparison', 'like'],
+  },
+  conjugations: {
+    'Tense': ['present', 'past', 'future'],
+    'Speech style & requests': ['casual', 'present', 'formal', 'request'],
+    'Connecting clauses': ['and', 'but', 'if', 'because', 'while', 'before', 'after', 'background'],
+    'Modifying a noun': ['presentModifier', 'nModifier', 'futureModifier'],
+    'Nominalization': ['nominal'],
+    'Ongoing actions': ['ongoing'],
+    'Negation': ['negative'],
+    'Wishes, plans & judgments': ['wish', 'plan', 'seems'],
+    'Ability, obligation & trying': ['ability', 'must', 'try'],
+  },
+}

@@ -12,21 +12,8 @@
 import { conjugationRules, grammarLists, particleRules } from '../data/grammar'
 import { categoryIds } from '../data/model'
 import type { Category, Entry, Selection, WordList } from '../data/model'
-import { sceneMaps } from '../data/sceneMaps'
+import { topicLists } from '../data/topicLists'
 import { lexicalLists } from '../data/words'
-
-// A form can appear in several scenes. Its recall ID follows the spelling, even if a scene moves.
-const topicLists: WordList[] = sceneMaps.map(map => {
-  const entries = new Map<string, Entry>()
-  for (const section of map.sections) {
-    for (const [korean, english] of section.stops) {
-      if (entries.has(korean)) continue
-      const id = Array.from(korean, char => char.codePointAt(0)!.toString(16)).join('-')
-      entries.set(korean, { id, korean, english })
-    }
-  }
-  return { category: 'topics', id: 'topics-' + map.id, name: map.name, entries: [...entries.values()] }
-})
 
 export const builtInLists = [...lexicalLists, ...grammarLists, ...topicLists]
 export const selectableLists: WordList[] = [...builtInLists, ...categoryIds.map(category => {

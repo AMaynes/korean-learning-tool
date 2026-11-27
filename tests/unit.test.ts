@@ -57,15 +57,20 @@ describe('vocabulary registry', () => {
     for (const map of sceneMaps) {
       const deck = activeLists({ topics: 'topics-' + map.id }).topics
       const words = new Set(map.sections.flatMap(section => section.stops.map(([word]) => word)))
-      expect(deck.entries.map(entry => entry.korean)).toEqual([...words])
+      expect(deck.entries.slice(0, words.size).map(entry => entry.korean)).toEqual([...words])
       for (const entry of deck.entries) {
         forms.add(entry.korean)
         expect(entry.id).toMatch(/^[a-z0-9-]{1,99}$/u)
       }
     }
     const full = activeLists({ topics: 'topics-all' }).topics
-    expect(full.entries.map(entry => entry.korean)).toEqual([...forms])
-    expect(forms.size).toBe(238)
+    expect(new Set(full.entries.map(entry => entry.korean))).toEqual(forms)
+    const spellings = new Set([...forms].map(word => word.replace(/[.!?]$/u, '')))
+    const originalLists = builtInLists.filter(list => !['topics', 'particles', 'conjugations'].includes(list.category))
+    for (const entry of originalLists.flatMap(list => list.entries)) {
+      expect(spellings.has(entry.korean.replace(/[.!?]$/u, '')), entry.korean).toBe(true)
+    }
+    expect(full.entries.filter(entry => entry.korean === '차').map(entry => entry.english).sort()).toEqual(['Tea', 'car'])
   })
 
   it('provides a worked grammar example for every bundled pattern', () => {

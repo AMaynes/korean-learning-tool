@@ -10,6 +10,7 @@
 
 
 import { useEffect, useMemo, useState } from 'react'
+import { practiceFamilies } from '../data/grammar'
 import type { Category, WordList } from '../data/model'
 import { generate, matchesAnswer, matchesEnglishAnswer, shuffle, toEnglishPractice, toEnglishTargetPrefix } from '../engine/exercises'
 import type { Exercise, RecallDirection } from '../engine/exercises'
@@ -49,17 +50,22 @@ export function Practice({ module, active, lists, state, onSelect, save }: {
   const modes: readonly PracticeMode[] = module === 'grammar' ? grammarModes : listeningModes
   const [mode, setMode] = useState<PracticeMode>(modes[0])
   const [scope, setScope] = useState<Scope>('both')
-  const [ruleFilter, setRuleFilter] = useState('')
   const [revision, setRevision] = useState(0)
   const [direction, setDirection] = useState<RecallDirection>('en-to-ko')
   const reading = mode !== 'decoding' && direction === 'ko-to-en'
-  const ruleList = mode === 'particles' || mode === 'conjugations' ? active[mode] : undefined
-  const validFilter = ruleList?.entries.some(entry => entry.id === ruleFilter) ? ruleFilter : ''
+  const grammarMode = mode === 'particles' || mode === 'conjugations' ? mode : null
+  const ruleList = grammarMode ? active[grammarMode] : undefined
+  const focus = grammarMode ? state.grammarFocus?.[grammarMode] ?? '' : ''
+  const families = grammarMode ? practiceFamilies[grammarMode] : undefined
   const exercises = useMemo(() => {
-    const generated = generate(mode, active, scope)
-    const filtered = validFilter ? generated.filter(exercise => exercise.target === `${ruleList?.id}:${validFilter}`) : generated
-    return reading ? filtered.map(exercise => toEnglishPractice(mode, exercise)) : filtered
-  }, [mode, active, scope, validFilter, ruleList, reading])
+    let vocabulary = active
+    if (grammarMode && families && focus && ruleList) {
+      const ruleIds = Object.hasOwn(families, focus) ? families[focus] : [focus]
+      vocabulary = { ...active, [grammarMode]: { ...ruleList, entries: ruleList.entries.filter(rule => ruleIds.includes(rule.id)) } }
+    }
+    const generated = generate(mode, vocabulary, scope)
+    return reading ? generated.map(exercise => toEnglishPractice(mode, exercise)) : generated
+  }, [mode, active, scope, focus, ruleList, families, reading, grammarMode])
   const scopeKey = modeCategories[mode].map(category => active[category].id).join(':')
   const exerciseKey = exercises.map(exercise => exercise.id).join(',')
   const targets = new Set(exercises.map(exercise => exercise.target))
@@ -74,7 +80,7 @@ export function Practice({ module, active, lists, state, onSelect, save }: {
       <p>{module === 'grammar' ? 'Practice individual rules, then use them to build complete sentences.' : 'Hear Korean, transcribe what you hear, and practice replying.'}</p></div></div>
     <div className="segmented mode-tabs" aria-label={module === 'grammar' ? 'Grammar exercise' : 'Listening exercise'}>
       {modes.map(value => <button key={value} aria-pressed={mode === value} onClick={() => {
-        setMode(value); setScope('both'); setRuleFilter('')
+        setMode(value); setScope('both')
       }}>{labels[value]}</button>)}
     </div>
     <div className="study-layout">
@@ -83,12 +89,28 @@ export function Practice({ module, active, lists, state, onSelect, save }: {
           <summary>Active vocabulary</summary>
           <ActiveConfig categories={modeCategories[mode]} lists={lists} active={active} onSelect={onSelect} />
         </details>
+        {grammarMode && ruleList && families && <label className="field">
+          {grammarMode === 'particles' ? 'Particle type' : 'Conjugation type'}
+          <select value={focus} aria-label={grammarMode === 'particles' ? 'Particle type' : 'Conjugation type'}
+            onChange={event => {
+              const value = event.target.value
+              void save(previous => ({ ...previous, grammarFocus: { ...previous.grammarFocus, [grammarMode]: value } }))
+            }}>
+            <option value="">All active rules</option>
+            <optgroup label="Practice a type">{Object.keys(families).filter(family => family === focus || ruleList.entries.some(rule => families[family].includes(rule.id))).map(family =>
+              <option key={family} value={family}>{family}</option>)}</optgroup>
+            <optgroup label="Practice one form">{ruleList.entries.map(rule =>
+              <option key={rule.id} value={rule.id}>{rule.english} · {rule.korean}</option>)}</optgroup>
+            {focus && !Object.hasOwn(families, focus) && !ruleList.entries.some(rule => rule.id === focus) &&
+              <option value={focus} disabled>Selected form outside active list</option>}
+          </select>
+        </label>}
         {mode !== 'decoding' && <DirectionSwitch direction={direction} onChange={setDirection} forwardLabel={forwardLabels[mode]} />}
         {exercises.length ? <PracticeSession
-          key={`${mode}:${direction}:${scopeKey}:${scope}:${validFilter}:${revision}:${exerciseKey}`}
+          key={`${mode}:${direction}:${scopeKey}:${scope}:${focus}:${revision}:${exerciseKey}`}
           mode={mode} reading={reading} exercises={exercises} save={save}
         /> : <Empty title="No compatible exercises">
-          <p>{ruleList ? 'Choose another vocabulary list, rule, or word category.' :
+          <p>{ruleList ? 'This focus has no matches for the active lists and word category. Change your focus or expand Active vocabulary to choose another list.' :
             'Choose compatible active lists. Generated sentences use the Present Polite ending and words that fit a sentence frame.'}</p>
         </Empty>}
       </section>
@@ -99,10 +121,7 @@ export function Practice({ module, active, lists, state, onSelect, save }: {
             <option value="both">Both active categories</option>
             {filters.map(filter => <option value={filter} key={filter}>{filter[0].toUpperCase() + filter.slice(1)}</option>)}
           </select></label>
-          <label className="field">Grammar rule<select aria-label="Grammar rule" value={validFilter} onChange={event => setRuleFilter(event.target.value)}>
-            <option value="">All active rules</option>
-            {ruleList.entries.map(rule => <option value={rule.id} key={rule.id}>{rule.english}</option>)}
-          </select></label>
+
         </div>}
         <div className="panel aside-panel">
           <div className="aside-title"><Icon name="grid" /><h2>Practice progress</h2></div>
@@ -150,7 +169,7 @@ function PracticeSession({ mode, reading, exercises, save }: {
 
   if (mode === 'decoding') return <DecodingCard key={round + ':' + exercise.id + ':' + position} exercise={exercise}
     number={position + 1} total={order.length} advance={advance} save={save} />
-  return <ExerciseCard key={exercise.id + ':' + position} mode={mode} reading={reading} exercise={exercise}
+  return <ExerciseCard key={round + ':' + exercise.id + ':' + position} mode={mode} reading={reading} exercise={exercise}
     number={position + 1} total={order.length} save={save} advance={advance} />
 }
 

@@ -156,6 +156,7 @@ progress::-moz-progress-bar { background: var(--accent); }
 .settings-panel p { margin: 0 0 14px; font-size: 14px; }
 .settings-panel .button-row + p { margin: 12px 0 0; }
 .library-heading { margin-bottom: 18px; }
+.library-tools.topic-library-tools { grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); }
 .library-tools { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) minmax(0, 1.4fr); gap: 12px; margin-bottom: 12px; }
 .vocabulary-table { border-radius: 10px; overflow: hidden; }
 .vocabulary-table table { table-layout: fixed; }
@@ -421,7 +422,8 @@ td [lang="ko"] { color: var(--accent); font-weight: 650; }
   .field select, .field input, .field textarea { min-height: 44px; font-size: 16px; }
   .answer-form { display: grid; align-items: stretch; }
   .practice-selectors .config-grid, .settings-panel .config-grid { grid-template-columns: minmax(0, 1fr); }
-  .library-tools { grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: 8px; }
+  .library-tools.topic-library-tools { grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); }
+.library-tools { grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: 8px; }
   .library-tools .field:last-child { grid-column: 1 / -1; }
   .vocabulary-table th, .vocabulary-table td { padding: 7px 8px; }
   .vocabulary-table tbody th { font-size: 14px; }

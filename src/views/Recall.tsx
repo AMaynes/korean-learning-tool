@@ -10,14 +10,14 @@
 
 
 import { useEffect, useId, useState } from 'react'
-import { categories, categoryIds } from '../data/model'
+import { categories } from '../data/model'
 import type { Category, WordList } from '../data/model'
 import { matchesAnswer, matchesEnglishAnswer, recallCard, shuffle } from '../engine/exercises'
 import type { RecallDirection } from '../engine/exercises'
 import { emptyDeck, recordRecall, nextRecall } from '../engine/mastery'
 import type { StudyState } from '../engine/storage'
 import type { DeckProgress } from '../engine/mastery'
-import { AnswerForm, DirectionSwitch, Empty, Icon, Korean, ListSelect, speakKorean, stopKoreanAudio, StandalonePronunciationNote, Transform } from './shared'
+import { AnswerForm, DirectionSwitch, Empty, Icon, Korean, VocabularyCategory, ListSelect, speakKorean, stopKoreanAudio, StandalonePronunciationNote, Transform } from './shared'
 import type { Save, SelectList } from './shared'
 
 import { MindPalace } from './MindPalace'
@@ -48,10 +48,8 @@ export function Recall({ category, setCategory, deck, lists, onSelect, save, sta
     <div className="recall-workspace">
       <section className="study-main" aria-label="Flashcard practice">
         {mode !== 'palace' && <div className="panel deck-controls">
-          <label className="field">Category<select aria-label="Category" value={category} onChange={event => setCategory(event.target.value as Category)}>
-            {categoryIds.map(id => <option key={id} value={id}>{categories[id]}</option>)}
-          </select></label>
-          <ListSelect category={category} lists={lists} selected={deck.id} onSelect={onSelect} />
+          <VocabularyCategory category={category} selected={deck.id} onCategory={setCategory} onSelect={onSelect} />
+          {category !== 'topics' && <ListSelect category={category} lists={lists} selected={deck.id} onSelect={onSelect} />}
           <DirectionSwitch direction={direction} onChange={setDirection} label="Recall direction" onSound={() => setDirection('sound-to-en')} />
         </div>}
         {mode === 'palace' ? <MindPalace state={state} save={save} /> : deck.entries.length ? mode === 'mental'
@@ -64,11 +62,11 @@ export function Recall({ category, setCategory, deck, lists, onSelect, save, sta
 }
 
 /** Show short instructions when the learner opens the information button. */
-function CardHeader({ category, help, counter }: { category: Category; help: string; counter?: string }) {
+function CardHeader({ category, name, help, counter }: { category: Category; name: string; help: string; counter?: string }) {
   const [open, setOpen] = useState(false)
   const id = useId()
   return <>
-    <div className="card-meta"><span>{categories[category]}</span>
+    <div className="card-meta"><span>{category === 'topics' ? name : categories[category]}</span>
       <div className="button-row">{counter}
         {(category === 'particles' || category === 'conjugations') && <GrammarList category={category} />}
         <button className="text-button recall-info" aria-label="How to practice" aria-expanded={open} aria-controls={id}
@@ -110,7 +108,7 @@ function MentalRecall({ deck, direction }: { deck: WordList; direction: RecallPr
     ? null
     : flipped ? card.transformation?.meaning ?? entry.english : card.transformation?.originalMeaning
   return <div className="panel recall-panel">
-    <CardHeader category={deck.category} counter={`Card ${position + 1} of ${order.length}`} help={reading ? "Recall the English meaning, then flip to check." : "Recall the Korean word, then flip to check."} />
+    <CardHeader category={deck.category} name={deck.name} counter={`Card ${position + 1} of ${order.length}`} help={reading ? "Recall the English meaning, then flip to check." : "Recall the Korean word, then flip to check."} />
     <div className="recall-face" aria-live="polite">
       <span className="eyebrow">{flipped ? 'Answer' : sound ? 'Listen for the meaning' : reading || card.transformation ? card.cue : 'English prompt'}</span>
       {sound && !flipped ? <SoundPrompt key={entry.id} text={card.prompt} /> :
@@ -176,7 +174,7 @@ function TypingRecall({ deck, direction, progressKey, progress, save }: {
   }
 
   return <div className="panel recall-panel" data-grade={correct ? 'correct' : wrong ? 'wrong' : undefined}>
-    <CardHeader category={deck.category} help="Recall each new word on your first try to unlock the next. After the whole list is unlocked, missed words come back more often." />
+    <CardHeader category={deck.category} name={deck.name} help="Recall each new word on your first try to unlock the next. After the whole list is unlocked, missed words come back more often." />
     <div className="recall-face typing-face">
       <span className="eyebrow">{sound ? 'Listen for the meaning' : reading || card.transformation ? card.cue : 'English prompt'}</span>
       {sound ? <SoundPrompt key={draw} text={card.prompt} /> :

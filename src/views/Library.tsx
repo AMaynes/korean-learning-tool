@@ -10,10 +10,10 @@
 
 
 import { useState } from 'react'
-import { categories, categoryIds } from '../data/model'
+import { categories } from '../data/model'
 import type { Category, WordList } from '../data/model'
 import { entryRule } from '../engine/registry'
-import { Icon, Korean, ListSelect, StandalonePronunciationNote } from './shared'
+import { Icon, Korean, VocabularyCategory, ListSelect, StandalonePronunciationNote } from './shared'
 import type { SelectList } from './shared'
 
 /** Browse the active list and link directly to its recall deck. */
@@ -35,22 +35,15 @@ export function Library({ category, setCategory, lists, active, onSelect }: {
       <h1>Vocabulary Library</h1>
       <a className="button primary" href="#recall">Practice this list <Icon name="arrow" /></a>
     </div>
-    <div className="library-tools">
-      <label className="field">Category
-        <select aria-label="Category" value={category} onChange={event => {
-          setCategory(event.target.value as Category)
-          setQuery('')
-        }}>
-          {categoryIds.map(id => <option key={id} value={id}>{categories[id]}</option>)}
-        </select>
-      </label>
-      <ListSelect category={category} lists={lists} selected={active.id} onSelect={onSelect} />
+    <div className={'library-tools' + (category === 'topics' ? ' topic-library-tools' : '')}>
+      <VocabularyCategory category={category} selected={active.id} onCategory={value => { setCategory(value); setQuery('') }} onSelect={onSelect} />
+          {category !== 'topics' && <ListSelect category={category} lists={lists} selected={active.id} onSelect={onSelect} />}
       <label className="field">Search
         <input type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="English or Korean" />
       </label>
     </div>
     <div className="panel vocabulary-table">
-      <table aria-label={categories[category] + ' vocabulary'}>
+      <table aria-label={(category === 'topics' ? active.name : categories[category]) + ' vocabulary'}>
         <thead><tr>
           <th scope="col">{isGrammar ? 'Pattern' : 'Korean'}</th>
           <th scope="col">Meaning</th>

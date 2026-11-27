@@ -14,6 +14,7 @@ import { useRef } from 'react'
 import type { FormEvent, ReactNode } from 'react'
 import { categories, categoryIds } from '../data/model'
 import type { Category, Transformation, WordList } from '../data/model'
+import { sceneMaps } from '../data/sceneMaps'
 import type { StudyState } from '../engine/storage'
 
 export type Save = (change: (state: StudyState) => StudyState) => Promise<boolean>
@@ -88,6 +89,27 @@ export function speakKorean(text: string, rate: number, onEnd: () => void, onErr
   audio.onended = () => finish(onEnd)
   audio.onerror = () => finish(onError)
   void audio.play().catch(() => finish(onError))
+}
+
+export function VocabularyCategory({ category, selected, onCategory, onSelect }: {
+  category: Category; selected: string; onCategory: (category: Category) => void; onSelect: SelectList
+}) {
+  return <label className="field">Category<select aria-label="Category" value={category === 'topics' ? selected : category}
+    onChange={event => {
+      const value = event.target.value
+      if (value.startsWith('topics-')) {
+        onCategory('topics')
+        onSelect('topics', value)
+      } else onCategory(value as Category)
+    }}>
+    {(['Daily life', 'Conversations'] as const).map(group => <optgroup key={group} label={group}>
+      {sceneMaps.filter(map => map.group === group).map(map =>
+        <option key={map.id} value={'topics-' + map.id}>{map.name}</option>)}
+    </optgroup>)}
+    <option value="topics-all">Full vocabulary list</option>
+    <optgroup label="Original categories">{categoryIds.filter(id => id !== 'topics').map(id =>
+      <option key={id} value={id}>{categories[id]}</option>)}</optgroup>
+  </select></label>
 }
 
 /** Select an active deck within one category. */

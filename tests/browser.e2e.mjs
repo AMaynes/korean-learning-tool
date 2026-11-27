@@ -508,11 +508,34 @@ describe('deployed study workflow', { concurrency: false }, () => {
   it('opens a themed library list as flashcards', async () => {
     const page = await browser.newPage()
     await page.goto(projectPage + '#library')
-    await select(page, 'Vocabulary list', 'topics-ordering')
+    await select(page, 'Category', 'topics-ordering')
     await page.getByRole('rowheader', { name: '커피 주세요', exact: true }).waitFor()
     await page.getByRole('link', { name: 'Practice this list' }).click()
     await page.getByRole('button', { name: 'Flip card' }).click()
     await page.locator('.recall-face').getByText('카페', { exact: true }).waitFor()
+    await page.close()
+  })
+
+  it('keeps particle and ending practice strictly inside their independent focus', async () => {
+    const page = await browser.newPage()
+    await page.goto(projectPage + '#grammar')
+    await select(page, 'Particle type', 'object')
+    const cue = page.locator('.exercise-prompt .eyebrow')
+    await page.locator('.exercise-prompt').getByText('Object marker', { exact: true }).waitFor()
+    await page.getByRole('button', { name: 'Conjugation Practice' }).click()
+    await select(page, 'Conjugation type', 'Tense')
+    for (let i = 0; i < 5; i++) {
+      assert.match(await cue.innerText(), /^(present polite|past polite|future \/ intention)$/i)
+      await page.getByRole('button', { name: 'Reveal answer', exact: true }).click()
+      await page.getByRole('button', { name: 'Next', exact: true }).click()
+    }
+    await page.reload()
+    await page.locator('.exercise-prompt').getByText('Object marker', { exact: true }).waitFor()
+    await page.getByRole('button', { name: 'Conjugation Practice' }).click()
+    assert.equal(await page.getByLabel('Conjugation type').inputValue(), 'Tense')
+    await select(page, 'Conjugation type', '')
+    await page.getByRole('button', { name: 'Particle Practice', exact: true }).click()
+    await select(page, 'Particle type', '')
     await page.close()
   })
 
@@ -774,12 +797,12 @@ describe('deployed study workflow', { concurrency: false }, () => {
 
     await page.getByRole('link', { name: 'Grammar Trainer', exact: true }).click()
     await select(page, 'Word category', 'nouns')
-    await select(page, 'Grammar rule', 'subject')
+    await select(page, 'Particle type', 'subject')
     const particle = await page.locator('.exercise-prompt h2').textContent()
     assert.ok(['밥','빵','김치','커피','차','식당','카페','시장','가방','책'].includes(particle))
     await page.getByRole('button', { name: 'Conjugation Practice' }).click()
     await select(page, 'Word category', 'verbs')
-    await select(page, 'Grammar rule', 'present')
+    await select(page, 'Conjugation type', 'present')
     const verb = await page.locator('.exercise-prompt h2').textContent()
     assert.ok(['마시다','읽다','쓰다','자다','일하다','운동하다','걷다','듣다','돕다','일어나다'].includes(verb))
 
@@ -885,6 +908,7 @@ describe('deployed study workflow', { concurrency: false }, () => {
     await select(page, 'Nouns', 'nouns-all')
     await page.getByRole('link', { name: 'Tool', exact: true }).click()
     await page.getByRole('link', { name: 'Vocabulary Library', exact: true }).click()
+    await select(page, 'Category', 'nouns')
     const entries = page.getByRole('table', { name: 'Nouns vocabulary' })
     await entries.getByRole('rowheader', { name: '사람', exact: true }).waitFor()
     await entries.getByRole('rowheader', { name: '선생님', exact: true }).waitFor()

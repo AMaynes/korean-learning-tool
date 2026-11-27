@@ -505,6 +505,41 @@ describe('deployed study workflow', { concurrency: false }, () => {
     await page.close()
   })
 
+  it('reveals reviewed glosses and plays both a word and a sentence', async () => {
+    const page = await browser.newPage()
+    await page.route('https://translate.googleapis.com/**', route => route.abort())
+    await page.addInitScript(() => {
+      window.playedReadingClips = []
+      const originalPlay = HTMLMediaElement.prototype.play
+      HTMLMediaElement.prototype.play = function () {
+        this.addEventListener('playing', () => {
+          window.playedReadingClips.push({ src: this.currentSrc, duration: this.duration })
+        }, { once: true })
+        return originalPlay.call(this)
+      }
+    })
+    await page.goto(projectPage + '#reading')
+    await page.getByLabel('Korean text').fill('밥을 먹고 물을 마셔요.')
+    await page.getByRole('button', { name: 'Start reading' }).click()
+    assert.equal(await page.locator('.reading-formation').count(), 0)
+    await page.getByRole('button', { name: '물을', exact: true }).click()
+    await page.waitForFunction(() => window.playedReadingClips.length === 1)
+    await page.getByRole('button', { name: 'Hear sentence 1' }).click()
+    await page.waitForFunction(() => window.playedReadingClips.length === 2)
+    const clips = await page.evaluate(() => window.playedReadingClips)
+    for (const [index, korean] of ['물을', '밥을 먹고 물을 마셔요.'].entries()) {
+      const key = Array.from(korean, char => char.codePointAt(0).toString(16)).join('-')
+      assert.ok(clips[index].src.endsWith('/ko-f1-' + key + '.mp3'))
+      assert.ok(clips[index].duration > 0)
+    }
+    await page.getByRole('button', { name: 'Submit', exact: true }).click()
+    assert.deepEqual(await page.locator('.reading-gloss').allTextContents(), ['a meal', 'eat and', 'water', 'drink'])
+    await page.getByText('물 + 을 → 물을', { exact: true }).waitFor()
+    await page.getByText('마시 + 어요 → 마셔요', { exact: true }).waitFor()
+    await page.getByText('I eat my meal and drink water.', { exact: true }).waitFor()
+    await page.close()
+  })
+
   it('opens a themed library list as flashcards', async () => {
     const page = await browser.newPage()
     await page.goto(projectPage + '#library')
@@ -590,7 +625,7 @@ describe('deployed study workflow', { concurrency: false }, () => {
     assert.equal(await page.getByText('There is water.').count(), 0)
     await page.getByRole('button', { name: 'Submit', exact: true }).click()
     await page.getByRole('button', { name: 'Translations shown' }).waitFor()
-    assert.deepEqual(await page.locator('.reading-word small').allTextContents(), ['water', 'exists', 'Go!'])
+    assert.deepEqual(await page.locator('.reading-gloss').allTextContents(), ['water', 'exists', 'Go!'])
     assert.deepEqual(await page.locator('.reading-translation em').allTextContents(), ['There is water.', 'Go!'])
     await page.close()
   })

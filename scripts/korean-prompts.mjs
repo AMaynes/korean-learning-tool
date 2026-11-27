@@ -9,6 +9,8 @@ try {
   const { activeLists, selectableLists } = await server.ssrLoadModule('/src/engine/registry.ts')
   const active = activeLists(Object.fromEntries(selectableLists.filter(list => list.id.endsWith('-all')).map(list => [list.category, list.id])))
   const prompts = new Set([...hangulAlphabet.vowels, ...hangulAlphabet.consonants].map(card => card.sound))
+  const { readingAudioPrompts } = await server.ssrLoadModule('/src/engine/readingPassages.ts')
+  for (const text of readingAudioPrompts) prompts.add(text)
   for (const list of selectableLists) {
     for (const entry of list.entries) prompts.add(recallCard(list.category, entry, 'ko-to-en').prompt)
   }

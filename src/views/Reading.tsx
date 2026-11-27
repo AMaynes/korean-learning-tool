@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { readingChunks, readingSentences, translateReading } from '../engine/reading'
-import { generatePassage } from '../engine/readingPassages'
-import { Icon, Korean } from './shared'
+import { readingBreakdowns, readingToken } from '../engine/readingGrammar'
+import { generatePassage, passageByText, readingAudioPrompts } from '../engine/readingPassages'
+import { Icon, Korean, speakKorean, stopKoreanAudio } from './shared'
 
 export function Reading() {
   const [text, setText] = useState('')
@@ -21,7 +22,7 @@ export function Reading() {
           <button className="button primary" disabled={!text.trim()}>Start reading</button>
         </div>
       </form>}
-    <p className="inline-note">Audio and translations use Google Translate online. Playing audio sends the selected text. Submitting sends the Korean passage.</p>
+    <p className="inline-note">Generated passages include checked translations and Korean audio. Other text may be sent to Google Translate for pronunciation or machine translation. A word translated on its own can have another meaning in the sentence.</p>
   </>
 }
 
@@ -72,28 +73,41 @@ function ReadingSheet({ sentences, edit }: { sentences: string[]; edit: () => vo
   const [failed, setFailed] = useState(false)
   const [soundError, setSoundError] = useState(false)
   const request = useRef<AbortController | null>(null)
+  const playback = useRef(0)
   const player = useRef<HTMLAudioElement | null>(null)
   useEffect(() => () => {
     request.current?.abort()
+    playback.current++
+    stopKoreanAudio()
     player.current?.pause()
     player.current = null
   }, [])
 
   function play(text: string) {
+    const id = ++playback.current
     player.current?.pause()
+    player.current = null
+    stopKoreanAudio()
     setSoundError(false)
-    const audio = new Audio()
-    player.current = audio
-    const chunks = readingChunks(text, 180)
-    function next() {
-      if (player.current !== audio || !chunks.length) return
-      const params = new URLSearchParams({ client: 'tw-ob', tl: 'ko', q: chunks.shift()! })
-      audio.src = 'https://translate.google.com/translate_tts?' + params
-      void audio.play().catch(() => { if (player.current === audio) setSoundError(true) })
+    const clip = readingAudioPrompts.has(text) ? text : readingToken(text)
+    function online() {
+      if (id !== playback.current) return
+      const audio = new Audio()
+      player.current = audio
+      const chunks = readingChunks(text, 180)
+      function failed() { if (id === playback.current) setSoundError(true) }
+      function next() {
+        if (id !== playback.current || !chunks.length) return
+        const params = new URLSearchParams({ client: 'tw-ob', tl: 'ko', q: chunks.shift()! })
+        audio.src = 'https://translate.google.com/translate_tts?' + params
+        void audio.play().catch(failed)
+      }
+      audio.onended = next
+      audio.onerror = failed
+      next()
     }
-    audio.onended = next
-    audio.onerror = () => { if (player.current === audio) setSoundError(true) }
-    next()
+    if (readingAudioPrompts.has(clip)) speakKorean(clip, 1, () => {}, online)
+    else online()
   }
 
   async function submit() {
@@ -103,7 +117,8 @@ function ReadingSheet({ sentences, edit }: { sentences: string[]; edit: () => vo
     setSubmitted(true)
     setBusy(true)
     setFailed(false)
-    const pending = new Set(sentences.flatMap(sentence => [sentence, ...sentence.split(/\s+/u)]))
+    const pending = new Set(sentences.filter(sentence => !passageByText.has(sentence))
+      .flatMap(sentence => [sentence, ...sentence.split(/\s+/u).filter(word => readingToken(word))]))
     for (const text of pending) {
       if (Object.hasOwn(meanings, text)) continue
       try {
@@ -113,7 +128,7 @@ function ReadingSheet({ sentences, edit }: { sentences: string[]; edit: () => vo
       } catch {
         if (controller.signal.aborted) return
         setFailed(true)
-        break
+        // Other words and sentences can still be translated.
       }
     }
     request.current = null
@@ -149,7 +164,10 @@ function ReadingSheet({ sentences, edit }: { sentences: string[]; edit: () => vo
         </details>
       </>}
     </section>
-    {sentences.map((sentence, i) => <section className="panel exercise-panel" key={i} aria-label={'Sentence ' + (i + 1)}>
+    {sentences.map((sentence, i) => {
+      const reviewed = passageByText.get(sentence)
+      const translation = reviewed?.english ?? meanings[sentence]
+      return <section className="panel exercise-panel" key={i} aria-label={'Sentence ' + (i + 1)}>
       <div className="reading-line">{words[i].map(({ word, position }, j) => <div className="reading-word" key={j}>
         <button type="button" className="text-button" disabled={marking && position === null}
           data-endpoint={position !== null && position === lastWord || undefined}
@@ -158,19 +176,37 @@ function ReadingSheet({ sentences, edit }: { sentences: string[]; edit: () => vo
             else play(word)
           }}><strong><Korean>{word}</Korean></strong></button>
         <input aria-label={word + ' meaning'} placeholder="Your guess" />
-        {submitted && Object.hasOwn(meanings, word) && <small>{meanings[word]}</small>}
+        {submitted && readingToken(word) && <>
+          <small className="reading-gloss">{reviewed?.glosses[j] ?? meanings[word]}</small>
+          <WordFormation word={word} reviewed={Boolean(reviewed)} />
+        </>}
       </div>)}
         <button className="button quiet" type="button" aria-label={'Hear sentence ' + (i + 1)} onClick={() => play(sentence)}><Icon name="sound" /></button>
       </div>
       <label className="field reading-sentence-guess">Your sentence translation
         <input lang="en" placeholder="What does the whole sentence mean in English?" />
       </label>
-      {submitted && Object.hasOwn(meanings, sentence) && <p className="reading-translation"><strong>Translation</strong> <em>{meanings[sentence]}</em></p>}
-    </section>)}
+      {submitted && translation && <p className="reading-translation"><strong>{reviewed ? 'Translation' : 'Machine translation'}</strong> <em>{translation}</em></p>}
+    </section>})}
     {soundError && <p role="status">Audio couldn’t play. Tap the word or speaker to retry.</p>}
     {failed && <p role="status">Translation was interrupted. Retry to finish the passage.</p>}
     <button className="button primary" disabled={busy || (submitted && !failed)}>
       {busy ? 'Translating…' : failed ? 'Retry translations' : submitted ? 'Translations shown' : 'Submit'}
     </button>
   </form>
+}
+
+function WordFormation({ word, reviewed }: { word: string; reviewed: boolean }) {
+  const matches = readingBreakdowns(word, reviewed)
+  if (!matches.length) return <small className="reading-formation">Breakdown unavailable</small>
+  return <div className="reading-formation">
+    {matches.length > 1 && <div>Possible readings</div>}
+    {matches.map((result, index) => <div className="reading-analysis" key={index}>
+      {!result.parts.length ? <>Base form · <Korean>{result.base}</Korean></> : <>
+        {result.base !== result.stem && <div>Dictionary form · <Korean>{result.base}</Korean></div>}
+        <div className="reading-equation"><Korean>{[result.stem, ...result.parts.map(part => part.form.replace(/^-/, ''))].join(' + ')} → {readingToken(word)}</Korean></div>
+        {result.parts.map(part => <div key={part.form}><Korean>{part.form}</Korean> · {part.role}</div>)}
+      </>}
+    </div>)}
+  </div>
 }

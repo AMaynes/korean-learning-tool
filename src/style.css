@@ -468,6 +468,10 @@ td [lang="ko"] { color: var(--accent); font-weight: 650; }
 .reading-sheet > button { justify-self: start; }
 .reading-line { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 12px; }
 .reading-word { display: grid; gap: 4px; width: 8rem; max-width: 100%; overflow-wrap: anywhere; }
+.reading-word:has(.reading-formation) { width: 11rem; max-width: 100%; }
+.reading-analysis + .reading-analysis { margin-top: 5px; }
+.reading-formation { border-top: 1px solid var(--line); padding-top: 4px; font-size: .78rem; color: var(--muted); line-height: 1.45; }
+.reading-equation { color: var(--ink); word-break: keep-all; }
 .reading-word strong { font-size: 18px; }
 .reading-word input { width: 100%; min-width: 0; }
 .reading-sentence-guess { margin-top: 14px; }

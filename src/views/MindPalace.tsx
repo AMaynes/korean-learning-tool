@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { classicPalaces, palaceRoute, type PalaceLandmark } from '../data/palaces'
 import { sceneMaps } from '../data/sceneMaps'
-import { Korean, type Save } from './shared'
+import { Icon, Korean, speakKorean, stopKoreanAudio, type Save } from './shared'
 
 import type { StudyState } from '../engine/storage'
 
@@ -60,6 +60,14 @@ function PalaceRoute({ route, cues, save }: {
 
 function MapWordList({ route }: { route: PalaceLandmark[] }) {
   const [showWords, setShowWords] = useState(false)
+  const [failedWord, setFailedWord] = useState('')
+  useEffect(() => stopKoreanAudio, [])
+
+  function pronounce(word: string) {
+    setFailedWord('')
+    speakKorean(word, 1, () => {}, () => setFailedWord(word))
+  }
+
   const stages: { name?: string; rooms: PalaceLandmark[][] }[] = []
   for (const stop of route) {
     let stage = stages.at(-1)
@@ -72,15 +80,23 @@ function MapWordList({ route }: { route: PalaceLandmark[] }) {
     else stage.rooms.push([stop])
   }
 
-  return <details className="palace-reference" onToggle={event => setShowWords(event.currentTarget.open)}>
+  return <details className="palace-reference" onToggle={event => {
+    setShowWords(event.currentTarget.open)
+    if (!event.currentTarget.open) {
+      stopKoreanAudio()
+      setFailedWord('')
+    }
+  }}>
     <summary>Words in this map ({route.length})</summary>
     {showWords && <div className="palace-words">
+      {failedWord && <p role="status">Audio couldn’t play. Tap <Korean>{failedWord}</Korean> to try again.</p>}
       {stages.map(stage => <div key={stage.name ?? 'map'} className="palace-word-stage">
         {stage.name && <h3>{stage.name}</h3>}
         {stage.rooms.map(stops => <table key={stops[0].cueId}>
           <caption>{stops[0].room}</caption>
           <tbody>{stops.map(({ cueId, word }) => <tr key={cueId}>
-            <th scope="row"><Korean>{word.korean}</Korean></th>
+            <th scope="row"><button type="button" className="text-button" title="Play Korean pronunciation"
+              onClick={() => pronounce(word.korean)}><Korean>{word.korean}</Korean><Icon name="sound" size={14} /></button></th>
             <td><em>{word.english}</em></td>
           </tr>)}</tbody>
         </table>)}

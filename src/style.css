@@ -500,5 +500,7 @@ td [lang="ko"] { color: var(--accent); font-weight: 650; }
 .palace-words caption { text-align: left; font-size: 14px; font-weight: 700; padding-bottom: 5px; }
 .palace-words :is(th, td) { padding: 5px 0; overflow-wrap: anywhere; line-height: 1.45; }
 .palace-words th { width: min(44%, 13rem); padding-right: 12px; font-size: 15px; word-break: keep-all; }
+.palace-words .text-button { max-width: 100%; min-height: 28px; font: inherit; }
+.palace-words .text-button svg { flex-shrink: 0; color: var(--muted); }
 .palace-words td { color: var(--muted); }
 .palace-words tr:last-child > * { border-bottom: 0; }

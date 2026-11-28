@@ -163,6 +163,7 @@ progress::-moz-progress-bar { background: var(--accent); }
 .vocabulary-table th, .vocabulary-table td { padding: 7px 12px; line-height: 1.4; vertical-align: middle; overflow-wrap: anywhere; }
 .vocabulary-table thead th { font-size: 12px; color: var(--muted); }
 .vocabulary-table tbody th { color: var(--accent); font-size: 15px; }
+.vocabulary-table .library-group th { background: var(--subtle); border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; }
 .vocabulary-table tbody td { color: var(--ink); }
 .vocabulary-table tbody [lang="ko"] { font-weight: inherit; }
 .vocabulary-table th:first-child { width: 42%; }

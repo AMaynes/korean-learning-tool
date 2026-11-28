@@ -13,15 +13,34 @@ import { classicPalaces, palaceRoute } from '../src/data/palaces'
 
 import { describe, expect, it } from 'vitest'
 import { conjugationRules, particleRules } from '../src/data/grammar'
+import { libraryGroups } from '../src/data/libraryGroups'
 import type { WordClass } from '../src/data/model'
 import { generate, matchesAnswer, matchesEnglishAnswer, recallCard, toEnglishPractice } from '../src/engine/exercises'
 import { attach, batchim, conjugate } from '../src/engine/korean'
 import { emptyDeck, recordRecall, nextRecall } from '../src/engine/mastery'
 import { hangulAlphabet } from '../src/engine/pronunciation'
-import { activeLists, builtInLists, defaultSelection, entryRule } from '../src/engine/registry'
+import { activeLists, builtInLists, defaultSelection, entryRule, selectableLists } from '../src/engine/registry'
 import { addScore, defaults, importBackup } from '../src/engine/storage'
 
 describe('vocabulary registry', () => {
+  it('gives every library entry one semantic group across individual and full lists', () => {
+    for (const list of selectableLists) {
+      const groups = libraryGroups(list)
+      expect(groups.map(group => group.name), list.id).not.toContain('More vocabulary')
+      const ids = groups.flatMap(group => group.entries.map(entry => entry.id)).sort()
+      expect(ids, list.id).toEqual(list.entries.map(entry => entry.id).sort())
+    }
+    const outdoors = libraryGroups(activeLists({ topics: 'topics-forecast' }).topics)
+    const wordsIn = (name: string) => outdoors.find(group => group.name === name)?.entries.map(entry => entry.korean)
+    expect(wordsIn('Parks & nature')).toEqual(['공원', '나무', '오리'])
+    expect(wordsIn('Walking, resting & watching')?.slice(0, 2)).toEqual(['걷다', '걸어요'])
+    expect(wordsIn('Temperature')).toContain('더워요')
+    const full = libraryGroups(activeLists({ topics: 'topics-all' }).topics)
+    const homonyms = full.flatMap(group => group.entries.filter(entry => entry.korean === '차')
+      .map(entry => [entry.english.toLowerCase(), group.name]))
+    expect(homonyms).toEqual([['car', 'Transit & travel documents'], ['tea', 'Drinks']])
+  })
+
   it('loads distinct numbered lists and preserves explicit independent selections', () => {
     const active = activeLists({ ...defaultSelection, nouns: 'nouns-3', verbs: 'verbs-2', adjectives: 'adjectives-3' })
     expect(active.nouns.entries[0].korean).toBe('가족')

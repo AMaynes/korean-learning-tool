@@ -21,6 +21,7 @@ korean-learning-tool/
 │   ├── style.css
 │   ├── data/
 │   │   ├── grammar.ts
+│   │   ├── libraryGroups.ts
 │   │   ├── intro.ts
 │   │   ├── model.ts
 │   │   └── words.ts
@@ -61,6 +62,7 @@ korean-learning-tool/
 | `src/data/grammar.ts` | Owns the catalog of particle and conjugation rules, explanations, and examples. |
 | `src/data/intro.ts` | Holds the Intro’s glossary examples and word-category tables. |
 | `src/data/model.ts` | Defines shared data contracts. |
+| `src/data/libraryGroups.ts` | Defines the semantic groups and reading order for library lists. |
 | `src/data/words.ts` | Owns starter lexical vocabulary and semantic tags. |
 | `src/engine/exercises.ts` | Generates study exercises from active decks and evaluates known alternatives. |
 | `src/engine/korean.ts` | Applies phonological variants and stems/endings to known word classes. |

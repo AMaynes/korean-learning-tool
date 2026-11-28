@@ -10,6 +10,7 @@
 
 
 import { useState } from 'react'
+import { libraryGroups } from '../data/libraryGroups'
 import { categories } from '../data/model'
 import type { Category, WordList } from '../data/model'
 import { entryRule } from '../engine/registry'
@@ -24,11 +25,12 @@ export function Library({ category, setCategory, lists, active, onSelect }: {
   const [query, setQuery] = useState('')
   const isGrammar = category === 'particles' || category === 'conjugations'
   const search = query.normalize('NFC').trim().toLowerCase()
-  const rows = active.entries.map(entry => {
-    const example = entryRule(category, entry)?.examples[0]
-    return { entry, example }
-  }).filter(({ entry, example }) =>
-    [entry.korean, entry.english, example?.original, example?.result].some(value => value?.toLowerCase().includes(search)))
+  const groups = libraryGroups(active).map(({ name, entries }) => ({
+    name,
+    rows: entries.map(entry => ({ entry, example: entryRule(category, entry)?.examples[0] }))
+      .filter(({ entry, example }) =>
+        [entry.korean, entry.english, example?.original, example?.result].some(value => value?.toLowerCase().includes(search))),
+  })).filter(group => group.rows.length > 0)
 
   return <>
     <div className="section-heading library-heading">
@@ -49,7 +51,8 @@ export function Library({ category, setCategory, lists, active, onSelect }: {
           <th scope="col">Meaning</th>
           {isGrammar && <th scope="col">Example</th>}
         </tr></thead>
-        <tbody>
+        {groups.map(({ name, rows }) => <tbody key={name} aria-label={name}>
+          <tr className="library-group"><th scope="rowgroup" colSpan={isGrammar ? 3 : 2}>{name}</th></tr>
           {rows.map(({ entry, example }) => <tr key={entry.id}>
             <th scope="row">
               <Korean>{entry.korean}</Korean>
@@ -60,8 +63,8 @@ export function Library({ category, setCategory, lists, active, onSelect }: {
               {example.original}{category === 'particles' && <> + {spokenText(example.applied)}</>} → <strong>{spokenText(example.result)}</strong>
             </Korean>}</td>}
           </tr>)}
-          {rows.length === 0 && <tr><td colSpan={isGrammar ? 3 : 2}>No matching entries.</td></tr>}
-        </tbody>
+        </tbody>)}
+        {groups.length === 0 && <tbody><tr><td colSpan={isGrammar ? 3 : 2}>No matching entries.</td></tr></tbody>}
       </table>
     </div>
   </>

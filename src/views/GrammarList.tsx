@@ -45,20 +45,23 @@ function Equation({ parts }: { parts: GlossedEquation }) {
   )}</div>
 }
 
-export function GrammarList({ category }: { category: ListCategory }) {
+export function GrammarList({ category }: { category?: ListCategory }) {
   const id = useId()
-  const [selected, setSelected] = useState(category)
+  const [selected, setSelected] = useState<ListCategory>(category ?? 'particles')
   const [expanded, setExpanded] = useState<string | null>(null)
   function select(tab: ListCategory) {
     setSelected(tab)
     setExpanded(null)
   }
   return <>
-    <button className="button quiet" popoverTarget={id} onClick={() => select(category)}>Hints</button>
+    {(category ? [category] : tabs).map(tab => <button key={tab} type="button" className="button quiet"
+      popoverTarget={id} popoverTargetAction={category ? 'toggle' : 'show'} aria-haspopup="dialog" onClick={() => select(tab)}>
+      {category ? 'Hints' : tab === 'particles' ? 'Particle Notes' : 'Conjugation Notes'}
+    </button>)}
     <div popover="auto" id={id} role="dialog" aria-label="Grammar list" className="grammar-list">
       <div className="grammar-list-controls">
         <div className="segmented" role="tablist" aria-label="Grammar category">
-          {tabs.map(tab => <button key={tab} role="tab" id={id + tab} aria-selected={selected === tab}
+          {tabs.map(tab => <button key={tab} type="button" role="tab" id={id + tab} aria-selected={selected === tab}
             tabIndex={selected === tab ? 0 : -1} aria-controls={id + '-panel'} onClick={() => select(tab)}
             onKeyDown={event => {
               if (!['ArrowRight', 'ArrowLeft', 'Home', 'End'].includes(event.key)) return
@@ -68,7 +71,7 @@ export function GrammarList({ category }: { category: ListCategory }) {
               document.getElementById(id + next)?.focus()
             }}>{tab === 'particles' ? 'Particles' : 'Conjugations'}</button>)}
         </div>
-        <button className="text-button" popoverTarget={id} popoverTargetAction="hide" aria-label="Close list">✕</button>
+        <button type="button" className="text-button" popoverTarget={id} popoverTargetAction="hide" aria-label="Close list">✕</button>
       </div>
       <div key={selected} id={id + '-panel'} role="tabpanel" aria-labelledby={id + selected} className="grammar-list-scroll" tabIndex={0}>
         <table><thead><tr><th>Form</th><th>Type</th><th>Example</th></tr></thead>
@@ -80,7 +83,7 @@ export function GrammarList({ category }: { category: ListCategory }) {
               : [rule.english, example.meaning]
             const open = expanded === rule.id
             return <Fragment key={rule.id}><tr onClick={() => setExpanded(open ? null : rule.id)}>
-              <th scope="row"><button className="grammar-disclosure" aria-expanded={open}>
+              <th scope="row"><button type="button" className="grammar-disclosure" aria-expanded={open}>
                 {open ? '▾' : '▸'} <Korean>{rule.korean}</Korean>
               </button></th><td>{rule.english}</td>
               <td><Equation parts={[[example.stem ?? example.original, example.originalMeaning],

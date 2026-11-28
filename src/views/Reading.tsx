@@ -3,6 +3,7 @@ import { canTranslateOnDevice, openDeviceTranslator, readingChunks, readingSente
 import { analyzePastedSentences } from '../engine/pastedGrammar'
 import { readingBreakdowns, readingToken, type Breakdown } from '../engine/readingGrammar'
 import { generatePassage, reviewedSentence, readingAudioPrompts } from '../engine/readingPassages'
+import { GrammarList } from './GrammarList'
 import { Icon, Korean, speakKorean, stopKoreanAudio } from './shared'
 
 export function Reading() {
@@ -185,7 +186,10 @@ function ReadingSheet({ sentences, edit }: { sentences: string[]; edit: () => vo
   }
 
   return <form className="reading-sheet" onSubmit={event => { event.preventDefault(); void submit() }}>
-    <button className="text-button" type="button" onClick={edit}>Edit passage</button>
+    <div className="button-row">
+      <button className="text-button" type="button" onClick={edit}>Edit passage</button>
+      <GrammarList />
+    </div>
     <section className="panel reading-clock" aria-label="Reading stopwatch">
       <div className="button-row">
         <ElapsedTime start={start} saved={elapsed} />

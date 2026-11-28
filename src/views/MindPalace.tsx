@@ -1,26 +1,17 @@
 import { useState } from 'react'
-import { classicPalaces, palaceNames, palaceRoute, type PalaceLandmark, type Theme } from '../data/palaces'
+import { classicPalaces, palaceRoute, type PalaceLandmark } from '../data/palaces'
 import { sceneMaps } from '../data/sceneMaps'
 import { Korean, type Save } from './shared'
 
 import type { StudyState } from '../engine/storage'
 
 export function MindPalace({ state, save }: { state: StudyState; save: Save }) {
-  const [creating, setCreating] = useState(false)
-  const [theme, setTheme] = useState<Theme>('home')
-  const [name, setName] = useState('')
-  const [landmarks, setLandmarks] = useState('')
-  const [busy, setBusy] = useState(false)
   const custom = state.customPalaces ?? {}
   const firstMap = sceneMaps[0]
   // Earlier versions left the default Home selection implicit when saving a scene.
   const hasLegacyCues = Object.keys(state.palaceCues ?? {}).some(id => !firstMap.sections.some(section => id.startsWith('stop-' + section.id + '-')))
   const selected = state.activePalace ?? (hasLegacyCues ? 'home' : firstMap.id)
-  const palace = custom[selected]
-  const stops = landmarks.split(/\r?\n/).map(line => line.trim()).filter(Boolean)
-  const names: Record<string, string> = {...palaceNames}
-  for (const [id, item] of Object.entries(custom)) names[id] = item.name
-  const duplicate = Object.values(names).some(value => value.toLowerCase() === name.trim().toLowerCase())
+  const route = palaceRoute(selected, custom[selected], state.palaceCues ?? {})
 
   return <>
     <div className="panel exercise-panel palace">
@@ -36,28 +27,9 @@ export function MindPalace({ state, save }: { state: StudyState; save: Save }) {
         {Object.keys(custom).length > 0 && <optgroup label="My palaces">{Object.entries(custom).map(([id, item]) =>
           <option key={id} value={id}>{item.name}</option>)}</optgroup>}
       </select></label>
-      <button className="button quiet" aria-expanded={creating} onClick={() => setCreating(!creating)}>{creating ? 'Cancel' : 'Create palace'}</button>
-      {creating && <form className="palace" onSubmit={async event => {
-        event.preventDefault()
-        if (busy || duplicate || !name.trim() || !stops.length) return
-        setBusy(true)
-        const id = 'route-' + crypto.getRandomValues(new Uint32Array(2)).join('-')
-        const item = {name: name.trim(), stops, theme}
-        if (await save(previous => ({ ...previous, activePalace: id, customPalaces: { ...previous.customPalaces, [id]: item } }))) {
-          setCreating(false); setName(''); setLandmarks('')
-        }
-        setBusy(false)
-      }}>
-        <label className="field">Palace name<input value={name} maxLength={80} onChange={e => setName(e.target.value)} /></label>
-        <label className="field">Vocabulary theme<select value={theme} onChange={e => setTheme(e.target.value as Theme)}>
-          {Object.entries(classicPalaces).map(([id, label]) => <option key={id} value={id}>{label}</option>)}</select></label>
-        {duplicate && <small>Choose a different name for this palace.</small>}
-        <label className="field">Landmarks in walking order (one per line)<textarea value={landmarks} maxLength={8000}
-          placeholder={'Front steps\nHall mirror\nKitchen sink'} onChange={e => setLandmarks(e.target.value)} /></label>
-        <button className="button primary" disabled={busy || duplicate || !name.trim() || !stops.length}>Save palace</button>
-      </form>}
+      <MapWordList key={selected} route={route} />
     </div>
-    <PalaceRoute key={selected} route={palaceRoute(selected, palace, state.palaceCues ?? {})}
+    <PalaceRoute key={selected} route={route}
       cues={state.palaceCues ?? {}} save={save} />
   </>
 }
@@ -66,7 +38,6 @@ function PalaceRoute({ route, cues, save }: {
   route: PalaceLandmark[]; cues: Record<string, string>; save: Save
 }) {
   const [index, setIndex] = useState(0)
-  const [showWords, setShowWords] = useState(false)
   const [walk, setWalk] = useState(false)
   const {room, place, word: entry, cueId} = route[index % route.length]
   return <article className="panel exercise-panel palace">
@@ -75,10 +46,6 @@ function PalaceRoute({ route, cues, save }: {
       <button aria-pressed={!walk} onClick={() => setWalk(false)}>Place words</button>
       <button aria-pressed={walk} onClick={() => { setWalk(true); setIndex(0) }}>Walk the route</button>
     </div>
-    <details className="palace-reference" onToggle={event => setShowWords(event.currentTarget.open)}>
-      <summary>Words in this map ({route.length})</summary>
-      {showWords && <MapWordList route={route} />}
-    </details>
     <p className="eyebrow">{room}</p>
     <h2>{place}</h2>
     <PalaceStop key={cueId + walk} korean={entry.korean} english={entry.english}
@@ -92,6 +59,7 @@ function PalaceRoute({ route, cues, save }: {
 }
 
 function MapWordList({ route }: { route: PalaceLandmark[] }) {
+  const [showWords, setShowWords] = useState(false)
   const groups: PalaceLandmark[][] = []
   for (const stop of route) {
     const last = groups.at(-1)
@@ -99,15 +67,18 @@ function MapWordList({ route }: { route: PalaceLandmark[] }) {
     else groups.push([stop])
   }
 
-  return <div className="palace-words">
-    {groups.map(stops => <table key={stops[0].cueId}>
-      <caption>{stops[0].room}</caption>
-      <tbody>{stops.map(({ cueId, word }) => <tr key={cueId}>
-        <th scope="row"><Korean>{word.korean}</Korean></th>
-        <td><em>{word.english}</em></td>
-      </tr>)}</tbody>
-    </table>)}
-  </div>
+  return <details className="palace-reference" onToggle={event => setShowWords(event.currentTarget.open)}>
+    <summary>Words in this map ({route.length})</summary>
+    {showWords && <div className="palace-words">
+      {groups.map(stops => <table key={stops[0].cueId}>
+        <caption>{stops[0].room}</caption>
+        <tbody>{stops.map(({ cueId, word }) => <tr key={cueId}>
+          <th scope="row"><Korean>{word.korean}</Korean></th>
+          <td><em>{word.english}</em></td>
+        </tr>)}</tbody>
+      </table>)}
+    </div>}
+  </details>
 }
 
 function PalaceStop({ korean, english, cue, walk, saveCue }: {

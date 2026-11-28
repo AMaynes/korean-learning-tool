@@ -684,6 +684,38 @@ describe('deployed study workflow', { concurrency: false }, () => {
     await page.close()
   })
 
+  it('opens either grammar reference while decoding a passage without submitting the guesses', async () => {
+    const page = await browser.newPage({ viewport: { width: 375, height: 760 } })
+    await page.goto(projectPage + '#reading')
+    await page.getByLabel('Korean text').fill('밥을 먹고 물을 마셔요.')
+    await page.getByRole('button', { name: 'Start reading' }).click()
+    const guess = page.getByLabel('물을 meaning')
+    await guess.fill('water')
+    const popup = page.getByRole('dialog', { name: 'Grammar list' })
+    for (const [button, tab, other] of [
+      ['Particle Notes', 'Particles', 'Conjugations'],
+      ['Conjugation Notes', 'Conjugations', 'Particles'],
+    ]) {
+      await page.getByRole('button', { name: button }).click()
+      await popup.getByRole('tab', { name: tab, selected: true }).waitFor()
+      await popup.locator('.grammar-disclosure').first().click()
+      assert.equal(await popup.locator('.grammar-detail li').count(), 5)
+      await popup.getByRole('tab', { name: other }).click()
+      await popup.getByRole('button', { name: 'Close list' }).click()
+      await popup.waitFor({ state: 'hidden' })
+      assert.equal(await guess.inputValue(), 'water')
+      assert.equal(await page.getByRole('button', { name: 'Submit', exact: true }).isEnabled(), true)
+      assert.equal(await page.locator('.reading-gloss').count(), 0)
+    }
+    await page.getByRole('button', { name: 'Submit', exact: true }).click()
+    await page.getByRole('button', { name: 'Conjugation Notes' }).click()
+    await popup.getByRole('tab', { name: 'Conjugations', selected: true }).waitFor()
+    await page.keyboard.press('Escape')
+    await popup.waitFor({ state: 'hidden' })
+    await page.getByText('I eat my meal and drink water.', { exact: true }).waitFor()
+    await page.close()
+  })
+
   it('opens the full grammar list from a recall card in either mode', async () => {
     const page = await browser.newPage()
     await page.setViewportSize({ width: 320, height: 760 })
@@ -745,7 +777,7 @@ describe('deployed study workflow', { concurrency: false }, () => {
     await page.close()
   })
 
-  it('switches palaces and remembers a custom walking route independently', async () => {
+  it('shows the selected map word list beneath the selector and remembers its walking route', async () => {
     const page = await browser.newPage()
     await page.goto(projectPage)
     const tab = page.getByRole('button', { name: 'Mind Palace', exact: true })
@@ -755,7 +787,8 @@ describe('deployed study workflow', { concurrency: false }, () => {
     assert.deepEqual(await selector.locator('optgroup[label="Classic palaces"] option').allTextContents(), ['Home', 'Park', 'Café', 'School', 'Train Station'])
     await selector.selectOption('ordering')
     await heading(page, 'Suggest a place for coffee.')
-    const words = page.locator('.palace details')
+    const words = page.locator('.palace').filter({ has: selector }).locator('details')
+    assert.equal(await page.getByRole('button', { name: /create palace/i }).count(), 0)
     await page.getByRole('button', { name: 'Walk the route' }).click()
     await page.getByRole('button', { name: 'Next stop' }).click()
     const stop = await page.locator('.palace h2').innerText()
@@ -786,14 +819,11 @@ describe('deployed study workflow', { concurrency: false }, () => {
     await page.locator('.palace').getByText('역', { exact: true }).waitFor()
     await selector.selectOption('park')
     await heading(page, 'Iron gate')
-    await page.getByRole('button', { name: 'Create palace' }).click()
-    await page.getByLabel('Palace name').fill('Campus')
-    await page.getByLabel(/Landmarks in walking order/).fill('Bus stop\nLibrary steps')
-    await page.getByRole('button', { name: 'Save palace' }).click()
-    await heading(page, 'Bus stop')
-    const id = await selector.inputValue()
+    await selector.selectOption('home')
+    await heading(page, 'Front gate')
+    const id = 'home'
     const scene = page.getByLabel('My memory scene')
-    await scene.fill('A person waves from the bus.')
+    await scene.fill('A blue gate swings open.')
     await page.getByRole('button', { name: 'Save scene' }).click()
     await page.getByRole('button', { name: 'Scene saved' }).waitFor()
     await page.reload()
@@ -803,10 +833,10 @@ describe('deployed study workflow', { concurrency: false }, () => {
     await heading(page, 'Iron gate')
     assert.equal(await scene.inputValue(), '')
     await selector.selectOption(id)
-    await heading(page, 'Bus stop')
-    assert.equal(await scene.inputValue(), 'A person waves from the bus.')
+    await heading(page, 'Front gate')
+    assert.equal(await scene.inputValue(), 'A blue gate swings open.')
     await page.getByRole('button', { name: 'Next stop' }).click()
-    await heading(page, 'Library steps')
+    await heading(page, 'Doorbell')
     await page.close()
   })
 

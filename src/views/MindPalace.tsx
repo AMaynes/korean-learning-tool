@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { classicPalaces, palaceRoute, type PalaceLandmark } from '../data/palaces'
 import { sceneMaps } from '../data/sceneMaps'
-import { Icon, Korean, speakKorean, stopKoreanAudio, type Save } from './shared'
+import { Icon, Korean, spokenText, speakKorean, stopKoreanAudio, type Save } from './shared'
 
 import type { StudyState } from '../engine/storage'
 
@@ -46,8 +46,8 @@ function PalaceRoute({ route, cues, save }: {
       <button aria-pressed={!walk} onClick={() => setWalk(false)}>Place words</button>
       <button aria-pressed={walk} onClick={() => { setWalk(true); setIndex(0) }}>Walk the route</button>
     </div>
-    <p className="eyebrow">{stage && stage + ' · '}{room}</p>
-    <h2>{place}</h2>
+    <p className="eyebrow">{stage && spokenText(stage + ' · ')}{spokenText(room)}</p>
+    <h2>{spokenText(place)}</h2>
     <PalaceStop key={cueId + walk} korean={entry.korean} english={entry.english}
       cue={cues[cueId] ?? ''} walk={walk} saveCue={value => save(previous => ({
         ...previous, palaceCues: { ...previous.palaceCues, [cueId]: value },
@@ -91,13 +91,13 @@ function MapWordList({ route }: { route: PalaceLandmark[] }) {
     {showWords && <div className="palace-words">
       {failedWord && <p role="status">Audio couldn’t play. Tap <Korean>{failedWord}</Korean> to try again.</p>}
       {stages.map(stage => <div key={stage.name ?? 'map'} className="palace-word-stage">
-        {stage.name && <h3>{stage.name}</h3>}
+        {stage.name && <h3>{spokenText(stage.name)}</h3>}
         {stage.rooms.map(stops => <table key={stops[0].cueId}>
-          <caption>{stops[0].room}</caption>
+          <caption>{spokenText(stops[0].room)}</caption>
           <tbody>{stops.map(({ cueId, word }) => <tr key={cueId}>
-            <th scope="row"><button type="button" className="text-button" title="Play Korean pronunciation"
-              onClick={() => pronounce(word.korean)}><Korean>{word.korean}</Korean><Icon name="sound" size={14} /></button></th>
-            <td><em>{word.english}</em></td>
+            <th scope="row"><Korean>{word.korean}</Korean>{' '}<button type="button" className="text-button" title="Play full entry" aria-label={word.korean + ' · Play full entry'}
+              onClick={() => pronounce(word.korean)}><Icon name="sound" size={14} /></button></th>
+            <td><em>{spokenText(word.english)}</em></td>
           </tr>)}</tbody>
         </table>)}
       </div>)}
@@ -113,10 +113,10 @@ function PalaceStop({ korean, english, cue, walk, saveCue }: {
   const [hint, setHint] = useState(false)
   const [busy, setBusy] = useState(false)
   return <>
-    {(!walk || revealed) && <p><strong><Korean>{korean}</Korean></strong> · <em>{english}</em></p>}
+    {(!walk || revealed) && <p><strong><Korean>{korean}</Korean></strong> · <em>{spokenText(english)}</em></p>}
     {walk ? <>
       <p>Picture this stop. What would you say in Korean?</p>
-      {hint && <p>{cue}</p>}
+      {hint && <p>{spokenText(cue)}</p>}
       <div className="button-row">
         {cue && !hint && <button className="button quiet" onClick={() => setHint(true)}>Show my scene</button>}
         {!revealed && <button className="button" onClick={() => setRevealed(true)}>Reveal word</button>}

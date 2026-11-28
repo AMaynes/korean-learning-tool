@@ -14,6 +14,9 @@ import { useRef } from 'react'
 import type { FormEvent, ReactNode } from 'react'
 import { categories, categoryIds } from '../data/model'
 import type { Category, Transformation, WordList } from '../data/model'
+import { Korean, spokenText } from './SpokenKorean'
+export { Korean, spokenText, SpokenWord } from './SpokenKorean'
+export { speakKorean, stopKoreanAudio } from '../engine/koreanAudio'
 import { sceneMaps } from '../data/sceneMaps'
 import type { StudyState } from '../engine/storage'
 
@@ -43,11 +46,6 @@ export function Icon({ name, size = 18 }: { name: keyof typeof iconPaths; size?:
   return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.65" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={iconPaths[name]} /></svg>
 }
 
-/** Render genuine language tags for pronunciation and screen readers. */
-export function Korean({ children, className }: { children: ReactNode; className?: string }) {
-  return <span lang="ko" className={className}>{children}</span>
-}
-
 const finalTPronunciations = new Map([
   ['무엇', '무얻'],
   ['이것', '이걷'],
@@ -63,32 +61,6 @@ export function StandalonePronunciationNote({ word }: { word: string }) {
   return <small className="inline-note pronunciation-note">
     Said on its own, final <Korean>ㅅ</Korean> (S) sounds like a flat, unreleased T. <Korean>[{pronunciation}]</Korean>
   </small>
-}
-
-let currentAudio: HTMLAudioElement | undefined
-
-/** Stop the previous card and ignore events from superseded playback. */
-export function stopKoreanAudio() {
-  const audio = currentAudio
-  currentAudio = undefined
-  audio?.pause()
-}
-
-/** Every prompt uses the same bundled Korean female voice on every device. */
-export function speakKorean(text: string, rate: number, onEnd: () => void, onError: () => void) {
-  stopKoreanAudio()
-  const key = Array.from(text, char => char.codePointAt(0)!.toString(16)).join('-')
-  const audio = new Audio('./assets/ko-f1-' + key + '.mp3')
-  currentAudio = audio
-  audio.playbackRate = rate
-  function finish(callback: () => void) {
-    if (currentAudio !== audio) return
-    currentAudio = undefined
-    callback()
-  }
-  audio.onended = () => finish(onEnd)
-  audio.onerror = () => finish(onError)
-  void audio.play().catch(() => finish(onError))
 }
 
 export function VocabularyCategory({ category, selected, onCategory, onSelect }: {
@@ -137,10 +109,10 @@ export function DirectionSwitch({ direction, onChange, label = 'Practice directi
 /** Render source, operation, and result as a single study example. */
 export function Transform({ example }: { example: Transformation }) {
   return <div className="transform" aria-label="Worked transformation">
-    <div><small>Original</small><strong><Korean>{example.original}</Korean></strong><span>{example.originalMeaning}</span>
+    <div><small>Original</small><strong><Korean>{example.original}</Korean></strong><span>{spokenText(example.originalMeaning)}</span>
       {example.stem && <span>Stem <Korean>{example.stem}</Korean></span>}</div>
     <div><small>{example.stem ? 'Pattern' : 'Applied particle'}</small><strong><Korean>{example.applied}</Korean></strong></div>
-    <div><small>Result</small><strong><Korean>{example.result}</Korean></strong><span>{example.meaning}</span>
+    <div><small>Result</small><strong><Korean>{example.result}</Korean></strong><span>{spokenText(example.meaning)}</span>
       {example.context && <span><Korean>{example.context}</Korean></span>}</div>
   </div>
 }

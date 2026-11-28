@@ -22,7 +22,7 @@ import { Pronunciation } from './Pronunciation'
 import { Reading } from './Reading'
 import { Recall } from './Recall'
 import { Settings } from './Settings'
-import { Icon, Korean } from './shared'
+import { stopKoreanAudio, Icon, Korean } from './shared'
 import type { Save, SelectList, View } from './shared'
 
 const studyNav = [
@@ -68,7 +68,9 @@ export function App() {
         setState(stateRef.current)
       }
     }
+    window.speechSynthesis?.getVoices()
     function onRoute() {
+      stopKoreanAudio()
       setView(currentView())
       window.scrollTo(0, 0)
       heading.current?.focus({ preventScroll: true })
@@ -111,7 +113,7 @@ export function App() {
     <a className="skip-link" href="#main" onClick={event => { event.preventDefault(); heading.current?.focus() }}>Skip to practice</a>
     <header className="topbar">
       <div className="topbar-inner">
-        <a className="brand" href="#recall"><span className="brand-mark"><Korean>한</Korean></span><div><strong>Korean Learning Tool</strong><small><Korean>한국어 연습</Korean></small></div></a>
+        <div className="brand"><span className="brand-mark"><Korean>한</Korean></span><div><a href="#recall"><strong>Korean Learning Tool</strong></a><small><Korean>한국어 연습</Korean></small></div></div>
         <nav className="top-nav" aria-label="Site">
           <a href="#recall" aria-current={toolActive ? 'page' : undefined}>Tool</a>
           <a href="#intro" aria-current={view === 'intro' ? 'page' : undefined}>Intro</a>

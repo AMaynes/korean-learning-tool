@@ -13,7 +13,7 @@ import { useState } from 'react'
 import { categories } from '../data/model'
 import type { Category, WordList } from '../data/model'
 import { entryRule } from '../engine/registry'
-import { Icon, Korean, VocabularyCategory, ListSelect, StandalonePronunciationNote } from './shared'
+import { Icon, Korean, spokenText, VocabularyCategory, ListSelect, StandalonePronunciationNote } from './shared'
 import type { SelectList } from './shared'
 
 /** Browse the active list and link directly to its recall deck. */
@@ -55,9 +55,9 @@ export function Library({ category, setCategory, lists, active, onSelect }: {
               <Korean>{entry.korean}</Korean>
               <StandalonePronunciationNote word={entry.korean} />
             </th>
-            <td>{entry.english}</td>
+            <td>{spokenText(entry.english)}</td>
             {isGrammar && <td>{example && <Korean>
-              {example.original}{category === 'particles' && <> + {example.applied}</>} → <strong>{example.result}</strong>
+              {example.original}{category === 'particles' && <> + {spokenText(example.applied)}</>} → <strong>{spokenText(example.result)}</strong>
             </Korean>}</td>}
           </tr>)}
           {rows.length === 0 && <tr><td colSpan={isGrammar ? 3 : 2}>No matching entries.</td></tr>}

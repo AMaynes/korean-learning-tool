@@ -17,7 +17,7 @@ import type { RecallDirection } from '../engine/exercises'
 import { emptyDeck, recordRecall, nextRecall } from '../engine/mastery'
 import type { StudyState } from '../engine/storage'
 import type { DeckProgress } from '../engine/mastery'
-import { AnswerForm, DirectionSwitch, Empty, Icon, Korean, VocabularyCategory, ListSelect, speakKorean, stopKoreanAudio, StandalonePronunciationNote, Transform } from './shared'
+import { AnswerForm, DirectionSwitch, Empty, Icon, Korean, spokenText, VocabularyCategory, ListSelect, speakKorean, stopKoreanAudio, StandalonePronunciationNote, Transform } from './shared'
 import type { Save, SelectList } from './shared'
 
 import { MindPalace } from './MindPalace'
@@ -115,10 +115,10 @@ function MentalRecall({ deck, direction }: { deck: WordList; direction: RecallPr
         <div className="recall-word">{koreanFace ? <Korean>{word}</Korean> : word}</div>}
       {sound && flipped && <Korean>{card.prompt}</Korean>}
       {!sound && koreanFace && <StandalonePronunciationNote word={word} />}
-      {caption && <p>{caption}</p>}
+      {caption && <p>{spokenText(caption)}</p>}
     </div>
     {flipped && card.transformation && <Transform example={card.transformation} />}
-    {flipped && card.explanation && <p className="inline-note">{card.explanation}</p>}
+    {flipped && card.explanation && <p className="inline-note">{spokenText(card.explanation!)}</p>}
     <div className="card-actions">
       <button className="button quiet" onClick={() => { setOrder(shuffle(order)); setPosition(0); setFlipped(false) }}><Icon name="shuffle" /> Shuffle</button>
       <div className="button-row">
@@ -190,7 +190,7 @@ function TypingRecall({ deck, direction, progressKey, progress, save }: {
       {(failed || correct) && !reading && <StandalonePronunciationNote word={card.answer} />}
     </div>
     {(failed || correct) && card.transformation && <Transform example={card.transformation} />}
-    {(failed || correct) && card.explanation && <p className="inline-note">{card.explanation}</p>}
+    {(failed || correct) && card.explanation && <p className="inline-note">{spokenText(card.explanation!)}</p>}
     <div className="card-actions">
       <button className="button quiet" disabled={failed || correct || busy} onClick={() => void reveal()}>Reveal answer</button>
       <button className="button" disabled={busy || (!correct && !failed)} onClick={() => {

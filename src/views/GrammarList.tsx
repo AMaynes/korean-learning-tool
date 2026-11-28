@@ -1,7 +1,7 @@
 import { Fragment, useId, useState } from 'react'
 import { conjugationRules, particleRules } from '../data/grammar'
 import { moreExamples, type GlossedEquation } from '../data/grammarListExamples'
-import { Korean } from './shared'
+import { Korean, spokenText } from './shared'
 
 const lists = { particles: particleRules, conjugations: conjugationRules }
 type ListCategory = keyof typeof lists
@@ -36,7 +36,7 @@ const particleGlosses: Record<string, [string, string]> = {
 }
 
 function Gloss({ form, meaning }: { form: string, meaning: string }) {
-  return <span className="grammar-gloss"><Korean>{form}</Korean><small lang="en">{meaning}</small></span>
+  return <span className="grammar-gloss"><Korean>{form}</Korean><small lang="en">{spokenText(meaning)}</small></span>
 }
 
 function Equation({ parts }: { parts: GlossedEquation }) {
@@ -83,13 +83,13 @@ export function GrammarList({ category }: { category?: ListCategory }) {
               : [rule.english, example.meaning]
             const open = expanded === rule.id
             return <Fragment key={rule.id}><tr onClick={() => setExpanded(open ? null : rule.id)}>
-              <th scope="row"><button type="button" className="grammar-disclosure" aria-expanded={open}>
-                {open ? '▾' : '▸'} <Korean>{rule.korean}</Korean>
-              </button></th><td>{rule.english}</td>
+              <th scope="row"><button type="button" className="grammar-disclosure" aria-expanded={open} aria-label={'Examples for ' + rule.korean}>
+                {open ? '▾' : '▸'}
+              </button> <Korean>{rule.korean}</Korean></th><td>{spokenText(rule.english)}</td>
               <td><Equation parts={[[example.stem ?? example.original, example.originalMeaning],
                 [ending, endingMeaning], [example.result, resultMeaning]]} /></td>
             </tr>{open && <tr><td colSpan={3} className="grammar-detail">
-              <p>{rule.note} {selected === 'particles' && !rule.korean.includes('/') && !rule.korean.includes('(')
+              <p>{spokenText(rule.note)} {selected === 'particles' && !rule.korean.includes('/') && !rule.korean.includes('(')
                 && 'Use the same form after a vowel or a consonant.'}</p>
               <ol>{moreExamples(rule).map(parts => <li key={parts[0][0]}><Equation parts={parts} /></li>)}</ol>
             </td></tr>}</Fragment>

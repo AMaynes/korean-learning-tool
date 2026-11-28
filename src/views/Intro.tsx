@@ -17,7 +17,7 @@ import {
 } from '../data/intro'
 import type { ExampleFocus, GlossaryExample, IntroTerm, IntroType } from '../data/intro'
 import { hangulAlphabet } from '../engine/pronunciation'
-import { Icon, Korean, speakKorean, stopKoreanAudio } from './shared'
+import { Icon, Korean, spokenText, SpokenWord, speakKorean, stopKoreanAudio } from './shared'
 
 const sections = [
   ['hangul', 'Hangul + Pronunciation'],
@@ -205,7 +205,7 @@ export function Intro() {
               <div className="table-wrap intro-table"><table aria-label="Common particle types">
                 <thead><tr><th scope="col">Use</th><th scope="col">Particles</th><th scope="col">When to use them</th></tr></thead>
                 <tbody>{particleTypes.map(([use, forms, meaning]) => <tr key={use}>
-                  <th scope="row">{use}</th><td><Korean>{forms}</Korean></td><td>{meaning}</td>
+                  <th scope="row">{spokenText(use)}</th><td><Korean>{forms}</Korean></td><td>{spokenText(meaning)}</td>
                 </tr>)}</tbody>
               </table></div>
               <h3>HOW TO USE PARTICLES</h3>
@@ -216,10 +216,10 @@ export function Intro() {
               </ol>
               <h4>Particle examples without conjugation</h4>
               {particleTypes.map(([use, , , parts]) => <div className="intro-check-example" key={use}>
-                <strong>{use}</strong><ParticleEquation parts={parts} />
+                <strong>{spokenText(use)}</strong><ParticleEquation parts={parts} />
               </div>)}
               <h4>One example with conjugation</h4>
-              <p><Korean>밥<b>을</b> 먹습니다.</Korean> <em>I eat rice.</em></p>
+              <p><Korean><SpokenWord word="밥을">밥<b>을</b></SpokenWord> 먹습니다.</Korean> <em>I eat rice.</em></p>
               <p><Korean>밥 + 을 = 밥을</Korean> (<em>rice as the object</em>). <Korean>을</Korean> is the particle.</p>
               <p><Korean>먹 + 습니다 = 먹습니다</Korean> (<em>I eat</em>). <Korean>먹</Korean> means <em>eat</em> and <Korean>-습니다</Korean> is the formal polite ending.</p>
               <p>Special case: <Korean>이다</Korean> (<em>to be</em>) is the particle that conjugates.</p>
@@ -234,12 +234,12 @@ export function Intro() {
               <p>Start with a dictionary form like <Korean>먹다</Korean> (<em>to eat</em>). Drop <Korean>다</Korean> to get the stem <Korean>먹</Korean> (<em>eat</em>). Choose an ending for what you want to say, then attach it using its own rule. A hyphen marks the attachment point and disappears when you write the word.</p>
               <h4>Examples without particles</h4>
               {conjugationRules.map(([rule, description, examples]) => <section key={rule}>
-                <h4>{rule}</h4>
-                <p>{description}</p>
+                <h4>{spokenText(rule)}</h4>
+                <p>{spokenText(description)}</p>
                 {examples.map(parts => <ParticleEquation key={parts[2][0]} parts={parts} />)}
               </section>)}
               <h4>One example with a particle</h4>
-              <p><Korean>밥<b>을</b> 먹고 쉰다.</Korean> <em>I eat rice and then rest.</em></p>
+              <p><Korean><SpokenWord word="밥을">밥<b>을</b></SpokenWord> 먹고 쉰다.</Korean> <em>I eat rice and then rest.</em></p>
               <ParticleEquation parts={[['밥', 'rice'], ['을', 'object particle'], ['밥을', 'rice as the object']]} />
               <p><Korean>먹고</Korean> (<em>eat and then</em>) uses the ending <Korean>-고</Korean>. <Korean>쉰다</Korean> means <em>rest</em>. Adding <Korean>밥을</Korean> tells you what gets eaten.</p>
             </> },
@@ -267,7 +267,7 @@ export function Intro() {
           {explanation && <button type="button" className="text-button" onClick={closeExplanation} aria-label="Close explanation">Close</button>}
         </div>
         {explanation ? <>
-          <p>{introGlossary[explanation.term].definition}</p>
+          <p>{spokenText(introGlossary[explanation.term].definition)}</p>
           <GlossaryExamples examples={introGlossary[explanation.term].examples} />
         </> : <p>Select an underlined term for a definition and three examples.</p>}
       </aside>
@@ -323,7 +323,7 @@ function AlphabetGroup({ title, note, letters, soundGroups, comparison = [], onP
       key={prompt} type="button" className="hangul-letter button" aria-label={`Play ${prompt}, ${romanization}`}
       onClick={() => onPlay(sound)}
     >
-      <Korean>{prompt}</Korean><Icon name="sound" size={14} />
+      <span lang="ko">{prompt}</span><Icon name="sound" size={14} />
       <small>{romanization}</small>
     </button>
   }
@@ -412,7 +412,7 @@ function SentenceStructure() {
           ['Predicate', '먹어요.', 'eat', 'Verb'],
         ]} meaning="I eat rice." />
         <p>Here, <Korean>저</Korean> (<em>I</em>) is both the topic and the subject. <Korean>는</Korean> marks the topic, and the speaker is the one eating. In other sentences, the topic and subject can differ.</p>
-        <p>When it’s clear who’s eating, you can leave out <Korean>저<u>는</u></Korean> (<em>I</em>) and say <Korean>밥<u>을</u> 먹어요</Korean> (<em>I eat rice</em>).</p>
+        <p>When it’s clear who’s eating, you can leave out <Korean><SpokenWord word="저는">저<u>는</u></SpokenWord></Korean> (<em>I</em>) and say <Korean><SpokenWord word="밥을">밥<u>을</u></SpokenWord> 먹어요</Korean> (<em>I eat rice</em>).</p>
       </> },
       { label: 'Questions', content: <>
         <h3>Ask for information</h3>
@@ -466,19 +466,19 @@ function ExampleParts({ parts, meaning, note }: {
   parts: readonly (readonly [label: string, korean: string, english: string, grammar: string, particle?: string])[]; meaning: string; note?: ReactNode
 }) {
   function markParticle(word: string, particle?: string) {
-    if (!particle) return word
-    return <>{word.slice(0, -particle.length)}<u>{particle}</u></>
+    if (!particle) return spokenText(word)
+    return <SpokenWord word={word}>{word.slice(0, -particle.length)}<u>{particle}</u></SpokenWord>
   }
   return <figure className="intro-example">
     <figcaption>
       <ExampleNumber />
       <strong><Korean>{parts.map(([label, word, , , particle], index) => <Fragment key={label}>{index > 0 && ' '}{markParticle(word, particle)}</Fragment>)}</Korean></strong><br />
-      <em>{meaning}</em>{note && <> {note}</>}
+      <em>{spokenText(meaning)}</em>{note && <> {note}</>}
     </figcaption>
     <dl className="intro-parts">
       {parts.map(([label, korean, english, grammar, particle]) => <div key={label}>
-        <dt>{isIntroTerm(label) ? <GrammarLabel term={label} /> : label}</dt>
-        <dd><Korean>{markParticle(korean, particle)}</Korean><small><em>{english}</em></small><span className="intro-part-grammar">{grammar}</span></dd>
+        <dt>{isIntroTerm(label) ? <GrammarLabel term={label} /> : spokenText(label)}</dt>
+        <dd><Korean>{markParticle(korean, particle)}</Korean><small><em>{spokenText(english)}</em></small><span className="intro-part-grammar">{spokenText(grammar)}</span></dd>
       </div>)}
     </dl>
   </figure>
@@ -586,7 +586,7 @@ function GlossaryExamples({ examples }: { examples: readonly GlossaryExample[] }
     {examples.map(([korean, english, focus]) => <li className="intro-explanation-example" key={korean}>
       <ExampleNumber />
       <strong><Korean>{korean}</Korean></strong>
-      <small><em>{english}</em></small>
+      <small><em>{spokenText(english)}</em></small>
       <WordGlosses korean={korean} english={english} />
       <p><ExplainExample focus={focus} /></p>
     </li>)}
@@ -595,7 +595,7 @@ function GlossaryExamples({ examples }: { examples: readonly GlossaryExample[] }
 
 /** Identify the Korean part, its English meaning, and the reason it fits the example. */
 function ExplainExample({ focus: [korean, english, reason] }: { focus: ExampleFocus }) {
-  return <><b><Korean>{korean}</Korean></b> (<em>{english}</em>) {reason}</>
+  return <><b><Korean>{korean}</Korean></b> (<em>{spokenText(english)}</em>) {spokenText(reason)}</>
 }
 
 /** Present each category or application rule beside a Korean example. */
@@ -603,9 +603,9 @@ function TypeTable({ title, typeHeading = 'Type', rows }: { title: string; typeH
   return <div className="table-wrap intro-table"><table aria-label={title}>
     <thead><tr><th scope="col">{typeHeading}</th><th scope="col">Korean</th><th scope="col">English</th></tr></thead>
     <tbody>{rows.map(([label, korean, english, focus]) => <tr key={label}>
-      <th scope="row">{isIntroTerm(label) ? <GrammarLabel term={label} /> : label}</th>
+      <th scope="row">{isIntroTerm(label) ? <GrammarLabel term={label} /> : spokenText(label)}</th>
       <td><Korean>{korean}</Korean></td>
-      <td><em>{english}</em><WordGlosses korean={korean} english={english} /><p><ExplainExample focus={focus} /></p></td>
+      <td><em>{spokenText(english)}</em><WordGlosses korean={korean} english={english} /><p><ExplainExample focus={focus} /></p></td>
     </tr>)}</tbody>
   </table></div>
 }
@@ -616,7 +616,7 @@ type ParticleEquationParts = readonly [base: GlossedPart, particle: GlossedPart,
 /** Keep each English gloss beneath its Korean form as the equation narrows. */
 function ParticleEquation({ parts: [base, particle, result] }: { parts: ParticleEquationParts }) {
   function term([korean, english]: GlossedPart) {
-    return <span className="equation-term"><Korean>{korean}</Korean><em>{english}</em></span>
+    return <span className="equation-term"><Korean>{korean}</Korean><em>{spokenText(english)}</em></span>
   }
   return <div className="particle-equation">
     {term(base)}<span>+</span>{term(particle)}<span>=</span>{term(result)}
@@ -635,7 +635,7 @@ function ApplicationChecks({ unit, particles, conjugates, note, examples, showRu
       <div><dt>Does {unit} conjugate?</dt><dd>{conjugates ? 'Yes' : 'No'}</dd></div>
     </dl>
     {showRulesHeading && <h3>Particle rules</h3>}
-    <p>{note}</p>
+    <p>{spokenText(note)}</p>
     {examples.map(([parts, focus, sentence]) => <div key={parts[2][0]} className="intro-check-example">
       <ExampleNumber />
       <ParticleEquation parts={parts} />

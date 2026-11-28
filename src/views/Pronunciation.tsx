@@ -60,7 +60,7 @@ function SoundPractice({ mode }: { mode: Mode }) {
     }, () => {
       setPlaying(false)
       setAudioError('Audio unavailable. Retry or show the pronunciation.')
-    })
+    }, { onCancel: () => setPlaying(false) })
   }
 
   /** Record the answer and return focus to playback for the next card. */
@@ -84,7 +84,7 @@ function SoundPractice({ mode }: { mode: Mode }) {
     </div>
     {card ? <>
       <div className="recall-face pronunciation-face">
-        <h2 className="recall-word"><Korean>{card.prompt}</Korean></h2>
+        <h2 className="recall-word"><button type="button" className="spoken-word" lang="ko" title="Play Korean pronunciation" onClick={() => play(card.sound)}>{card.prompt}</button></h2>
       </div>
       <p className="pronunciation-note">{mode === 'consonants'
         ? <>Listen for the consonant in a syllable with <Korean>ㅡ</Korean>.</>

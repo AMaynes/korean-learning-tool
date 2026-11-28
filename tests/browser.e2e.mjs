@@ -320,7 +320,11 @@ describe('deployed study workflow', { concurrency: false }, () => {
     assert.equal(await fullSentence.count(), 1)
     assert.deepEqual(await fullSentence.locator('dd [lang="ko"]').allTextContents(), ['저는', '밥을', '먹어요.'])
     assert.deepEqual(await fullSentence.locator('dd small').allTextContents(), ['I', 'rice', 'eat'])
-    assert.deepEqual(await fullSentence.getByRole('button').allTextContents(), ['Topic', 'Object', 'Predicate'])
+    assert.deepEqual(await fullSentence.locator('.intro-grammar-label').allTextContents(), ['Topic', 'Object', 'Predicate'])
+    const markedWord = fullSentence.locator('figcaption').getByRole('button', { name: '밥을', exact: true })
+    await markedWord.focus()
+    await page.keyboard.press('Enter')
+    assert.equal(await page.evaluate(() => window.lastPronunciation), '밥을')
     const glossaryLabels = new Set((await page.locator('.intro-grammar-label').allTextContents()).map(label => label.toLowerCase()))
     assert.deepEqual([...glossaryLabels].sort(), [
       'adjective', 'adverb', 'batchim', 'coda', 'determiners', 'modifiers', 'nominals',
@@ -578,12 +582,16 @@ describe('deployed study workflow', { concurrency: false }, () => {
 
   it('opens a themed library list as flashcards', async () => {
     const page = await browser.newPage()
+    await mockKoreanAudio(page)
     await page.goto(projectPage + '#library')
     await select(page, 'Category', 'topics-ordering')
     await page.getByRole('rowheader', { name: '커피 주세요', exact: true }).waitFor()
     await page.getByRole('link', { name: 'Practice this list' }).click()
     await page.getByRole('button', { name: 'Flip card' }).click()
-    await page.locator('.recall-face').getByText('카페', { exact: true }).waitFor()
+    const word = page.locator('.recall-face').getByRole('button', { name: '카페', exact: true })
+    await word.click()
+    assert.equal(await page.evaluate(() => window.lastPronunciation), '카페')
+    assert.equal(await word.isVisible(), true)
     await page.close()
   })
 
@@ -686,6 +694,7 @@ describe('deployed study workflow', { concurrency: false }, () => {
 
   it('opens either grammar reference while decoding a passage without submitting the guesses', async () => {
     const page = await browser.newPage({ viewport: { width: 375, height: 760 } })
+    await mockKoreanAudio(page)
     await page.goto(projectPage + '#reading')
     await page.getByLabel('Korean text').fill('밥을 먹고 물을 마셔요.')
     await page.getByRole('button', { name: 'Start reading' }).click()
@@ -698,6 +707,10 @@ describe('deployed study workflow', { concurrency: false }, () => {
     ]) {
       await page.getByRole('button', { name: button }).click()
       await popup.getByRole('tab', { name: tab, selected: true }).waitFor()
+      const word = popup.locator('.grammar-equation .spoken-word').first()
+      await word.click()
+      assert.equal(await page.evaluate(() => window.lastPronunciation), await word.innerText())
+      assert.equal(await popup.locator('.grammar-detail').count(), 0)
       await popup.locator('.grammar-disclosure').first().click()
       assert.equal(await popup.locator('.grammar-detail li').count(), 5)
       await popup.getByRole('tab', { name: other }).click()
@@ -800,10 +813,10 @@ describe('deployed study workflow', { concurrency: false }, () => {
     assert.equal(await shopping.getByRole('row').count(), 9)
     await page.setViewportSize({ width: 360, height: 800 })
     const wordAudio = page.waitForResponse(response => response.url().endsWith('/ko-f1-bb3c-20-c8fc-c138-c694.mp3'))
-    await ordering.getByRole('button', { name: '물 주세요', exact: true }).click()
+    await ordering.getByRole('button', { name: '물 주세요 · Play full entry', exact: true }).click()
     assert.equal((await wordAudio).ok(), true)
     assert.equal(await words.evaluate(el => el.open), true)
-    const term = await ordering.getByRole('rowheader', { name: '물 주세요', exact: true }).boundingBox()
+    const term = await ordering.getByRole('rowheader').filter({ has: page.getByRole('button', { name: '물 주세요 · Play full entry', exact: true }) }).boundingBox()
     const meaning = await ordering.getByRole('cell', { name: 'water, please', exact: true }).boundingBox()
     assert.ok(term && meaning && term.x < meaning.x && Math.abs(term.y - meaning.y) < 1)
     assert.ok(meaning.x + meaning.width <= 360)

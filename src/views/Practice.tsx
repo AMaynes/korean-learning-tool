@@ -16,7 +16,7 @@ import { generate, matchesAnswer, matchesEnglishAnswer, shuffle, toEnglishPracti
 import type { Exercise, RecallDirection } from '../engine/exercises'
 import { addScore } from '../engine/storage'
 import type { PracticeMode, StudyState } from '../engine/storage'
-import { ActiveConfig, AnswerForm, DirectionSwitch, Empty, Icon, Korean, speakKorean, stopKoreanAudio, StandalonePronunciationNote, Transform } from './shared'
+import { ActiveConfig, AnswerForm, DirectionSwitch, Empty, Icon, Korean, spokenText, speakKorean, stopKoreanAudio, StandalonePronunciationNote, Transform } from './shared'
 import type { Save, SelectList } from './shared'
 
 const grammarModes = ['particles', 'conjugations', 'writing', 'decoding'] as const
@@ -56,6 +56,7 @@ export function Practice({ module, active, lists, state, onSelect, save }: {
   const grammarMode = mode === 'particles' || mode === 'conjugations' ? mode : null
   const ruleList = grammarMode ? active[grammarMode] : undefined
   const focus = grammarMode ? state.grammarFocus?.[grammarMode] ?? '' : ''
+  const focusedRule = ruleList?.entries.find(entry => entry.id === focus)
   const families = grammarMode ? practiceFamilies[grammarMode] : undefined
   const exercises = useMemo(() => {
     let vocabulary = active
@@ -105,6 +106,7 @@ export function Practice({ module, active, lists, state, onSelect, save }: {
               <option value={focus} disabled>Selected form outside active list</option>}
           </select>
         </label>}
+        {focusedRule && <Korean>{focusedRule.korean}</Korean>}
         {mode !== 'decoding' && <DirectionSwitch direction={direction} onChange={setDirection} forwardLabel={forwardLabels[mode]} />}
         {exercises.length ? <PracticeSession
           key={`${mode}:${direction}:${scopeKey}:${scope}:${focus}:${revision}:${exerciseKey}`}
@@ -192,17 +194,17 @@ function DecodingCard({ exercise, number, total, advance, save }: {
     <div className="exercise-prompt"><h2><Korean>{exercise.answer}.</Korean></h2>
       <p>Give each word’s meaning, then translate the full sentence into natural English.</p></div>
     <form className="answer-form" onSubmit={event => { event.preventDefault(); setReview(true) }}>
-      <div className="decode-words">{words.map((word, index) => <label className="field" key={index}>
+      <div className="decode-words">{words.map((word, index) => <div className="field" key={index}>
         <Korean>{word}</Korean>
         <input aria-label={word + ' meaning'} value={answers[index]} readOnly={review}
           onChange={event => setAnswers(answers.map((old, i) => i === index ? event.target.value : old))} />
-        {review && <em>{exercise.wordMeanings![index]}</em>}
-      </label>)}</div>
+        {review && <em>{spokenText(exercise.wordMeanings![index])}</em>}
+      </div>)}</div>
       <label className="field">Whole sentence meaning<textarea value={translation} readOnly={review}
         onChange={event => setTranslation(event.target.value)} /></label>
       {!review && <button className="button primary" disabled={!translation.trim() || answers.some(value => !value.trim())}>Check meanings</button>}
     </form>
-    {review && <div className="feedback"><strong>Example translation</strong><p>{exercise.prompt}</p><p>{exercise.explanation}</p>
+    {review && <div className="feedback"><strong>Example translation</strong><p>{exercise.prompt}</p><p>{spokenText(exercise.explanation ?? '')}</p>
       <p>Did you get every word and the full meaning? Equivalent English wording counts.</p>
       <div className="button-row"><button className="button primary" disabled={busy} onClick={() => void finish(true)}>Got it · Next</button>
         <button className="button" disabled={busy} onClick={() => void finish(false)}>Missed something · Next</button></div>
@@ -257,7 +259,7 @@ function ExerciseCard({ mode, reading, exercise, number, total, save, advance }:
   return <article className="panel exercise-panel">
     <div className="card-meta"><span>{labels[mode]}</span><span>Exercise {number} of {total}</span></div>
     <div className="exercise-prompt">
-      <span className="eyebrow">{exercise.cue}</span>
+      <span className="eyebrow">{spokenText(exercise.cue)}</span>
       <h2>{prompt}</h2>
       {exercise.transformation && !reading && <>
         <StandalonePronunciationNote word={exercise.prompt} />
@@ -286,7 +288,7 @@ function ExerciseCard({ mode, reading, exercise, number, total, save, advance }:
           </div>
           {dictation && <p>{exercise.translation ?? exercise.prompt}</p>}
         </>}
-        <p className="inline-note">{exercise.explanation}</p>
+        <p className="inline-note">{spokenText(exercise.explanation ?? '')}</p>
       </>}
     </div>
     {result === 'different' && !manualReview && <div className="button-row">
@@ -315,7 +317,7 @@ function AudioControls({ phrase }: { phrase: string }) {
     speakKorean(phrase, rate, () => setPlaying(false), () => {
       setPlaying(false)
       setAudioError('Playback failed. Try again or use the transcript.')
-    })
+    }, { onCancel: () => setPlaying(false) })
   }
 
   return <div className="audio-controls">

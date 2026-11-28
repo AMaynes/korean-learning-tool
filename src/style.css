@@ -504,3 +504,10 @@ td [lang="ko"] { color: var(--accent); font-weight: 650; }
 .palace-words .text-button svg { flex-shrink: 0; color: var(--muted); }
 .palace-words td { color: var(--muted); }
 .palace-words tr:last-child > * { border-bottom: 0; }
+
+button.spoken-word {
+  display: inline; padding: 0; margin: 0; border: 0; background: transparent;
+  color: inherit; font: inherit; line-height: inherit; letter-spacing: inherit;
+  text-align: inherit; cursor: pointer; vertical-align: baseline;
+}
+button.spoken-word:is(:hover, :focus-visible) { text-decoration: underline; text-underline-offset: .15em; }

@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { canTranslateOnDevice, openDeviceTranslator, readingChunks, readingSentences, translateReading } from '../engine/reading'
+import { canTranslateOnDevice, openDeviceTranslator, readingSentences, translateReading } from '../engine/reading'
 import { analyzePastedSentences } from '../engine/pastedGrammar'
 import { readingBreakdowns, readingToken, type Breakdown } from '../engine/readingGrammar'
 import { generatePassage, reviewedSentence, readingAudioPrompts } from '../engine/readingPassages'
 import { GrammarList } from './GrammarList'
-import { Icon, Korean, speakKorean, stopKoreanAudio } from './shared'
+import { Icon, Korean, spokenText, speakKorean, stopKoreanAudio } from './shared'
 
 export function Reading() {
   const [text, setText] = useState('')
@@ -85,71 +85,16 @@ function ReadingSheet({ sentences, edit }: { sentences: string[]; edit: () => vo
     void analyzePastedSentences(pasted).then(result => { if (active) setAnalysis(result) }).catch(() => {})
     return () => { active = false }
   }, [submitted, sentences])
-  const speech = useRef<SpeechSynthesisUtterance | null>(null)
-  const playback = useRef(0)
-  const player = useRef<HTMLAudioElement | null>(null)
-  useEffect(() => { window.speechSynthesis?.getVoices() }, [])
   useEffect(() => () => {
     request.current?.abort()
-    playback.current++
-    if (speech.current) window.speechSynthesis.cancel()
     stopKoreanAudio()
-    player.current?.pause()
-    player.current = null
   }, [])
 
   function play(text: string) {
-    const id = ++playback.current
-    if (speech.current) { speech.current = null; window.speechSynthesis.cancel() }
-    player.current?.pause()
-    player.current = null
-    stopKoreanAudio()
     setSoundError(false)
     const clip = reviewedSentence(text)?.korean ?? readingToken(text)
-    function online() {
-      if (id !== playback.current) return
-      const audio = new Audio()
-      player.current = audio
-      const chunks = readingChunks(text, 180)
-      let handled = false
-      function failed() {
-        if (id !== playback.current || handled) return
-        handled = true
-        const synth = window.speechSynthesis
-        const voice = synth?.getVoices().find(voice => /^ko(?:-|_|$)/i.test(voice.lang) &&
-          /yuna|yu-na|sora|sunhi|heami|heera|jina|유나|여성|female|google 한국/i.test(voice.name))
-        if (!voice) { setSoundError(true); return }
-        const utterance = new SpeechSynthesisUtterance(currentChunk)
-        speech.current = utterance
-        utterance.lang = 'ko-KR'
-        utterance.voice = voice
-        utterance.onend = () => {
-          if (id !== playback.current) return
-          speech.current = null
-          next()
-        }
-        utterance.onerror = () => {
-          if (id !== playback.current) return
-          speech.current = null
-          setSoundError(true)
-        }
-        synth.speak(utterance)
-      }
-      let currentChunk = ''
-      function next() {
-        if (id !== playback.current || !chunks.length) return
-        handled = false
-        currentChunk = chunks.shift()!
-        const params = new URLSearchParams({ client: 'tw-ob', tl: 'ko', q: currentChunk })
-        audio.src = 'https://translate.google.com/translate_tts?' + params
-        void audio.play().catch(failed)
-      }
-      audio.onended = next
-      audio.onerror = failed
-      next()
-    }
-    if (readingAudioPrompts.has(clip)) speakKorean(clip, 1, () => {}, online)
-    else online()
+    speakKorean(text, 1, () => {}, () => setSoundError(true),
+      { fallback: true, clip: readingAudioPrompts.has(clip) ? clip : null })
   }
 
   async function submit(onDevice = false) {
@@ -212,7 +157,7 @@ function ReadingSheet({ sentences, edit }: { sentences: string[]; edit: () => vo
           <p>Korea’s Grades 1–2 curriculum emphasizes reading aloud accurately and grouping words by meaning.
             In Grades 3–4, the goal is to read fluently while understanding the text. These goals have no WPM cutoff. <a href="https://www.moe.go.kr/boardCnts/viewRenew.do?boardID=141&boardSeq=93458&lev=0&m=0302" target="_blank" rel="noreferrer">National Korean language curriculum</a></p>
           <p>The study timed 10 children per grade reading a grade-specific story aloud. It counted correctly read
-            word groups (어절) in one minute. The timer counts every space-separated group you mark, including mistakes.
+            word groups (<Korean>어절</Korean>) in one minute. The timer counts every space-separated group you mark, including mistakes.
             Passage difficulty and short timings can change your score. For silent reading, compare your own times on similar passages. <a href="https://www.jslhd.org/_PR/view/?aidx=24108&bidx=1977" target="_blank" rel="noreferrer">Study, Table 7 (RA-RCP story)</a></p>
         </details>
       </>}
@@ -227,7 +172,7 @@ function ReadingSheet({ sentences, edit }: { sentences: string[]; edit: () => vo
           onClick={() => {
             if (marking && position !== null) { setLastWord(position); setMarking(false) }
             else play(word)
-          }}><strong><Korean>{word}</Korean></strong></button>
+          }}><strong lang="ko">{word}</strong></button>
         <input aria-label={word + ' meaning'} placeholder="Your guess" />
         {submitted && readingToken(word) && <>
           <small className="reading-gloss">{reviewed?.glosses[j] ?? meanings[word] ?? (failed ? 'Translation unavailable' : '')}</small>
@@ -263,7 +208,7 @@ function WordFormation({ word, reviewed, inferred }: { word: string; reviewed: b
       {!result.parts.length ? <>Base form · <Korean>{result.base}</Korean></> : <>
         {result.base !== result.stem && <div>Dictionary form · <Korean>{result.base}</Korean></div>}
         <div className="reading-equation"><Korean>{[result.stem, ...result.parts.map(part => part.form.replace(/^-/, ''))].join(' + ')} → {readingToken(word)}</Korean></div>
-        {result.parts.map(part => <div key={part.form}><Korean>{part.form}</Korean> · {part.role}</div>)}
+        {result.parts.map(part => <div key={part.form}><Korean>{part.form}</Korean> · {spokenText(part.role)}</div>)}
       </>}
     </div>)}
   </div>

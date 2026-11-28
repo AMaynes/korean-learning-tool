@@ -494,6 +494,8 @@ td [lang="ko"] { color: var(--accent); font-weight: 650; }
 .palace-reference > summary { padding: 10px 12px; cursor: pointer; }
 .palace-reference[open] > summary { border-bottom: 1px solid var(--line); }
 .palace-words { display: grid; gap: 16px; padding: 12px; }
+.palace-word-stage { display: grid; gap: 12px; }
+.palace-word-stage h3 { margin: 0; }
 .palace-words table { table-layout: fixed; }
 .palace-words caption { text-align: left; font-size: 14px; font-weight: 700; padding-bottom: 5px; }
 .palace-words :is(th, td) { padding: 5px 0; overflow-wrap: anywhere; line-height: 1.45; }

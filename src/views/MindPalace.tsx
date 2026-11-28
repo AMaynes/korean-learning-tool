@@ -39,14 +39,14 @@ function PalaceRoute({ route, cues, save }: {
 }) {
   const [index, setIndex] = useState(0)
   const [walk, setWalk] = useState(false)
-  const {room, place, word: entry, cueId} = route[index % route.length]
+  const {stage, room, place, word: entry, cueId} = route[index % route.length]
   return <article className="panel exercise-panel palace">
     <div className="card-meta"><span>Mind Palace</span><span>Stop {index + 1} of {route.length}</span></div>
     <div className="segmented" aria-label="Palace activity">
       <button aria-pressed={!walk} onClick={() => setWalk(false)}>Place words</button>
       <button aria-pressed={walk} onClick={() => { setWalk(true); setIndex(0) }}>Walk the route</button>
     </div>
-    <p className="eyebrow">{room}</p>
+    <p className="eyebrow">{stage && stage + ' · '}{room}</p>
     <h2>{place}</h2>
     <PalaceStop key={cueId + walk} korean={entry.korean} english={entry.english}
       cue={cues[cueId] ?? ''} walk={walk} saveCue={value => save(previous => ({
@@ -60,23 +60,31 @@ function PalaceRoute({ route, cues, save }: {
 
 function MapWordList({ route }: { route: PalaceLandmark[] }) {
   const [showWords, setShowWords] = useState(false)
-  const groups: PalaceLandmark[][] = []
+  const stages: { name?: string; rooms: PalaceLandmark[][] }[] = []
   for (const stop of route) {
-    const last = groups.at(-1)
-    if (last && last[0].room === stop.room) last.push(stop)
-    else groups.push([stop])
+    let stage = stages.at(-1)
+    if (!stage || stage.name !== stop.stage) {
+      stage = { name: stop.stage, rooms: [] }
+      stages.push(stage)
+    }
+    const room = stage.rooms.at(-1)
+    if (room && room[0].room === stop.room) room.push(stop)
+    else stage.rooms.push([stop])
   }
 
   return <details className="palace-reference" onToggle={event => setShowWords(event.currentTarget.open)}>
     <summary>Words in this map ({route.length})</summary>
     {showWords && <div className="palace-words">
-      {groups.map(stops => <table key={stops[0].cueId}>
-        <caption>{stops[0].room}</caption>
-        <tbody>{stops.map(({ cueId, word }) => <tr key={cueId}>
-          <th scope="row"><Korean>{word.korean}</Korean></th>
-          <td><em>{word.english}</em></td>
-        </tr>)}</tbody>
-      </table>)}
+      {stages.map(stage => <div key={stage.name ?? 'map'} className="palace-word-stage">
+        {stage.name && <h3>{stage.name}</h3>}
+        {stage.rooms.map(stops => <table key={stops[0].cueId}>
+          <caption>{stops[0].room}</caption>
+          <tbody>{stops.map(({ cueId, word }) => <tr key={cueId}>
+            <th scope="row"><Korean>{word.korean}</Korean></th>
+            <td><em>{word.english}</em></td>
+          </tr>)}</tbody>
+        </table>)}
+      </div>)}
     </div>}
   </details>
 }

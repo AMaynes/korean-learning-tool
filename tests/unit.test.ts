@@ -311,8 +311,11 @@ describe('mind palace vocabulary', () => {
   })
   it('merges all original sections and restores the selected map and its cues', () => {
     const ids = sceneMaps.flatMap(map => map.sections.map(section => section.id))
-    expect(ids.length).toBe(37)
-    expect(new Set(ids).size).toBe(37)
+    expect(new Set(ids).size).toBe(ids.length)
+    const minecraft = palaceRoute('minecraft-build', undefined, {})
+    expect([...new Set(minecraft.map(stop => stop.stage))]).toEqual(['Menu Pages', 'Early Game', 'Mid Game', 'Late Game'])
+    expect(minecraft.find(stop => stop.cueId === 'stop-minecraft-build-0')?.word.korean).toBe('집')
+    expect(minecraft.find(stop => stop.cueId === 'stop-minecraft-view-0')?.word.korean).toBe('색')
     const palaceCues = { 'stop-outside-0': 'My front steps' }
     const restored = importBackup({ kind: 'korean-study-backup', state: { ...defaults(), activePalace: 'outside', palaceCues } })
     expect(restored.activePalace).toBe('forecast')

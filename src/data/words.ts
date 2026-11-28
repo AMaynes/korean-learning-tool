@@ -79,6 +79,7 @@ export const lexicalLists: WordList[] = [
     ['work', '일하다', 'To work', 'action'], ['exercise', '운동하다', 'To exercise', 'action'],
     ['walk', '걷다', 'To walk', 'action', 'd'], ['listen', '듣다', 'To listen', 'action', 'd'],
     ['help', '돕다', 'To help', 'person', 'b'], ['get-up', '일어나다', 'To get up', 'action'],
+    ['sit', '앉다', 'To sit / sit down', 'action'], ['run', '달리다', 'To run', 'action'],
   ]),
   deck('verbs', 3, 'Travel & conversation', [
     ['ride', '타다', 'To ride / take', 'ride'], ['arrive', '도착하다', 'To arrive', 'motion'],

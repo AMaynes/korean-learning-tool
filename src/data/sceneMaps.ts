@@ -54,7 +54,7 @@ const scenes = {
     ["학교", "school", "Step onto campus and name the place."],
   ] },
   "class": { name: "Sitting down for class", stops: [
-    ["앉아요", "I sit down", "Take your seat."],
+    ["앉아요", "I sit / I sit down", "Take your seat."],
     ["들어요", "I listen", "The lecture starts."],
     ["읽어요", "I read", "Look at the words on the board."],
     ["써요", "I write", "Take notes."],
@@ -71,6 +71,11 @@ const scenes = {
     ["봐요", "I look / watch", "Watch the ducks gather."],
     ["보다", "to see / watch", "Recall the dictionary form of watching."],
     ["좋아요", "it’s good / nice", "Take in how nice it is here."],
+    ["앉아요", "I sit / I sit down", "Sit on the bench beside the pond."],
+    ["읽어요", "I read", "Read a page of your book on the bench."],
+    ["써요", "I write", "Write a note in the margin."],
+    ["일어나요", "I get up", "Stand up from the bench."],
+    ["달려요", "I run", "Run along the path back to class."],
   ] },
   "campus-meal": { name: "Getting lunch", stops: [
     ["배고파요", "I’m hungry", "Your stomach growls between classes."],

@@ -16,9 +16,9 @@ import type { Entry, WordList } from './model'
 // opposites are adjacent even when they came from different decks.
 const vocabularyGroups = {
   'Home, rooms & furniture': '집|집에|방|부엌|화장실|문|창문|침대|소파',
-  'Getting ready & going to bed': '일어나다|일어나요|이를 닦아요|씻어요|입어요|코트|자다|자요',
+  'Getting ready & going to bed': '이를 닦아요|씻어요|입어요|코트|자다|자요',
   'Parks & nature': '공원|나무|오리',
-  'Walking, resting & watching': '걷다|걸어요|쉬어요|쉬세요|보다|봐요|앉아요',
+  'Verbs': '앉다|앉아요|일어나다|일어나요|걷다|걸어요|달리다|달려요|읽다|읽어요|쓰다|써요|쉬어요|쉬세요|보다|봐요',
   'Weather & forecasts': '날씨|날씨가|맑아요|비가 와요|비 올 거예요|눈이 와요|우산',
   'Temperature': '춥다|추워요|오늘 추워요|시원해요|따뜻해요|덥다|더워요|뜨겁다',
   'Time of day & dates': '시간|몇 시예요|세 시예요|아침|어제|오늘|내일|이번 주|다음 주|월요일|금요일|주말',
@@ -36,7 +36,7 @@ const vocabularyGroups = {
   'Directions & distance': '지도|주소|입구|출구|왼쪽|오른쪽|직진|가깝다|멀다',
   'Here, there & where': '여기|거기|저기|어디|여기 있어요|어디예요|지하철 어디예요|화장실이 어디예요',
   'Cities, landmarks & lodging': '한국|서울|서울에서|궁|박물관|호텔|예약|예약하다',
-  'School, supplies & studying': '학교|학교에|가방|책|공부하다|공부해요|배우다|알다|읽다|읽어요|쓰다|써요|듣다|들어요',
+  'School, supplies & studying': '학교|학교에|가방|책|공부하다|공부해요|배우다|알다|듣다|들어요',
   'Work & difficulty': '하다|해요|일하다|바쁘다|쉽다|쉬워요|어렵다|어려워요',
   'Places to eat & drink': '식당|카페|카페에서|메뉴',
   'Meals, dishes & snacks': '음식|밥|비빔밥|불고기|라면|김치|빵|쿠키',

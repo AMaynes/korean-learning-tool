@@ -33,7 +33,10 @@ describe('vocabulary registry', () => {
     const outdoors = libraryGroups(activeLists({ topics: 'topics-forecast' }).topics)
     const wordsIn = (name: string) => outdoors.find(group => group.name === name)?.entries.map(entry => entry.korean)
     expect(wordsIn('Parks & nature')).toEqual(['공원', '나무', '오리'])
-    expect(wordsIn('Walking, resting & watching')?.slice(0, 2)).toEqual(['걷다', '걸어요'])
+    expect(wordsIn('Verbs')).toEqual([
+      '앉다', '앉아요', '일어나다', '일어나요', '걷다', '걸어요', '달리다', '달려요',
+      '읽다', '읽어요', '쓰다', '써요', '쉬어요', '보다', '봐요',
+    ])
     expect(wordsIn('Temperature')).toContain('더워요')
     const full = libraryGroups(activeLists({ topics: 'topics-all' }).topics)
     const homonyms = full.flatMap(group => group.entries.filter(entry => entry.korean === '차')

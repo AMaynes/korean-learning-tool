@@ -88,7 +88,7 @@ for (const list of lexicalLists) {
   }
 }
 for (const [type, bases] of [
-  ['verb', '닦다 씻다 입다 만나다 쉬다 앉다 공부하다 놀다 만들다 놓다 주다 전화하다 잃어버리다'],
+  ['verb', '닦다 씻다 입다 만나다 쉬다 공부하다 놀다 만들다 놓다 주다 전화하다 잃어버리다'],
   ['adjective', '고프다 맑다 따뜻하다 시원하다 아프다 달다 필요하다 괜찮다 미안하다 위험하다 긴급하다'],
 ] as const) {
   for (const base of bases.split(' ')) addPredicate({ id: base, korean: base, english: '' }, type)

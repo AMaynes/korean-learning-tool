@@ -5,7 +5,7 @@ import { lexicalLists } from './words'
 // Older entries that are not already stops in the maps, grouped by familiar use.
 const relatedWords: Record<string, string[]> = {
   morning: ['있다', '없다', '일어나다', '편하다', '항상'],
-  forecast: ['걷다', '춥다', '덥다', '조용하다', '천천히'],
+  forecast: ['걷다', '앉다', '일어나다', '달리다', '읽다', '쓰다', '춥다', '덥다', '조용하다', '천천히'],
   commute: ['가방', '책', '읽다', '쓰다', '배우다', '듣다', '알다', '어렵다', '쉽다', '바쁘다', '하다', '어제'],
   'campus-meal': ['음식', '맛있다', '뜨겁다', '많다', '적다', '차'],
   gym: ['운동하다', '피곤하다', '자주', '빠르다', '느리다'],
